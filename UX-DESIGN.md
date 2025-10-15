@@ -7,7 +7,7 @@ https://www.figma.com/proto/nVl1mry4LBLhwUrubcmduo/random_truthteller---Wirefram
 
 ## App Map Diagram:
 
-![App map diagram](ux-design/App__Map.png)
+![App Map Diagram](ux-design/App__Map.png)
 
 ## Wireframes
 
@@ -17,11 +17,15 @@ https://www.figma.com/proto/nVl1mry4LBLhwUrubcmduo/random_truthteller---Wirefram
 
 ### Course Search
 
-![Course Search Wireframe](ux-design/Wireframes-Course Search.png)
+![Course Search Wireframe](ux-design/Wireframes-Course%20Search.png)
 
 ### Course Details
 
-![Course Details Wireframe](ux-design/Wireframes-Course Details.png)
+![Course Details Wireframe](ux-design/Wireframes-Course%20Details.png)
+
+### Course Reviews
+
+![Course Reviews Wireframe](ux-design/Wireframes-Course%20Reviews.png)
 
 ### Dashboard
 
@@ -29,11 +33,11 @@ https://www.figma.com/proto/nVl1mry4LBLhwUrubcmduo/random_truthteller---Wirefram
 
 ### Saved Schedules
 
-![Saved Schedules Wireframe](ux-design/Wireframes-Saved Schedules.png)
+![Saved Schedules Wireframe](ux-design/Wireframes-Saved%20Schedules.png)
 
 ### Prof Reviews
 
-![Prof Reviews Wireframe](ux-design/Wireframes-Prof Reviews.png)
+![Prof Reviews Wireframe](ux-design/Wireframes-Prof%20Reviews.png)
 
 ### Login
 
@@ -47,3 +51,6 @@ https://www.figma.com/proto/nVl1mry4LBLhwUrubcmduo/random_truthteller---Wirefram
 
 ![Settings Wireframe](ux-design/Wireframes-Settings.png)
 
+### Write Review
+
+![Write Review Wireframe](ux-design/Wireframes-Write%20Review.png)
