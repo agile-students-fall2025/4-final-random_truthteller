@@ -3,12 +3,23 @@ import "./CourseSearch.css";
 
 function CourseSearch() {
   const [query, setQuery] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [selectedMajor, setSelectedMajor] = useState("");
+  
 
-  //placeholder for when user clicks "Search"
+  //placeholder for search function
   const handleSearch = (e) => {
     e.preventDefault();
-    //for NOW, we just log what the user typed
-    console.log("User searched for:", query);
+    console.log("User searched for:", query, "in", selectedMajor || "All majors");
+  };
+
+  const toggleFilter = () => {
+    setShowFilter(!showFilter);
+  };
+
+  const handleMajorSelect = (major) => {
+    setSelectedMajor(major);
+    setShowFilter(false);
   };
 
   return (
@@ -26,11 +37,41 @@ function CourseSearch() {
         <button type="submit" className="search-button">
           Search
         </button>
+
+        <button type="button" onClick={toggleFilter} className="filter-button">
+          Filter / Sort
+        </button>
       </form>
 
-      {/*Placeholder section for results later*/}
+      {showFilter && (
+        <div className="filter-popup">
+          <h3>Filter by Major</h3>
+          <ul>
+            {["Computer Science", "Biology", "Mathematics", "Economics"].map(
+              (major) => (
+                <li key={major}>
+                  <button
+                    className="major-option"
+                    onClick={() => handleMajorSelect(major)}
+                  >
+                    {major}
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
+          <button onClick={toggleFilter} className="close-popup">
+            Close
+          </button>
+        </div>
+      )}
+
       <div className="results-placeholder">
-        <p>Search results will appear here.</p>
+        <p>
+          {selectedMajor
+            ? `Showing courses for ${selectedMajor}`
+            : "Search results will appear here."}
+        </p>
       </div>
     </div>
   );
