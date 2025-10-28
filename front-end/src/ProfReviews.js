@@ -3,12 +3,23 @@ import "./ProfReviews.css";
 
 function ProfReviews() {
   const [query, setQuery] = useState("");
+  const [showFilter, setShowFilter] = useState(false);
+  const [selectedCondition, setSelectedCondition] = useState("");
 
   //placeholder for when user clicks "Search"
   const handleSearch = (e) => {
     e.preventDefault();
     //for NOW, we just log what the user typed
     console.log("User searched for:", query);
+  };
+
+  const toggleFilter = () => {
+    setShowFilter(!showFilter);
+  };
+
+  const conditionSelect = (condition) => {
+    setSelectedCondition(condition);
+    setShowFilter(false);
   };
 
   return (
@@ -26,11 +37,42 @@ function ProfReviews() {
         <button type="submit" className="search-button">
           Search
         </button>
+
+        <button type="button" onClick={toggleFilter} className="filter-button">
+          Sort by
+        </button>
       </form>
 
-      {/*Placeholder section for results later*/}
+      {showFilter && (
+        <div className="filter-popup">
+          <h3>Sort by</h3>
+          <ul>
+            {["Newest First", "Oldest First", "Most Positive First", "Most Negative First"].map(
+              (condition) => (
+                <li key={condition}>
+                  <button
+                    className="condition-option"
+                    onClick={() => conditionSelect(condition)}
+                  >
+                    {condition}
+                  </button>
+                </li>
+              )
+            )}
+          </ul>
+          <button onClick={toggleFilter} className="close-popup">
+            Close
+          </button>
+        </div>
+      )}
+
+      {/*placeholder section for results later*/}
       <div className="results-placeholder">
-        <p>Search results will appear here.</p>
+        <p>
+          {selectedCondition
+            ? `Showing reviews sorted by ${selectedCondition}`
+            : "Search results will appear here."}
+        </p>
       </div>
     </div>
   );
