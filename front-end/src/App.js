@@ -1,20 +1,60 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
 import Home from "./Home";
+import Login from "./Login";
 import CourseSearch from "./CourseSearch";
 import CourseReviews from "./CourseReviews";
 import ProfReviews from "./ProfReviews";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/courses" element={<CourseSearch />} />
-          <Route path="/course-reviews" element={<CourseReviews />} />
-          <Route path="/prof-reviews" element={<ProfReviews />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route
+            path="/courses"
+            element={
+              isAuthenticated ? (
+                <CourseSearch />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/course-reviews"
+            element={
+              isAuthenticated ? (
+                <CourseReviews />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/prof-reviews"
+            element={
+              isAuthenticated ? (
+                <ProfReviews />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
         </Routes>
       </div>
     </Router>
