@@ -118,3 +118,16 @@
   font-size: 1.125rem;
   color: #333;
 }
+
+.back-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
