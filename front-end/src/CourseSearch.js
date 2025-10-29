@@ -5,12 +5,16 @@ function CourseSearch() {
   const [query, setQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState("");
-  
 
   //placeholder for search function
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log("User searched for:", query, "in", selectedMajor || "All majors");
+    console.log(
+      "User searched for:",
+      query,
+      "in",
+      selectedMajor || "All majors",
+    );
   };
 
   const toggleFilter = () => {
@@ -57,7 +61,7 @@ function CourseSearch() {
                     {major}
                   </button>
                 </li>
-              )
+              ),
             )}
           </ul>
           <button onClick={toggleFilter} className="close-popup">
