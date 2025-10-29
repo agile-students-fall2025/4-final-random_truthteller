@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./Reviews.css";
 import { fetchCourseReviews, fetchProfReviews } from "./mockData";
 
 function Reviews() {
   const { type, name } = useParams();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   // TODO: use this for sorting reviews
@@ -58,6 +59,13 @@ function Reviews() {
 
   return (
     <div className="reviews-page">
+      <button
+        type="button"
+        className="back-button"
+        onClick={() => navigate(-1)}
+      >
+        ←
+      </button>
       <h1>
         {decodedName ? `Reviews for: ${decodedName}` : `${pageTitle} Reviews`}
       </h1>
