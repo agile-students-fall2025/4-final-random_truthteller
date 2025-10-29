@@ -47,18 +47,21 @@ function CourseReviews() {
         <div className="filter-popup">
           <h3>Sort by</h3>
           <ul>
-            {["Newest First", "Oldest First", "Most Positive First", "Most Negative First"].map(
-              (condition) => (
-                <li key={condition}>
-                  <button
-                    className="condition-option"
-                    onClick={() => conditionSelect(condition)}
-                  >
-                    {condition}
-                  </button>
-                </li>
-              )
-            )}
+            {[
+              "Newest First",
+              "Oldest First",
+              "Most Positive First",
+              "Most Negative First",
+            ].map((condition) => (
+              <li key={condition}>
+                <button
+                  className="condition-option"
+                  onClick={() => conditionSelect(condition)}
+                >
+                  {condition}
+                </button>
+              </li>
+            ))}
           </ul>
           <button onClick={toggleFilter} className="close-popup">
             Close
