@@ -109,11 +109,16 @@ export default function Dashboard() {
             >
               Search Courses
             </button>
+            <button
+              className="button"
+              type="button"
+              onClick={() => navigate("/schedules")}
+            >
+              Select Schedule
+            </button>
             {/* TODO: add the buttons once we have the pages for them and redirect
-            <button className="button" type="button">Select Schedule</button>
             <button className="button" type="button">Settings</button>
-            <button className="button" type="button">Export Schedule</button>
-            */}
+            <button className="button" type="button">Export Schedule</button> */}
           </div>
         </header>
 

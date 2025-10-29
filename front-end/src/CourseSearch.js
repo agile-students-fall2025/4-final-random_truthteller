@@ -75,6 +75,13 @@ function CourseSearch() {
 
   return (
     <div className="course-search-page">
+      <button
+        type="button"
+        className="back-button"
+        onClick={() => navigate(-1)}
+      >
+        ←
+      </button>
       <h1>Course Search</h1>
 
       <div className="search-form">
