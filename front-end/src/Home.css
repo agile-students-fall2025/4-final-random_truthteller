@@ -6,7 +6,26 @@
   min-height: 100vh;
 }
 
-.home-page h1 {
+.home-hero {
+  max-width: 800px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.home-title {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.home-subtitle {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.home-blurb {
+  font-size: 1rem;
+  color: #333;
   margin-bottom: 2rem;
 }
 
@@ -17,8 +36,35 @@
   color: white;
   border: none;
   cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease, transform 0.05s ease;
 }
 
 .home-button:hover {
   background: #555;
+}
+
+.home-button:active {
+  transform: translateY(1px);
+}
+
+.home-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.highlight {
+  padding: 1.25rem;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.highlight h3 {
+  margin-bottom: 0.5rem;
 }
