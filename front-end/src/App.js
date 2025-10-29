@@ -11,6 +11,7 @@ import Login from "./Login";
 import CourseSearch from "./CourseSearch";
 import CourseReviews from "./CourseReviews";
 import ProfReviews from "./ProfReviews";
+import Dashboard from "./Dashboard"; 
 
 function App() {
   // check if user is authenticated
@@ -67,6 +68,7 @@ function App() {
               )
             }
           />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>
