@@ -7,6 +7,8 @@ function CourseSearch() {
   const [query, setQuery] = useState("");
   const [courses, setCourses] = useState([]);
   const [displayedCourses, setDisplayedCourses] = useState([]);
+  const [showFilter, setShowFilter] = useState(false);
+  const [selectedMajor, setSelectedMajor] = useState("");
   const navigate = useNavigate();
 
   // fetch courses from Mockaroo
@@ -62,6 +64,15 @@ function CourseSearch() {
     navigate(`/reviews/course/${encodeURIComponent(courseName)}`);
   };
 
+  const toggleFilter = () => {
+    setShowFilter(!showFilter);
+  };
+
+  const handleMajorSelect = (major) => {
+    setSelectedMajor(major);
+    setShowFilter(false);
+  };
+
   return (
     <div className="course-search-page">
       <h1>Course Search</h1>
@@ -74,7 +85,33 @@ function CourseSearch() {
           onChange={(e) => setQuery(e.target.value)}
           className="search-input"
         />
+        <button type="button" onClick={toggleFilter} className="filter-button">
+          Filter / Sort
+        </button>
       </div>
+
+      {showFilter && (
+        <div className="filter-popup">
+          <h3>Filter by Major</h3>
+          <ul>
+            {["Computer Science", "Biology", "Mathematics", "Economics"].map(
+              (major) => (
+                <li key={major}>
+                  <button
+                    className="major-option"
+                    onClick={() => handleMajorSelect(major)}
+                  >
+                    {major}
+                  </button>
+                </li>
+              ),
+            )}
+          </ul>
+          <button onClick={toggleFilter} className="close-popup">
+            Close
+          </button>
+        </div>
+      )}
 
       <div className="courses-list">
         {displayedCourses.map((course) => (
