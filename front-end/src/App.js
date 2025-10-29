@@ -9,9 +9,8 @@ import "./App.css";
 import Home from "./Home";
 import Login from "./Login";
 import CourseSearch from "./CourseSearch";
-import CourseReviews from "./CourseReviews";
-import ProfReviews from "./ProfReviews";
-import Dashboard from "./Dashboard"; 
+import Dashboard from "./Dashboard";
+import Reviews from "./Reviews";
 
 function App() {
   // check if user is authenticated
@@ -49,26 +48,17 @@ function App() {
             }
           />
           <Route
-            path="/course-reviews"
+            path="/reviews/:type/:name?"
             element={
-              isAuthenticated ? (
-                <CourseReviews />
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
             }
           />
           <Route
-            path="/prof-reviews"
+            path="/dashboard"
             element={
-              isAuthenticated ? (
-                <ProfReviews />
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
             }
           />
-          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>

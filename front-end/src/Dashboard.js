@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -8,11 +9,39 @@ const STEP = 30;
 
 // Placeholder sample data to render the visuals only
 const SAMPLE_EVENTS = [
-  { id: "cs101", title: "CS 101", day: 0, start: "09:00", end: "10:30", room: "Room 204" },
-  { id: "math220", title: "Math 220", day: 2, start: "10:00", end: "11:30", room: "Hall A" },
+  {
+    id: "cs101",
+    title: "CS 101",
+    day: 0,
+    start: "09:00",
+    end: "10:30",
+    room: "Room 204",
+  },
+  {
+    id: "math220",
+    title: "Math 220",
+    day: 2,
+    start: "10:00",
+    end: "11:30",
+    room: "Hall A",
+  },
   // overlap to demonstrate conflict alert + red styling
-  { id: "hist300", title: "Hist 300", day: 2, start: "10:30", end: "11:15", room: "Room 105" },
-  { id: "art110", title: "Art 110", day: 4, start: "13:00", end: "14:00", room: "Studio 3" },
+  {
+    id: "hist300",
+    title: "Hist 300",
+    day: 2,
+    start: "10:30",
+    end: "11:15",
+    room: "Room 105",
+  },
+  {
+    id: "art110",
+    title: "Art 110",
+    day: 4,
+    start: "13:00",
+    end: "14:00",
+    room: "Studio 3",
+  },
 ];
 
 function toMinutes(hhmm) {
@@ -38,7 +67,9 @@ function useConflicts(events) {
 
   const conflicts = [];
   for (const [day, list] of byDay.entries()) {
-    const sorted = [...list].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
+    const sorted = [...list].sort(
+      (a, b) => toMinutes(a.start) - toMinutes(b.start),
+    );
     for (let i = 0; i < sorted.length - 1; i++) {
       const a = sorted[i];
       for (let j = i + 1; j < sorted.length; j++) {
@@ -55,6 +86,8 @@ function useConflicts(events) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   const timeMarks = useMemo(() => {
     const arr = [];
     for (let t = START_MIN; t <= END_MIN; t += STEP) arr.push(t);
@@ -69,15 +102,28 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <h1 className="dashboard-title">Weekly Planner</h1>
           <div className="dashboard-actions">
+            <button
+              className="button"
+              type="button"
+              onClick={() => navigate("/courses")}
+            >
+              Search Courses
+            </button>
+            {/* TODO: add the buttons once we have the pages for them and redirect
             <button className="button" type="button">Select Schedule</button>
             <button className="button" type="button">Settings</button>
             <button className="button" type="button">Export Schedule</button>
+            */}
           </div>
         </header>
 
         <div className="legend">
-          <span><span className="legend-dot event" /> Class</span>
-          <span><span className="legend-dot conflict" /> Conflict</span>
+          <span>
+            <span className="legend-dot event" /> Class
+          </span>
+          <span>
+            <span className="legend-dot conflict" /> Conflict
+          </span>
         </div>
 
         <section className="alerts" aria-live="polite">
@@ -86,8 +132,8 @@ export default function Dashboard() {
           ) : (
             conflicts.map((c, idx) => (
               <div className="alert" key={idx}>
-                Conflict on {DAYS[c.day]}: {c.a.title} ({c.a.start}-{c.a.end}) overlaps with{" "}
-                {c.b.title} ({c.b.start}-{c.b.end})
+                Conflict on {DAYS[c.day]}: {c.a.title} ({c.a.start}-{c.a.end})
+                overlaps with {c.b.title} ({c.b.start}-{c.b.end})
               </div>
             ))
           )}
@@ -124,9 +170,12 @@ export default function Dashboard() {
                     ((toMinutes(e.start) - START_MIN) / (END_MIN - START_MIN)) *
                     (timeMarks.length - 1) *
                     40;
-                  const height = ((toMinutes(e.end) - toMinutes(e.start)) / STEP) * 40;
+                  const height =
+                    ((toMinutes(e.end) - toMinutes(e.start)) / STEP) * 40;
                   const isConflict = conflicts.some(
-                    (c) => c.day === dayIndex && (c.a.id === e.id || c.b.id === e.id),
+                    (c) =>
+                      c.day === dayIndex &&
+                      (c.a.id === e.id || c.b.id === e.id),
                   );
 
                   return (
