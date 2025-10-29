@@ -9,8 +9,6 @@
 }
 
 .search-form {
-  display: flex;
-  gap: 1rem;
   margin-bottom: 2rem;
   max-width: 800px;
   margin-left: auto;
@@ -95,4 +93,28 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+.courses-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.course-card {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.course-card:hover {
+  background: #f5f5f5;
+}
+
+.course-name {
+  margin: 0;
+  font-size: 1.125rem;
+  color: #333;
 }

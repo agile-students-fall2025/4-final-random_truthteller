@@ -8,7 +8,7 @@ function Home() {
   return (
     <div className="home-page">
       <h1>ProfPick</h1>
-      <button onClick={() => navigate("/login")} className="home-button">
+      <button onClick={() => navigate("/dashboard")} className="home-button">
         Get Started
       </button>
     </div>
