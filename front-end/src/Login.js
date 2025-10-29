@@ -17,7 +17,7 @@ function Login({ onLogin }) {
     // TODO: implement actual authentication logic... for now, just simulate successful login
     onLogin?.();
     // TODO: this should point to the homepage/dashboard not courses
-    navigate("/courses");
+    navigate("/dashboard");
   };
 
   const toggleMode = () => {
