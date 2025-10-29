@@ -7,9 +7,8 @@ function Home() {
 
   return (
     <div className="home-page">
-      <h1>Random TruthTeller</h1>
-      {/* TODO: point this to the login page if not authenticated otherwise dashboard */}
-      <button onClick={() => navigate("/courses")} className="home-button">
+      <h1>ProfPick</h1>
+      <button onClick={() => navigate("/login")} className="home-button">
         Get Started
       </button>
     </div>
@@ -17,4 +16,3 @@ function Home() {
 }
 
 export default Home;
-
