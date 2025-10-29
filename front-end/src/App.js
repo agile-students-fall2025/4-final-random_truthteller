@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,7 +13,19 @@ import CourseReviews from "./CourseReviews";
 import ProfReviews from "./ProfReviews";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // check if user is authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
+
+  // use local storage to persist authentication state
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.setItem("isAuthenticated", "true");
+    } else {
+      localStorage.removeItem("isAuthenticated");
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
