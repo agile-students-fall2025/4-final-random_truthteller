@@ -1,0 +1,25 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.home-page h1 {
+  margin-bottom: 2rem;
+}
+
+.home-button {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  background: #333;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.home-button:hover {
+  background: #555;
+}
+
