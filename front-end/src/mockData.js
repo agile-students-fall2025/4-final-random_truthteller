@@ -1,94 +1,11 @@
 // Local fallback data used when Mockaroo is unavailable
 const FALLBACK_COURSES = [
-  {
-    id: 1,
-    courseName: "CS 101 - Intro to CS",
-    code: "CS 101",
-    title: "Intro to Computer Science",
-    description: "An introduction to programming and computational thinking. Covers basics of algorithms, data structures, and problem solving.",
-    credits: 3,
-    department: "Computer Science",
-    instructor: "Dr. Ada Lovelace",
-    sections: [
-      { sectionId: "001", days: "Mon/Wed", time: "9:00 - 10:15", location: "Hall A", instructor: "Dr. Ada Lovelace" },
-      { sectionId: "002", days: "Tue/Thu", time: "13:00 - 14:15", location: "Hall B", instructor: "Prof. Alan Turing" },
-    ],
-  },
-  {
-    id: 2,
-    courseName: "MATH 220 - Calculus II",
-    code: "MATH 220",
-    title: "Calculus II",
-    description: "Limits, integrals, sequences and series, and applications of integration.",
-    credits: 4,
-    department: "Mathematics",
-    instructor: "Prof. Isaac Newton",
-    sections: [
-      { sectionId: "001", days: "Mon/Wed/Fri", time: "10:30 - 11:20", location: "Math Building 1", instructor: "Prof. Isaac Newton" },
-    ],
-  },
-  {
-    id: 3,
-    courseName: "BIO 110 - Biology I",
-    code: "BIO 110",
-    title: "Biology I",
-    description: "Foundations of cellular biology, genetics, and evolution with lab sessions.",
-    credits: 4,
-    department: "Biology",
-    instructor: "Dr. Rosalind Franklin",
-    sections: [
-      { sectionId: "001", days: "Tue/Thu", time: "8:30 - 9:45", location: "Bio Lab 2", instructor: "Dr. Rosalind Franklin" },
-    ],
-  },
-  {
-    id: 4,
-    courseName: "ECON 201 - Microeconomics",
-    code: "ECON 201",
-    title: "Microeconomics",
-    description: "Introduction to supply and demand, consumer choice, and firm behavior.",
-    credits: 3,
-    department: "Economics",
-    instructor: "Prof. Adam Smith",
-    sections: [
-      { sectionId: "001", days: "Mon/Wed", time: "14:00 - 15:15", location: "Econ Hall", instructor: "Prof. Adam Smith" },
-    ],
-  },
-  {
-    id: 5,
-    courseName: "ART 110 - Drawing",
-    code: "ART 110",
-    title: "Drawing",
-    description: "Basic drawing techniques, composition, and observational skills.",
-    credits: 2,
-    department: "Art",
-    instructor: "Ms. Frida Kahlo",
-    sections: [
-      { sectionId: "001", days: "Fri", time: "12:00 - 14:50", location: "Art Studio", instructor: "Ms. Frida Kahlo" },
-    ],
-  },
+  { id: 1, courseName: "CS 101 - Intro to CS" },
+  { id: 2, courseName: "MATH 220 - Calculus II" },
+  { id: 3, courseName: "BIO 110 - Biology I" },
+  { id: 4, courseName: "ECON 201 - Microeconomics" },
+  { id: 5, courseName: "ART 110 - Drawing" },
 ];
-
-// Fetch a single course by id
-export const fetchCourseById = async (id) => {
-  // In a real app we'd fetch from server; here return from fallback or Mockaroo if available
-  try {
-    if (!process.env.REACT_APP_MOCKAROO_API_KEY) {
-      return FALLBACK_COURSES.find((c) => c.id === id) || null;
-    }
-    // If Mockaroo is configured, try to fetch list and find the id
-    const data = await fetchFromMockaroo("courses.json");
-    const parsed = data.map((item, idx) => ({
-      id: parseInt(item.id) || idx,
-      courseName: item.courseName,
-      title: item.title || item.courseName,
-      code: item.code,
-      description: item.description,
-    }));
-    return parsed.find((c) => c.id === id) || null;
-  } catch (err) {
-    return FALLBACK_COURSES.find((c) => c.id === id) || null;
-  }
-};
 
 const FALLBACK_COURSE_REVIEWS = [
   { id: 1, rating: 5, reviewText: "Challenging but fair. Learned a ton.", date: "2024-10-01" },

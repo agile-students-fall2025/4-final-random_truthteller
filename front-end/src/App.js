@@ -9,7 +9,6 @@ import "./App.css";
 import Home from "./Home";
 import Login from "./Login";
 import CourseSearch from "./CourseSearch";
-import CourseDetails from "./CourseDetails";
 import Dashboard from "./Dashboard";
 import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
@@ -44,16 +43,6 @@ function App() {
             element={
               isAuthenticated ? (
                 <CourseSearch />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/courses/:id"
-            element={
-              isAuthenticated ? (
-                <CourseDetails />
               ) : (
                 <Navigate to="/login" replace />
               )
