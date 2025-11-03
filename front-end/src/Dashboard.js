@@ -102,6 +102,13 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <h1 className="dashboard-title">Weekly Planner</h1>
           <div className="dashboard-actions">
+            <button 
+              className="button" 
+              type="button" 
+              onClick={() => navigate("/dashboard-mobile")}
+            >
+              Mobile View
+            </button>
             <button
               className="button"
               type="button"

@@ -9,7 +9,9 @@ import "./App.css";
 import Home from "./Home";
 import Login from "./Login";
 import CourseSearch from "./CourseSearch";
+import CourseDetails from "./CourseDetails";
 import Dashboard from "./Dashboard";
+import DashboardMobile from "./DashboardMobile";
 import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
 import { ThemeProvider } from "./ThemeContext";
@@ -52,6 +54,16 @@ function App() {
               }
             />
             <Route
+              path="/courses/:id"
+              element={
+                isAuthenticated ? (
+                  <CourseDetails />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
               path="/reviews/:type/:name?"
               element={
                 isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
@@ -61,8 +73,14 @@ function App() {
               path="/dashboard"
               element={
                 isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-              }
+            }
             />
+            <Route 
+              path="/dashboard-mobile" 
+              element={
+                <DashboardMobile />
+                } 
+              />
             <Route
               path="/schedules"
               element={
