@@ -58,10 +58,9 @@ function CourseSearch() {
     setDisplayedCourses(filtered);
   }, [query, courses]);
 
-  const handleCourseClick = (courseName) => {
-    // TODO: this should really navigate to the Course Details page (which shows the class sections)
-    // for now, we are navigating directly to that course's reviews page as a placeholder
-    navigate(`/reviews/course/${encodeURIComponent(courseName)}`);
+  const handleCourseClick = (courseId, courseName) => {
+    // Navigate to Course Details page for the selected course
+    navigate(`/courses/${encodeURIComponent(courseId)}`);
   };
 
   const toggleFilter = () => {
@@ -121,15 +120,45 @@ function CourseSearch() {
       )}
 
       <div className="courses-list">
-        {displayedCourses.map((course) => (
-          <div
-            key={course.id}
-            className="course-card"
-            onClick={() => handleCourseClick(course.courseName)}
-          >
-            <h3 className="course-name">{course.courseName}</h3>
-          </div>
-        ))}
+        {displayedCourses.length === 0 ? (
+          <div className="results-placeholder">No courses found.</div>
+        ) : (
+          displayedCourses.map((course) => {
+            // Support richer course objects if available, otherwise derive from courseName
+            const raw = course.courseName || "";
+            const [maybeCode, maybeTitle] = raw.split(" - ", 2);
+            const code = course.code || (maybeTitle ? maybeCode : "");
+            const title = course.title || (maybeTitle ? maybeTitle : raw);
+            const description = course.description || course.shortDescription || "No description available.";
+            const credits = course.credits ? `${course.credits} credits` : "";
+            const instructor = course.instructor || course.professor || "TBA";
+
+            return (
+              <div
+                key={course.id}
+                className="course-card"
+                onClick={() => handleCourseClick(course.id, course.courseName || title)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleCourseClick(course.id, course.courseName || title);
+                  }
+                }}
+              >
+                <div className="course-card-header">
+                  {code && <div className="course-code">{code}</div>}
+                  <h3 className="course-title">{title}</h3>
+                </div>
+                <p className="course-desc">{description}</p>
+                <div className="course-meta">
+                  {credits && <span className="course-credits">{credits}</span>}
+                  <span className="course-instructor">Instructor: {instructor}</span>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
