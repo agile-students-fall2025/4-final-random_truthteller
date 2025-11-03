@@ -12,7 +12,6 @@ import CourseSearch from "./CourseSearch";
 import Dashboard from "./Dashboard";
 import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
-import CourseDetails from "./CourseDetails";
 
 function App() {
   // check if user is authenticated
@@ -44,16 +43,6 @@ function App() {
             element={
               isAuthenticated ? (
                 <CourseSearch />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/courses/:name"
-            element={
-              isAuthenticated ? (
-                <CourseDetails />
               ) : (
                 <Navigate to="/login" replace />
               )

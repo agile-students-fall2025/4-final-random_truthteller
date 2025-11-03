@@ -9,13 +9,10 @@ function Home() {
     <div className="home-page">
       <div className="home-hero">
         <h1 className="home-title">ProfPick</h1>
-        <p className="home-subtitle">
-          Smarter course planning with in‑context professor ratings.
-        </p>
+        <p className="home-subtitle">Smarter course planning with in‑context professor ratings.</p>
         <p className="home-blurb">
-          Build better schedules faster. Compare section times alongside
-          instructor quality so you can make confident decisions during hectic
-          registration windows.
+          Build better schedules faster. Compare section times alongside instructor quality so you can
+          make confident decisions during hectic registration windows.
         </p>
         <button onClick={() => navigate("/login")} className="home-button">
           Sign in to continue
