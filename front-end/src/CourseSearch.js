@@ -59,7 +59,9 @@ function CourseSearch() {
   }, [query, courses]);
 
   const handleCourseClick = (courseName) => {
-    navigate(`/courses/${encodeURIComponent(courseName)}`);
+    // TODO: this should really navigate to the Course Details page (which shows the class sections)
+    // for now, we are navigating directly to that course's reviews page as a placeholder
+    navigate(`/reviews/course/${encodeURIComponent(courseName)}`);
   };
 
   const toggleFilter = () => {
