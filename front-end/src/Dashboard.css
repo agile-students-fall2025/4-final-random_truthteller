@@ -1,8 +1,8 @@
 .dashboard-page {
   min-height: 100vh;
   padding: 2rem;
-  background: #f7f7f9;
-  color: #111;
+  background: var(--bg);
+  color: var(--fg);
 }
 
 .dashboard-container {
@@ -32,8 +32,8 @@
 .button {
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
-  background: #333;
-  color: white;
+  background-color: var(--card-bg);  
+  color: var(--fg);
   border: none;
   border-radius: 10px;
   cursor: pointer;

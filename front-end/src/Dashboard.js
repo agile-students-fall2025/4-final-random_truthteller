@@ -116,8 +116,8 @@ export default function Dashboard() {
             >
               Select Schedule
             </button>
+            <button className="button" type="button" onClick={()=> navigate("/settings")}>Settings</button>
             {/* TODO: add the buttons once we have the pages for them and redirect
-            <button className="button" type="button">Settings</button>
             <button className="button" type="button">Export Schedule</button> */}
           </div>
         </header>

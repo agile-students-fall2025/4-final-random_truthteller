@@ -12,6 +12,8 @@ import CourseSearch from "./CourseSearch";
 import Dashboard from "./Dashboard";
 import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
+import { ThemeProvider } from "./ThemeContext";
+import Settings from "./Settings";
 
 function App() {
   // check if user is authenticated
@@ -33,46 +35,49 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route
-            path="/courses"
-            element={
-              isAuthenticated ? (
-                <CourseSearch />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/reviews/:type/:name?"
-            element={
-              isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/schedules"
-            element={
-              isAuthenticated ? (
-                <SavedSchedules />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-        </Routes>
-      </div>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route
+              path="/courses"
+              element={
+                isAuthenticated ? (
+                  <CourseSearch />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/reviews/:type/:name?"
+              element={
+                isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/schedules"
+              element={
+                isAuthenticated ? (
+                  <SavedSchedules />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route path="/settings" element={isAuthenticated ? ( <Settings />) : (<Navigate to="/login" replace />)}/>
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 

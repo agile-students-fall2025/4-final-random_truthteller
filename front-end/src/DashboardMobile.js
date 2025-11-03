@@ -52,7 +52,7 @@ export default function DashboardMobile() {
         <div className="m-actions">
             <button className="m-btn" type="button" onClick={() => navigate("/dashboard")}> Desktop View </button>
             <button className="m-btn" type="button">Select</button>
-            <button className="m-btn" type="button">Settings</button>
+            <button className="m-btn" type="button" onClick={()=> navigate("/settings")}>Settings</button>
             <button className="m-btn" type="button">Export</button>
         </div>
       </header>
