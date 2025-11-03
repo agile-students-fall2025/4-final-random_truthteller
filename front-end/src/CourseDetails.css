@@ -1,0 +1,86 @@
+.course-details-page {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.course-overview {
+  max-width: 900px;
+  margin-bottom: 2rem;
+}
+
+.course-code-large {
+  display: inline-block;
+  background: #eef2ff;
+  color: #1f2a56;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.course-long-desc {
+  color: #444;
+  margin-top: 0.5rem;
+}
+
+.course-info-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.sections-list {
+  list-style: none;
+  padding: 0;
+  max-width: 900px;
+}
+
+.section-item {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-main div {
+  margin-bottom: 0.25rem;
+}
+
+.section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-calendar {
+  background: #2b7cff;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.review-button {
+  background: none;
+  border: 1px solid #888;
+  color: #333;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.back-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
