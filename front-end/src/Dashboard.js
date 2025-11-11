@@ -1,84 +1,49 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { Event } from "./Event";
 import "./Dashboard.css";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const START_MIN = 8 * 60;
-const END_MIN = 19 * 60;
-const STEP = 30;
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const START_HOUR = 8;
+const END_HOUR = 19;
+const SLOT_HEIGHT = 40; // pixels per 30-minute slot
 
-// Placeholder sample data to render the visuals only
-const SAMPLE_EVENTS = [
-  {
+// Sample events using Event class
+const createSampleEvents = () => [
+  new Event({
     id: "cs101",
-    title: "CS 101",
-    day: 0,
-    start: "09:00",
-    end: "10:30",
+    courseName: "Intro to Computer Science",
+    day: 0, // Monday
+    startTime: "09:00",
+    endTime: "10:30",
+    professor: "Prof 1",
     room: "Room 204",
-  },
-  {
-    id: "math220",
-    title: "Math 220",
-    day: 2,
-    start: "10:00",
-    end: "11:30",
+  }),
+  new Event({
+    id: "cs102",
+    courseName: "Intro to Data Structures",
+    day: 2, // Wednesday
+    startTime: "10:00",
+    endTime: "11:30",
+    professor: "Prof 2",
     room: "Hall A",
-  },
-  // overlap to demonstrate conflict alert + red styling
-  {
-    id: "hist300",
-    title: "Hist 300",
-    day: 2,
-    start: "10:30",
-    end: "11:15",
-    room: "Room 105",
-  },
-  {
-    id: "art110",
-    title: "Art 110",
-    day: 4,
-    start: "13:00",
-    end: "14:00",
-    room: "Studio 3",
-  },
+  }),
 ];
 
-function toMinutes(hhmm) {
-  const [h, m] = hhmm.split(":").map(Number);
-  return h * 60 + m;
-}
-
-function minutesToLabel(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
+function minutesToLabel(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
   const ampm = h >= 12 ? "PM" : "AM";
   const hr = ((h + 11) % 12) + 1;
   return `${hr}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
 
 function useConflicts(events) {
-  const byDay = new Map();
-  events.forEach((e) => {
-    const list = byDay.get(e.day) || [];
-    list.push(e);
-    byDay.set(e.day, list);
-  });
-
   const conflicts = [];
-  for (const [day, list] of byDay.entries()) {
-    const sorted = [...list].sort(
-      (a, b) => toMinutes(a.start) - toMinutes(b.start),
-    );
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const a = sorted[i];
-      for (let j = i + 1; j < sorted.length; j++) {
-        const b = sorted[j];
-        if (toMinutes(b.start) < toMinutes(a.end)) {
-          conflicts.push({ day, a, b });
-        } else {
-          break;
-        }
+  for (let i = 0; i < events.length; i++) {
+    for (let j = i + 1; j < events.length; j++) {
+      if (events[i].overlapsWith(events[j])) {
+        conflicts.push({ event1: events[i], event2: events[j] });
       }
     }
   }
@@ -87,14 +52,47 @@ function useConflicts(events) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [events, setEvents] = useState(createSampleEvents());
 
-  const timeMarks = useMemo(() => {
-    const arr = [];
-    for (let t = START_MIN; t <= END_MIN; t += STEP) arr.push(t);
-    return arr;
+  const conflicts = useConflicts(events);
+
+  const handleRemoveEvent = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== eventId));
+  };
+
+  const timeSlots = useMemo(() => {
+    const slots = [];
+    for (let h = START_HOUR; h < END_HOUR; h++) {
+      slots.push(h * 60); // Top of hour
+      slots.push(h * 60 + 30); // Half hour
+    }
+    slots.push(END_HOUR * 60); // Final time
+    return slots;
   }, []);
 
-  const conflicts = useConflicts(SAMPLE_EVENTS);
+  const getEventsForDay = (dayIndex) => {
+    return events.filter((e) => e.day === dayIndex);
+  };
+
+  const isEventInConflict = (event) => {
+    return conflicts.some(
+      (c) => c.event1.id === event.id || c.event2.id === event.id,
+    );
+  };
+
+  const calculateEventStyle = (event) => {
+    const startMinutes = event.getStartMinutes();
+    const endMinutes = event.getEndMinutes();
+    const startSlotMinutes = START_HOUR * 60;
+    const totalMinutes = (END_HOUR - START_HOUR) * 60;
+    const totalHeight = (timeSlots.length - 1) * SLOT_HEIGHT;
+
+    const top =
+      ((startMinutes - startSlotMinutes) / totalMinutes) * totalHeight;
+    const height = ((endMinutes - startMinutes) / 30) * SLOT_HEIGHT;
+
+    return { top: `${top}px`, height: `${height}px` };
+  };
 
   return (
     <div className="dashboard-page">
@@ -102,111 +100,112 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <h1 className="dashboard-title">Weekly Planner</h1>
           <div className="dashboard-actions">
-            <button 
-              className="button" 
-              type="button" 
-              onClick={() => navigate("/dashboard-mobile")}
-            >
-              Mobile View
-            </button>
             <button
               className="button"
               type="button"
               onClick={() => navigate("/courses")}
             >
-              Search Courses
+              Register For Courses
             </button>
-            <button
-              className="button"
-              type="button"
-              onClick={() => navigate("/schedules")}
-            >
-              Select Schedule
-            </button>
-            {/* TODO: add the buttons once we have the pages for them and redirect
-            <button className="button" type="button">Settings</button>
-            <button className="button" type="button">Export Schedule</button> */}
           </div>
         </header>
 
-        <div className="legend">
-          <span>
-            <span className="legend-dot event" /> Class
-          </span>
-          <span>
-            <span className="legend-dot conflict" /> Conflict
-          </span>
-        </div>
-
-        <section className="alerts" aria-live="polite">
-          {conflicts.length === 0 ? (
-            <div>No conflicts detected.</div>
-          ) : (
-            conflicts.map((c, idx) => (
-              <div className="alert" key={idx}>
-                Conflict on {DAYS[c.day]}: {c.a.title} ({c.a.start}-{c.a.end})
-                overlaps with {c.b.title} ({c.b.start}-{c.b.end})
-              </div>
-            ))
-          )}
-        </section>
-
         <section className="calendar-card">
-          <div className="calendar-header">
-            <div></div>
-            {DAYS.map((d) => (
-              <div key={d}>{d}</div>
-            ))}
-          </div>
-
-          <div className="calendar-grid">
-            {/* Time column */}
-            <div className="time-col">
-              {timeMarks.map((m) => (
-                <div className="time-slot" key={m}>
-                  {minutesToLabel(m)}
+          <div className="calendar-wrapper">
+            {/* Day Headers */}
+            <div className="calendar-header-row">
+              <div className="time-header-cell"></div>
+              {DAYS.map((day) => (
+                <div key={day} className="day-header-cell">
+                  {day}
                 </div>
               ))}
             </div>
 
-            {/* Day columns */}
-            {DAYS.map((_, dayIndex) => (
-              <div className="day-col" key={dayIndex}>
-                {timeMarks.slice(0, -1).map((m) => (
-                  <div className="day-row" key={m} />
+            {/* Calendar Grid */}
+            <div className="calendar-body">
+              {/* Time Column */}
+              <div className="time-column">
+                {timeSlots.slice(0, -1).map((minutes, idx) => (
+                  <div key={minutes} className="time-slot">
+                    {idx % 2 === 0 && (
+                      <span className="time-label">
+                        {minutesToLabel(minutes)}
+                      </span>
+                    )}
+                  </div>
                 ))}
-
-                {/* Events for this day */}
-                {SAMPLE_EVENTS.filter((e) => e.day === dayIndex).map((e) => {
-                  const top =
-                    ((toMinutes(e.start) - START_MIN) / (END_MIN - START_MIN)) *
-                    (timeMarks.length - 1) *
-                    40;
-                  const height =
-                    ((toMinutes(e.end) - toMinutes(e.start)) / STEP) * 40;
-                  const isConflict = conflicts.some(
-                    (c) =>
-                      c.day === dayIndex &&
-                      (c.a.id === e.id || c.b.id === e.id),
-                  );
-
-                  return (
-                    <div
-                      key={e.id}
-                      className={`event-block${isConflict ? " conflict" : ""}`}
-                      style={{ top: `${top}px`, height: `${height}px` }}
-                    >
-                      <div className="event-title">{e.title}</div>
-                      <div className="event-meta">
-                        {e.start} – {e.end} • {e.room}
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
-            ))}
+
+              {/* Day Columns */}
+              {DAYS.map((_, dayIndex) => (
+                <div key={dayIndex} className="day-column">
+                  {timeSlots.slice(0, -1).map((minutes) => (
+                    <div key={minutes} className="time-cell"></div>
+                  ))}
+
+                  {/* Events for this day */}
+                  {getEventsForDay(dayIndex).map((event) => {
+                    const isConflict = isEventInConflict(event);
+                    return (
+                      <div
+                        key={event.id}
+                        className={`event-block${isConflict ? " conflict" : ""}`}
+                        style={calculateEventStyle(event)}
+                      >
+                        <button
+                          className="event-remove"
+                          onClick={() => handleRemoveEvent(event.id)}
+                          aria-label={`Remove ${event.courseName}`}
+                          type="button"
+                        >
+                          ×
+                        </button>
+                        <div className="event-title">{event.courseName}</div>
+                        {event.professor && (
+                          <div className="event-professor">
+                            {event.professor}
+                          </div>
+                        )}
+                        <div className="event-meta">
+                          {event.startTime} – {event.endTime}
+                          {event.room && ` • ${event.room}`}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
+
+        <div className="calendar-footer">
+          <div className="current-schedule">
+            <span>Current Schedule:</span>
+            {/* TODO: Get the current schedule from the backend. What should be
+                considered first? Might need to store last selected schedule in
+                our database. */}
+            <button
+              className="schedule-button"
+              type="button"
+              onClick={() => navigate("/schedules")}
+            >
+              Schedule 1<span className="schedule-dropdown-icon">▼</span>
+            </button>
+          </div>
+          <button className="export-button" type="button">
+            Export
+            <span className="export-icon">▼</span>
+          </button>
+          <button
+            className="settings-button"
+            type="button"
+            aria-label="Settings"
+          >
+            ⚙
+          </button>
+        </div>
       </div>
     </div>
   );

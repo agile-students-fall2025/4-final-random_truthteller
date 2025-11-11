@@ -11,7 +11,6 @@ import Login from "./Login";
 import CourseSearch from "./CourseSearch";
 import CourseDetails from "./CourseDetails";
 import Dashboard from "./Dashboard";
-import DashboardMobile from "./DashboardMobile";
 import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
 
@@ -71,12 +70,6 @@ function App() {
             element={
               isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
             }
-          />
-          <Route 
-            path="/dashboard-mobile" 
-            element={
-              <DashboardMobile />
-            } 
           />
           <Route
             path="/schedules"

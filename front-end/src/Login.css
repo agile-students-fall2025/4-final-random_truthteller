@@ -18,9 +18,9 @@
 }
 
 .login-box {
-  background: white;
+  background: var(--color-white);
   padding: 2rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-input);
 }
 
 .login-header {
@@ -34,7 +34,7 @@
 }
 
 .login-subtitle {
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -57,27 +57,27 @@
   width: 100%;
   padding: 0.75rem 1rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-input);
   box-sizing: border-box;
 }
 
 .login-input:focus {
-  outline: 1px solid #999;
+  outline: 1px solid var(--color-text-secondary);
 }
 
 .login-button {
   width: 100%;
   padding: 0.875rem;
   font-size: 1rem;
-  color: white;
-  background: #333;
+  color: var(--color-white);
+  background: var(--color-button-dark);
   border: none;
   cursor: pointer;
 }
 
 .login-footer {
   text-align: center;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 0.875rem;
 }
 
