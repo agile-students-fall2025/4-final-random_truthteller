@@ -11,7 +11,7 @@ function CourseSearch() {
   const [selectedMajor, setSelectedMajor] = useState("");
   const navigate = useNavigate();
 
-  // fetch courses from backend
+  // fetch courses from backendd
   useEffect(() => {
   const loadCourses = async () => {
     try {
