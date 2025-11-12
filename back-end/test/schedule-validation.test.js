@@ -5,12 +5,12 @@ const {
   normalizeMeetings,
 } = require("../utils/schedule");
 
-describe("schedule validation", () => {
-  it("converts time to minutes", () => {
+describe("Schedule validation", () => {
+  it("should convert time to minutes", () => {
     expect(toMinutes("09:30")).to.equal(570);
   });
 
-  it("detects duplicates", () => {
+  it("should detect duplicates", () => {
     const items = [
       { id: "a", code: "CS 101", credits: 3 },
       { id: "b", code: "CS 101", credits: 3 },
@@ -19,7 +19,7 @@ describe("schedule validation", () => {
     expect(warnings).to.include("Duplicate course detected");
   });
 
-  it("flags credit cap exceeded", () => {
+  it("should flag credit cap exceeded", () => {
     const items = [
       { id: "a", credits: 10 },
       { id: "b", credits: 10 },
@@ -28,7 +28,7 @@ describe("schedule validation", () => {
     expect(result.warnings.join(" ")).to.match(/Credit cap exceeded/);
   });
 
-  it("detects time overlaps", () => {
+  it("should detect time overlaps", () => {
     const items = [
       {
         id: "x",

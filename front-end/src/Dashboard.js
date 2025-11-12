@@ -1,7 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Event } from "./Event";
-import { fetchScheduleEvents, fetchScheduleById } from "./api/schedules";
+import {
+  fetchScheduleEvents,
+  fetchScheduleById,
+  exportSchedule,
+} from "./api/schedules";
 import { validateSchedule } from "./api/validation";
 import "./Dashboard.css";
 
@@ -133,6 +137,14 @@ export default function Dashboard() {
     return { top: `${top}px`, height: `${height}px` };
   };
 
+  const handleExport = async () => {
+    try {
+      await exportSchedule(scheduleId);
+    } catch (error) {
+      console.error("Error exporting schedule:", error);
+    }
+  };
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-container">
@@ -243,9 +255,12 @@ export default function Dashboard() {
               <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
-
-          <button className="export-button" type="button">
-            Export <span className="export-icon">▼</span>
+          <button
+            className="export-button"
+            type="button"
+            onClick={handleExport}
+          >
+            Export
           </button>
           <button
             className="settings-button"

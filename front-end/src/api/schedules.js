@@ -53,3 +53,33 @@ export const deleteSchedule = async (id) => {
     throw new Error(`Failed to delete schedule: ${response.statusText}`);
   }
 };
+
+export const exportSchedule = async (scheduleId) => {
+  const response = await fetch(
+    `${API_BASE_URL}/schedules/${scheduleId}/export`,
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to export schedule: ${response.statusText}`);
+  }
+
+  // extract the filename from Content-Disposition header or use default
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = "schedule.ics";
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+    if (filenameMatch) {
+      filename = filenameMatch[1];
+    }
+  }
+
+  // download blob
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
