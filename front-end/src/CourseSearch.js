@@ -11,49 +11,45 @@ function CourseSearch() {
   const [selectedMajor, setSelectedMajor] = useState("");
   const navigate = useNavigate();
 
-  // fetch courses from Mockaroo
+  // fetch courses from backend
   useEffect(() => {
-    const loadCourses = async () => {
-      try {
-        const data = await fetchCourses();
-
-        // TODO: We don't have to do this once we can guarantee course
-        // uniqueness from the backend/database.
-        const uniqueCoursesMap = new Map();
-        data.forEach((course) => {
-          if (course.courseName && course.courseName.trim().length > 0) {
-            uniqueCoursesMap.set(course.courseName, course);
-          }
-        });
-
-        const filteredCourses = Array.from(uniqueCoursesMap.values()).sort(
-          (a, b) => {
-            return a.courseName.localeCompare(b.courseName);
-          },
-        );
-
-        setCourses(filteredCourses);
-        setDisplayedCourses(filteredCourses);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      }
-    };
+  const loadCourses = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/courses");
+      const data = await res.json();
+      setCourses(data);
+      setDisplayedCourses(data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
 
     loadCourses();
   }, []);
 
   // filter courses based on search
   useEffect(() => {
-    let filtered = courses;
+  let filtered = courses;
 
-    if (query) {
-      filtered = filtered.filter((course) =>
-        course.courseName.toLowerCase().includes(query.toLowerCase()),
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+
+    filtered = filtered.filter((course) => {
+      const name = course.name || "";
+      const code = course.code || "";
+      const prof = course.professor || course.instructor || "";
+
+      return (
+        name.toLowerCase().includes(lowerQuery) ||
+        code.toLowerCase().includes(lowerQuery) ||
+        prof.toLowerCase().includes(lowerQuery)
       );
-    }
+    });
+  }
 
-    setDisplayedCourses(filtered);
+  setDisplayedCourses(filtered);
   }, [query, courses]);
+
 
   const handleCourseClick = (courseId, courseName) => {
     // Navigate to Course Details page for the selected course
@@ -122,7 +118,7 @@ function CourseSearch() {
         ) : (
           displayedCourses.map((course) => {
             // Support richer course objects if available, otherwise derive from courseName
-            const raw = course.courseName || "";
+            const raw = course.name || "";
             const [maybeCode, maybeTitle] = raw.split(" - ", 2);
             const code = course.code || (maybeTitle ? maybeCode : "");
             const title = course.title || (maybeTitle ? maybeTitle : raw);
