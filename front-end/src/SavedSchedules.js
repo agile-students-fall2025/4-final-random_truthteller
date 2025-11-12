@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchSchedules } from "./api/schedules";
+import { fetchSchedules, createSchedule } from "./api/schedules";
 import "./SavedSchedules.css";
 
 export default function SavedSchedules() {
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState([]);
+  const [newName, setNewName] = useState("");
 
   // Fetch schedules from backend
   useEffect(() => {
@@ -16,6 +17,19 @@ export default function SavedSchedules() {
 
     loadSchedules();
   }, []);
+
+  const handleAdd = async () => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    try {
+      const newSchedule = await createSchedule(trimmed);
+      setSchedules((prev) => [...prev, newSchedule]);
+      setNewName("");
+    } catch (error) {
+      console.error("Error creating schedule:", error);
+    }
+  };
 
   return (
     <div className="schedules-page">
@@ -29,6 +43,23 @@ export default function SavedSchedules() {
         </button>
 
         <h1 className="page-title">Select Schedule</h1>
+
+        <div className="add-row">
+          <input
+            className="name-input"
+            placeholder="Schedule Name"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                handleAdd();
+              }
+            }}
+          />
+          <button className="primary" type="button" onClick={handleAdd}>
+            Add
+          </button>
+        </div>
 
         <div className="schedule-list">
           {schedules.map((s) => (

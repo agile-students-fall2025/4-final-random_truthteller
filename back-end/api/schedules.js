@@ -80,6 +80,31 @@ router.get("/:id", (req, res) => {
 });
 
 /*
+ * POST /api/schedules
+ * Create a new schedule
+ */
+router.post("/", (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "Schedule name is required" });
+  }
+
+  const now = new Date();
+  const modified = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
+  const newSchedule = {
+    id: `s-${schedules.length + 1}`,
+    name: name.trim(),
+    modified,
+    classes: 0,
+  };
+
+  schedules.push(newSchedule);
+  scheduleEvents[newSchedule.id] = [];
+
+  res.status(201).json(newSchedule);
+});
+
+/*
  * GET /api/schedules/:id/events
  * Get all events for a schedule
  */
