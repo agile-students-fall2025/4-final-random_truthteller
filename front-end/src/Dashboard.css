@@ -346,3 +346,20 @@
     font-size: 1.125rem;
   }
 }
+
+.validate-btn {
+  padding: 8px 12px;
+  margin-right: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.warnings-banner {
+  display: inline-block;
+  background: #fff3cd;
+  color: #664d03;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ffe69c;
+}

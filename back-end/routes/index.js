@@ -9,6 +9,8 @@ const courses = [
 
 
 
+router.use("/", require("./validation"));
+
 router.get("/", (req, res) => {
   res.json({ message: "Welcome to ProfPick API" });
 });
