@@ -44,3 +44,12 @@ export const createSchedule = async (name) => {
   }
   return await response.json();
 };
+
+export const deleteSchedule = async (id) => {
+  const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete schedule: ${response.statusText}`);
+  }
+};

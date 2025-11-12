@@ -1,5 +1,7 @@
 function toMinutes(t) {
-  const [h, m] = String(t).split(":").map((x) => parseInt(x, 10));
+  const [h, m] = String(t)
+    .split(":")
+    .map((x) => parseInt(x, 10));
   return h * 60 + (m || 0);
 }
 
@@ -36,7 +38,9 @@ function normalizeMeetings(item) {
         .map((d) => d.trim())
         .filter(Boolean);
       if (s.time) {
-        const [startT, endT] = String(s.time).split("-").map((x) => x.trim());
+        const [startT, endT] = String(s.time)
+          .split("-")
+          .map((x) => x.trim());
         days.forEach((d) => {
           if (dayMap[d] !== undefined) {
             out.push({
@@ -113,10 +117,14 @@ function validateSchedule(items, opts) {
 
   // Credit min/max checks
   if (Number.isFinite(creditMin) && totalCredits < creditMin) {
-    warnings.push(`Credit minimum not met (total ${totalCredits}, min ${creditMin})`);
+    warnings.push(
+      `Credit minimum not met (total ${totalCredits}, min ${creditMin})`,
+    );
   }
   if (Number.isFinite(creditMax) && totalCredits > creditMax) {
-    warnings.push(`Credit cap exceeded (total ${totalCredits}, cap ${creditMax})`);
+    warnings.push(
+      `Credit cap exceeded (total ${totalCredits}, cap ${creditMax})`,
+    );
   }
 
   // Overlap detection per day

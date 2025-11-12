@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchSchedules, createSchedule } from "./api/schedules";
+import {
+  fetchSchedules,
+  createSchedule,
+  deleteSchedule,
+} from "./api/schedules";
 import "./SavedSchedules.css";
 
 export default function SavedSchedules() {
@@ -29,6 +33,16 @@ export default function SavedSchedules() {
       setNewName("");
     } catch (e) {
       console.error("createSchedule failed", e);
+    }
+  };
+
+  const handleDelete = async (scheduleId, e) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    try {
+      await deleteSchedule(scheduleId);
+      setSchedules((prev) => prev.filter((s) => s.id !== scheduleId));
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
     }
   };
 
@@ -61,7 +75,15 @@ export default function SavedSchedules() {
               <div className="schedule-card-row">
                 <div className="schedule-name">{s.name}</div>
                 <div className="schedule-meta-count">
-                  {(s.classes ?? s.eventCount ?? 0)} classes
+                  {s.classes ?? s.eventCount ?? 0} classes
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={(e) => handleDelete(s.id, e)}
+                    aria-label={`Delete ${s.name}`}
+                  >
+                    ×
+                  </button>
                 </div>
               </div>
               <div className="schedule-sub">

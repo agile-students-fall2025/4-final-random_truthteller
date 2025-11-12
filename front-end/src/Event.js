@@ -2,7 +2,16 @@
  * Event class for creating calendar events
  */
 export class Event {
-  constructor({ id, courseName, day, startTime, endTime, professor, room, credits }) {
+  constructor({
+    id,
+    courseName,
+    day,
+    startTime,
+    endTime,
+    professor,
+    room,
+    credits,
+  }) {
     this.id =
       id || `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     this.courseName = courseName;
