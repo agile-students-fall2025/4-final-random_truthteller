@@ -4,7 +4,7 @@
   "description": "Express.js back-end server for ProfPick",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --watch server.js",
     "test": "mocha --recursive --timeout 10000",
     "test:coverage": "c8 --reporter=text --reporter=html npm test",
     "format": "prettier --write ."
@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "chai": "^4.3.10",
     "chai-http": "^4.4.0",
     "mocha": "^10.2.0",
+    "nodemon": "^3.1.10",
     "prettier": "^3.6.2"
   }
 }

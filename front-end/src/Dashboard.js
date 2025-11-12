@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Event } from "./Event";
+import { fetchScheduleEvents, fetchScheduleById } from "./api/schedules";
 import "./Dashboard.css";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -8,7 +9,9 @@ const START_HOUR = 8;
 const END_HOUR = 19;
 const SLOT_HEIGHT = 40; // pixels per 30-minute slot
 
-// Fallback sample events
+const DEFAULT_SCHEDULE_ID = "s1"; // default used when param missing
+
+// Fallback sample events (used if nothing else available)
 const createSampleEvents = () => [
   new Event({
     id: "cs101",
@@ -54,30 +57,30 @@ function useConflicts(events) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const scheduleIdFromQuery = searchParams.get("scheduleId");
 
   const [events, setEvents] = useState([]);
+  const [currentSchedule, setCurrentSchedule] = useState(null);
   const [currentScheduleName, setCurrentScheduleName] = useState("(custom)");
 
-  // Load saved schedule (events + name) or fall back to samples
+  // Load events by priority:
+  // 1) If ?scheduleId=... present → fetch from backend
+  // 2) Else try localStorage (SavedSchedules.js writes there)
+  // 3) Else fallback samples
   useEffect(() => {
-    const eventsKey = "currentScheduleEvents";
-    const idKey = "currentScheduleId";
-    const nameKey = "currentScheduleName";
-
-    const raw = localStorage.getItem(eventsKey);
-    const savedName = localStorage.getItem(nameKey);
-    const savedId = localStorage.getItem(idKey);
-
-    if (savedName) setCurrentScheduleName(savedName);
-    else if (savedId) setCurrentScheduleName(savedId.toUpperCase());
-
-    if (raw) {
+    const load = async () => {
       try {
-        const list = JSON.parse(raw);
-        if (Array.isArray(list) && list.length) {
-          // Standardize and convert to Event instances
-          const mapped = list.map((d) => {
-            return new Event({
+        if (scheduleIdFromQuery) {
+          const sid = scheduleIdFromQuery || DEFAULT_SCHEDULE_ID;
+          const [sched, evs] = await Promise.all([
+            fetchScheduleById(sid),
+            fetchScheduleEvents(sid),
+          ]);
+          setCurrentSchedule(sched || null);
+          if (sched?.name) setCurrentScheduleName(sched.name);
+          const mapped = (evs || []).map((d) =>
+            new Event({
               id: d.id,
               courseName: d.courseName,
               day: d.day,
@@ -85,28 +88,64 @@ export default function Dashboard() {
               endTime: d.endTime,
               professor: d.professor || "",
               room: d.room || "",
-              credits: d.credits != null ? Number(d.credits) : 4, // default 4
-            });
-          });
-          setEvents(mapped);
+              credits: d.credits != null ? Number(d.credits) : 4,
+            }),
+          );
+          setEvents(mapped.length ? mapped : createSampleEvents());
           return;
         }
-      } catch (e) {
-        console.warn("Bad saved schedule payload:", e);
-      }
-    }
-    // Fallback if nothing saved
-    setEvents(createSampleEvents());
-  }, []);
 
-  // --- Validation UI state + action ---
+        // localStorage path
+        const eventsKey = "currentScheduleEvents";
+        const nameKey = "currentScheduleName";
+        const idKey = "currentScheduleId";
+
+        const raw = localStorage.getItem(eventsKey);
+        const savedName = localStorage.getItem(nameKey);
+        const savedId = localStorage.getItem(idKey);
+
+        if (savedName) setCurrentScheduleName(savedName);
+        else if (savedId) setCurrentScheduleName(String(savedId).toUpperCase());
+
+        if (raw) {
+          const list = JSON.parse(raw);
+          if (Array.isArray(list) && list.length) {
+            const mapped = list.map(
+              (d) =>
+                new Event({
+                  id: d.id,
+                  courseName: d.courseName,
+                  day: d.day,
+                  startTime: d.startTime,
+                  endTime: d.endTime,
+                  professor: d.professor || "",
+                  room: d.room || "",
+                  credits: d.credits != null ? Number(d.credits) : 4,
+                }),
+            );
+            setEvents(mapped);
+            return;
+          }
+        }
+
+        // fallback
+        setEvents(createSampleEvents());
+      } catch (e) {
+        console.warn("Failed to load schedule; falling back to samples", e);
+        setEvents(createSampleEvents());
+      }
+    };
+
+    load();
+  }, [scheduleIdFromQuery]);
+
+  // --- Validation banner state + action ---
   const [warnings, setWarnings] = useState([]);
   const [creditTotal, setCreditTotal] = useState(0);
 
   async function runValidation() {
     try {
-      const API_BASE =
-        process.env.REACT_APP_API_BASE ?? "http://localhost:8000";
+      const API_BASE = process.env.REACT_APP_API_BASE ?? "http://localhost:8000";
       const payload = {
         items: events.map((e) => ({
           id: e.id,
@@ -138,29 +177,20 @@ export default function Dashboard() {
 
   const conflicts = useConflicts(events);
 
-  const handleRemoveEvent = (eventId) => {
-    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== eventId));
-  };
-
   const timeSlots = useMemo(() => {
     const slots = [];
     for (let h = START_HOUR; h < END_HOUR; h++) {
-      slots.push(h * 60); // Top of hour
-      slots.push(h * 60 + 30); // Half hour
+      slots.push(h * 60);
+      slots.push(h * 60 + 30);
     }
-    slots.push(END_HOUR * 60); // Final time
+    slots.push(END_HOUR * 60);
     return slots;
   }, []);
 
-  const getEventsForDay = (dayIndex) => {
-    return events.filter((e) => e.day === dayIndex);
-  };
+  const getEventsForDay = (dayIndex) => events.filter((e) => e.day === dayIndex);
 
-  const isEventInConflict = (event) => {
-    return conflicts.some(
-      (c) => c.event1.id === event.id || c.event2.id === event.id,
-    );
-  };
+  const isEventInConflict = (event) =>
+    conflicts.some((c) => c.event1.id === event.id || c.event2.id === event.id);
 
   const calculateEventStyle = (event) => {
     const startMinutes = event.getStartMinutes();
@@ -169,8 +199,7 @@ export default function Dashboard() {
     const totalMinutes = (END_HOUR - START_HOUR) * 60;
     const totalHeight = (timeSlots.length - 1) * SLOT_HEIGHT;
 
-    const top =
-      ((startMinutes - startSlotMinutes) / totalMinutes) * totalHeight;
+    const top = ((startMinutes - startSlotMinutes) / totalMinutes) * totalHeight;
     const height = ((endMinutes - startMinutes) / 30) * SLOT_HEIGHT;
 
     return { top: `${top}px`, height: `${height}px` };
@@ -211,9 +240,7 @@ export default function Dashboard() {
                 {timeSlots.slice(0, -1).map((minutes, idx) => (
                   <div key={minutes} className="time-slot">
                     {idx % 2 === 0 && (
-                      <span className="time-label">
-                        {minutesToLabel(minutes)}
-                      </span>
+                      <span className="time-label">{minutesToLabel(minutes)}</span>
                     )}
                   </div>
                 ))}
@@ -222,11 +249,11 @@ export default function Dashboard() {
               {/* Day Columns */}
               {DAYS.map((_, dayIndex) => (
                 <div key={dayIndex} className="day-column">
-                  {timeSlots.slice(0, -1).map((minutes) => (
-                    <div key={minutes} className="time-cell"></div>
+                  {timeSlots.slice(0, -1).map((m) => (
+                    <div key={m} className="time-cell"></div>
                   ))}
 
-                  {/* Events for this day */}
+                  {/* Events */}
                   {getEventsForDay(dayIndex).map((event) => {
                     const isConflict = isEventInConflict(event);
                     return (
@@ -235,19 +262,9 @@ export default function Dashboard() {
                         className={`event-block${isConflict ? " conflict" : ""}`}
                         style={calculateEventStyle(event)}
                       >
-                        <button
-                          className="event-remove"
-                          onClick={() => handleRemoveEvent(event.id)}
-                          aria-label={`Remove ${event.courseName}`}
-                          type="button"
-                        >
-                          ×
-                        </button>
                         <div className="event-title">{event.courseName}</div>
                         {event.professor && (
-                          <div className="event-professor">
-                            {event.professor}
-                          </div>
+                          <div className="event-professor">{event.professor}</div>
                         )}
                         <div className="event-meta">
                           {event.startTime} – {event.endTime}
@@ -266,6 +283,7 @@ export default function Dashboard() {
           <button className="validate-btn" type="button" onClick={runValidation}>
             Validate Schedule
           </button>
+
           {warnings.length > 0 ? (
             <div className="warnings-banner">
               <strong>Warnings:</strong> {warnings.join(" | ")} • Credits: {creditTotal}
@@ -284,19 +302,19 @@ export default function Dashboard() {
               onClick={() => navigate("/schedules")}
               title="Choose a different saved schedule"
             >
-              {currentScheduleName}
+              {currentSchedule?.name || currentScheduleName}
               <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
 
           <button className="export-button" type="button">
-            Export
-            <span className="export-icon">▼</span>
+            Export <span className="export-icon">▼</span>
           </button>
           <button
             className="settings-button"
             type="button"
             aria-label="Settings"
+            onClick={() => navigate("/settings")}
           >
             ⚙
           </button>
