@@ -1,33 +1,21 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchSchedules } from "./api/schedules";
 import "./SavedSchedules.css";
 
 export default function SavedSchedules() {
   const navigate = useNavigate();
+  const [schedules, setSchedules] = useState([]);
 
-  const initialSchedules = useMemo(
-    () => [
-      { id: "s1", name: "Schedule 1", modified: "12-11-2024", classes: 4 },
-      { id: "s2", name: "Schedule 2", modified: "9-10-2024", classes: 5 },
-      { id: "s3", name: "Schedule 3", modified: "3-7-2023", classes: 2 },
-    ],
-    [],
-  );
+  // Fetch schedules from backend
+  useEffect(() => {
+    const loadSchedules = async () => {
+      const data = await fetchSchedules();
+      setSchedules(data);
+    };
 
-  const [schedules, setSchedules] = useState(initialSchedules);
-  const [newName, setNewName] = useState("");
-
-  function handleAdd() {
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-    const now = new Date();
-    const label = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
-    setSchedules((prev) => [
-      ...prev,
-      { id: `s-${Date.now()}`, name: trimmed, modified: label, classes: 0 },
-    ]);
-    setNewName("");
-  }
+    loadSchedules();
+  }, []);
 
   return (
     <div className="schedules-page">
@@ -42,25 +30,13 @@ export default function SavedSchedules() {
 
         <h1 className="page-title">Select Schedule</h1>
 
-        <div className="add-row">
-          <input
-            className="name-input"
-            placeholder="Schedule Name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <button className="primary" type="button" onClick={handleAdd}>
-            Add
-          </button>
-        </div>
-
         <div className="schedule-list">
           {schedules.map((s) => (
             <button
               key={s.id}
               type="button"
               className="schedule-card"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate(`/dashboard?scheduleId=${s.id}`)}
             >
               <div className="schedule-card-row">
                 <div className="schedule-name">{s.name}</div>
