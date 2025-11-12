@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event } from "./Event";
 import "./Dashboard.css";
@@ -8,25 +8,27 @@ const START_HOUR = 8;
 const END_HOUR = 19;
 const SLOT_HEIGHT = 40; // pixels per 30-minute slot
 
-// Sample events using Event class
+// Fallback sample events
 const createSampleEvents = () => [
   new Event({
     id: "cs101",
     courseName: "Intro to Computer Science",
-    day: 0, // Monday
+    day: 0,
     startTime: "09:00",
     endTime: "10:30",
     professor: "Prof 1",
     room: "Room 204",
+    credits: 4,
   }),
   new Event({
     id: "cs102",
     courseName: "Intro to Data Structures",
-    day: 2, // Wednesday
+    day: 2,
     startTime: "10:00",
     endTime: "11:30",
     professor: "Prof 2",
     room: "Hall A",
+    credits: 4,
   }),
 ];
 
@@ -42,7 +44,7 @@ function useConflicts(events) {
   const conflicts = [];
   for (let i = 0; i < events.length; i++) {
     for (let j = i + 1; j < events.length; j++) {
-      if (events[i].overlapsWith(events[j])) {
+      if (events[i].overlapsWith && events[i].overlapsWith(events[j])) {
         conflicts.push({ event1: events[i], event2: events[j] });
       }
     }
@@ -52,7 +54,87 @@ function useConflicts(events) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [events, setEvents] = useState(createSampleEvents());
+
+  const [events, setEvents] = useState([]);
+  const [currentScheduleName, setCurrentScheduleName] = useState("(custom)");
+
+  // Load saved schedule (events + name) or fall back to samples
+  useEffect(() => {
+    const eventsKey = "currentScheduleEvents";
+    const idKey = "currentScheduleId";
+    const nameKey = "currentScheduleName";
+
+    const raw = localStorage.getItem(eventsKey);
+    const savedName = localStorage.getItem(nameKey);
+    const savedId = localStorage.getItem(idKey);
+
+    if (savedName) setCurrentScheduleName(savedName);
+    else if (savedId) setCurrentScheduleName(savedId.toUpperCase());
+
+    if (raw) {
+      try {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list) && list.length) {
+          // Standardize and convert to Event instances
+          const mapped = list.map((d) => {
+            return new Event({
+              id: d.id,
+              courseName: d.courseName,
+              day: d.day,
+              startTime: d.startTime,
+              endTime: d.endTime,
+              professor: d.professor || "",
+              room: d.room || "",
+              credits: d.credits != null ? Number(d.credits) : 4, // default 4
+            });
+          });
+          setEvents(mapped);
+          return;
+        }
+      } catch (e) {
+        console.warn("Bad saved schedule payload:", e);
+      }
+    }
+    // Fallback if nothing saved
+    setEvents(createSampleEvents());
+  }, []);
+
+  // --- Validation UI state + action ---
+  const [warnings, setWarnings] = useState([]);
+  const [creditTotal, setCreditTotal] = useState(0);
+
+  async function runValidation() {
+    try {
+      const API_BASE =
+        process.env.REACT_APP_API_BASE ?? "http://localhost:8000";
+      const payload = {
+        items: events.map((e) => ({
+          id: e.id,
+          courseName: e.courseName,
+          day: e.day,
+          startTime: e.startTime,
+          endTime: e.endTime,
+          credits: e.credits ?? 4, // default 4
+        })),
+        creditMin: 12,
+        creditMax: 20,
+      };
+
+      const resp = await fetch(`${API_BASE}/api/validate-schedule`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json();
+      setWarnings(data.warnings || []);
+      setCreditTotal((data.details && data.details.creditTotal) || 0);
+    } catch (e) {
+      console.warn("Validation error", e);
+      setWarnings(["Could not validate schedule (server unavailable)"]);
+      setCreditTotal(0);
+    }
+  }
 
   const conflicts = useConflicts(events);
 
@@ -181,19 +263,32 @@ export default function Dashboard() {
         </section>
 
         <div className="calendar-footer">
+          <button className="validate-btn" type="button" onClick={runValidation}>
+            Validate Schedule
+          </button>
+          {warnings.length > 0 ? (
+            <div className="warnings-banner">
+              <strong>Warnings:</strong> {warnings.join(" | ")} • Credits: {creditTotal}
+            </div>
+          ) : creditTotal > 0 ? (
+            <div className="valid-banner">
+              ✅ This schedule is valid! • Total Credits: {creditTotal}
+            </div>
+          ) : null}
+
           <div className="current-schedule">
             <span>Current Schedule:</span>
-            {/* TODO: Get the current schedule from the backend. What should be
-                considered first? Might need to store last selected schedule in
-                our database. */}
             <button
               className="schedule-button"
               type="button"
               onClick={() => navigate("/schedules")}
+              title="Choose a different saved schedule"
             >
-              Schedule 1<span className="schedule-dropdown-icon">▼</span>
+              {currentScheduleName}
+              <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
+
           <button className="export-button" type="button">
             Export
             <span className="export-icon">▼</span>
