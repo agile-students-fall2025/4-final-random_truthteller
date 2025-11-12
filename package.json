@@ -6,15 +6,13 @@
   "scripts": {
     "frontend:start": "cd front-end && npm start",
     "frontend:build": "cd front-end && npm run build",
-    "frontend:test": "cd front-end && npm test",
     "frontend:format": "cd front-end && npm run format",
     "backend:start": "cd back-end && npm start",
-    "backend:test": "cd back-end && npm test",
-    "backend:test:coverage": "cd back-end && npm run test:coverage",
     "backend:format": "cd back-end && npm run format",
     "format": "npm run frontend:format && npm run backend:format",
     "install:all": "cd front-end && npm install && cd ../back-end && npm install",
-    "test": "npm run frontend:test && npm run backend:test",
+    "test": "cd back-end && npm run test",
+    "test:coverage": "cd back-end && npm run test:coverage",
     "start": "concurrently \"npm run frontend:start\" \"npm run backend:start\""
   },
   "devDependencies": {

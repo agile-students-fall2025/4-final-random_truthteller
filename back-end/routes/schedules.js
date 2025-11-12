@@ -224,6 +224,34 @@ router.post("/:id/events", (req, res) => {
   res.status(201).json(newEvents);
 });
 
+router.delete("/:id/events/:eventId", (req, res) => {
+  const schedule = schedules.find((s) => s.id === req.params.id);
+  if (!schedule) {
+    return res.status(404).json({ error: "Schedule not found" });
+  }
+
+  const events = scheduleEvents[req.params.id];
+  if (!events || events.length === 0) {
+    return res.status(404).json({ error: "Event not found" });
+  }
+
+  const eventIndex = events.findIndex(
+    (event) => event.id === req.params.eventId,
+  );
+  if (eventIndex === -1) {
+    return res.status(404).json({ error: "Event not found" });
+  }
+
+  events.splice(eventIndex, 1);
+  scheduleEvents[req.params.id] = events;
+
+  const now = new Date();
+  schedule.modified = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
+  schedule.classes = events.length;
+
+  return res.status(204).send();
+});
+
 /*
  * GET /api/schedules/:id/export
  * Export schedule as .ics file
