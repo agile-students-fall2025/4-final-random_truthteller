@@ -187,10 +187,7 @@
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 2px;
-  opacity: 0;
-  transition:
-    opacity 0.2s,
-    background-color 0.2s;
+  transition: background-color 0.2s;
   z-index: 10;
   width: 20px;
   height: 20px;
@@ -199,17 +196,17 @@
   justify-content: center;
 }
 
-.event-block:hover .event-remove {
-  opacity: 1;
-}
-
 .event-remove:hover {
   background: var(--color-overlay-hover);
-  opacity: 1;
 }
 
 .event-remove:active {
   background: var(--color-overlay-active);
+}
+
+.event-remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .event-title {

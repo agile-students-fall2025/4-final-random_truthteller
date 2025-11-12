@@ -5,6 +5,15 @@ const app = require("../server");
 const { expect } = chai;
 chai.use(chaiHttp);
 
+const createSchedule = async (name = "Temporary Schedule") => {
+  const response = await chai
+    .request(app)
+    .post("/api/schedules")
+    .send({ name });
+  expect(response).to.have.status(201);
+  return response.body;
+};
+
 describe("Schedule routes", () => {
   describe("GET /api/schedules", () => {
     it("should return all schedules", (done) => {
@@ -93,6 +102,154 @@ describe("Schedule routes", () => {
     });
   });
 
+  describe("POST /api/schedules/:id/events", () => {
+    it("should add events to a schedule", async () => {
+      const schedule = await createSchedule("Events Test Schedule");
+      const payload = {
+        events: [
+          {
+            courseName: "Test Course",
+            day: 0,
+            startTime: "09:00",
+            endTime: "10:00",
+            professor: "Test Professor",
+            room: "Room 101",
+          },
+        ],
+      };
+
+      const createRes = await chai
+        .request(app)
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send(payload);
+
+      expect(createRes).to.have.status(201);
+      expect(createRes.body).to.be.an("array").with.length(1);
+      expect(createRes.body[0]).to.include({
+        courseName: "Test Course",
+        day: 0,
+        startTime: "09:00",
+        endTime: "10:00",
+      });
+
+      const eventsRes = await chai
+        .request(app)
+        .get(`/api/schedules/${schedule.id}/events`);
+
+      expect(eventsRes).to.have.status(200);
+      expect(eventsRes.body).to.be.an("array").with.length(1);
+
+      const scheduleRes = await chai
+        .request(app)
+        .get(`/api/schedules/${schedule.id}`);
+
+      expect(scheduleRes).to.have.status(200);
+      expect(scheduleRes.body).to.have.property("classes", 1);
+    });
+
+    it("should return 400 when events payload is not an array", async () => {
+      const schedule = await createSchedule("Events Payload Error Schedule");
+      const response = await chai
+        .request(app)
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send({});
+
+      expect(response).to.have.status(400);
+      expect(response.body).to.have.property(
+        "error",
+        "Events must be an array",
+      );
+    });
+  });
+
+  describe("DELETE /api/schedules/:id/events/:eventId", () => {
+    it("should delete an existing event", async () => {
+      const schedule = await createSchedule("Delete Event Schedule");
+      const createRes = await chai
+        .request(app)
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send({
+          events: [
+            {
+              courseName: "Removable Course",
+              day: 1,
+              startTime: "11:00",
+              endTime: "12:00",
+            },
+          ],
+        });
+
+      const eventId = createRes.body[0].id;
+
+      const deleteRes = await chai
+        .request(app)
+        .delete(`/api/schedules/${schedule.id}/events/${eventId}`);
+
+      expect(deleteRes).to.have.status(204);
+
+      const eventsRes = await chai
+        .request(app)
+        .get(`/api/schedules/${schedule.id}/events`);
+
+      expect(eventsRes).to.have.status(200);
+      expect(eventsRes.body).to.be.an("array").with.length(0);
+
+      const scheduleRes = await chai
+        .request(app)
+        .get(`/api/schedules/${schedule.id}`);
+
+      expect(scheduleRes).to.have.status(200);
+      expect(scheduleRes.body).to.have.property("classes", 0);
+    });
+
+    it("should return 404 when event is not found", async () => {
+      const schedule = await createSchedule("Missing Event Schedule");
+      const response = await chai
+        .request(app)
+        .delete(`/api/schedules/${schedule.id}/events/non-existent-event`);
+
+      expect(response).to.have.status(404);
+      expect(response.body).to.have.property("error", "Event not found");
+    });
+  });
+
+  describe("/api/schedules/current", () => {
+    it("should default to the first available schedule", async () => {
+      const schedulesRes = await chai.request(app).get("/api/schedules");
+      expect(schedulesRes).to.have.status(200);
+      const firstScheduleId = schedulesRes.body[0].id;
+
+      const currentRes = await chai.request(app).get("/api/schedules/current");
+      expect(currentRes).to.have.status(200);
+      expect(currentRes.body).to.deep.equal({ scheduleId: firstScheduleId });
+    });
+
+    it("should update the current schedule when provided", async () => {
+      const schedule = await createSchedule("Current Schedule Choice");
+
+      const updateRes = await chai
+        .request(app)
+        .put("/api/schedules/current")
+        .send({ scheduleId: schedule.id });
+
+      expect(updateRes).to.have.status(200);
+      expect(updateRes.body).to.deep.equal({ scheduleId: schedule.id });
+
+      const currentRes = await chai.request(app).get("/api/schedules/current");
+      expect(currentRes).to.have.status(200);
+      expect(currentRes.body).to.deep.equal({ scheduleId: schedule.id });
+    });
+
+    it("should return 404 when setting an unknown schedule", async () => {
+      const response = await chai
+        .request(app)
+        .put("/api/schedules/current")
+        .send({ scheduleId: "missing-schedule" });
+
+      expect(response).to.have.status(404);
+      expect(response.body).to.have.property("error", "Schedule not found");
+    });
+  });
   describe("POST /api/schedules", () => {
     it("should create a new schedule with valid name", (done) => {
       chai
