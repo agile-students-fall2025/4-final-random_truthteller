@@ -1,34 +1,14 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Event } from "./Event";
+import { fetchScheduleEvents, fetchScheduleById } from "./api/schedules";
 import "./Dashboard.css";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const START_HOUR = 8;
 const END_HOUR = 19;
 const SLOT_HEIGHT = 40; // pixels per 30-minute slot
-
-// Sample events using Event class
-const createSampleEvents = () => [
-  new Event({
-    id: "cs101",
-    courseName: "Intro to Computer Science",
-    day: 0, // Monday
-    startTime: "09:00",
-    endTime: "10:30",
-    professor: "Prof 1",
-    room: "Room 204",
-  }),
-  new Event({
-    id: "cs102",
-    courseName: "Intro to Data Structures",
-    day: 2, // Wednesday
-    startTime: "10:00",
-    endTime: "11:30",
-    professor: "Prof 2",
-    room: "Hall A",
-  }),
-];
+const DEFAULT_SCHEDULE_ID = "s1"; // Default to first schedule
 
 function minutesToLabel(minutes) {
   const h = Math.floor(minutes / 60);
@@ -52,13 +32,28 @@ function useConflicts(events) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [events, setEvents] = useState(createSampleEvents());
+  const [searchParams] = useSearchParams();
+  const scheduleId = searchParams.get("scheduleId") || DEFAULT_SCHEDULE_ID;
+  const [events, setEvents] = useState([]);
+  const [currentSchedule, setCurrentSchedule] = useState(null);
+
+  // Fetch schedule and events from backend
+  useEffect(() => {
+    const loadScheduleData = async () => {
+      const [scheduleData, eventsData] = await Promise.all([
+        fetchScheduleById(scheduleId),
+        fetchScheduleEvents(scheduleId),
+      ]);
+
+      setCurrentSchedule(scheduleData);
+      events = eventsData.map((data) => new Event(data));
+      setEvents(events);
+    };
+
+    loadScheduleData();
+  }, [scheduleId]);
 
   const conflicts = useConflicts(events);
-
-  const handleRemoveEvent = (eventId) => {
-    setEvents((prevEvents) => prevEvents.filter((e) => e.id !== eventId));
-  };
 
   const timeSlots = useMemo(() => {
     const slots = [];
@@ -153,14 +148,6 @@ export default function Dashboard() {
                         className={`event-block${isConflict ? " conflict" : ""}`}
                         style={calculateEventStyle(event)}
                       >
-                        <button
-                          className="event-remove"
-                          onClick={() => handleRemoveEvent(event.id)}
-                          aria-label={`Remove ${event.courseName}`}
-                          type="button"
-                        >
-                          ×
-                        </button>
                         <div className="event-title">{event.courseName}</div>
                         {event.professor && (
                           <div className="event-professor">
@@ -191,7 +178,8 @@ export default function Dashboard() {
               type="button"
               onClick={() => navigate("/schedules")}
             >
-              Schedule 1<span className="schedule-dropdown-icon">▼</span>
+              {currentSchedule?.name || ""}
+              <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
           <button className="export-button" type="button">

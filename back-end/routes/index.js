@@ -13,6 +13,10 @@ router.get("/", (req, res) => {
   res.json({ message: "Welcome to ProfPick API" });
 });
 
+// Schedule routes
+const schedulesRouter = require("../api/schedules");
+router.use("/schedules", schedulesRouter);
+
 router.get("/courses", (req, res) => {
   res.json(courses);
 });
