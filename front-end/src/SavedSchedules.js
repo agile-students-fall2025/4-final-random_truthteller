@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchSchedules, createSchedule } from "./api/schedules";
+import {
+  fetchSchedules,
+  createSchedule,
+  deleteSchedule,
+} from "./api/schedules";
 import "./SavedSchedules.css";
 
 export default function SavedSchedules() {
@@ -8,40 +12,43 @@ export default function SavedSchedules() {
   const [schedules, setSchedules] = useState([]);
   const [newName, setNewName] = useState("");
 
-  // Fetch schedules from backend
   useEffect(() => {
-    const loadSchedules = async () => {
-      const data = await fetchSchedules();
-      setSchedules(data);
+    const load = async () => {
+      try {
+        const data = await fetchSchedules();
+        setSchedules(Array.isArray(data) ? data : []);
+      } catch {
+        setSchedules([]);
+      }
     };
-
-    loadSchedules();
+    load();
   }, []);
 
   const handleAdd = async () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
-
     try {
-      const newSchedule = await createSchedule(trimmed);
-      setSchedules((prev) => [...prev, newSchedule]);
+      const created = await createSchedule(trimmed);
+      setSchedules((prev) => [...prev, created]);
       setNewName("");
+    } catch (e) {
+      console.error("createSchedule failed", e);
+    }
+  };
+
+  const handleDelete = async (scheduleId, e) => {
+    e.stopPropagation(); // Prevent navigation when clicking delete
+    try {
+      await deleteSchedule(scheduleId);
+      setSchedules((prev) => prev.filter((s) => s.id !== scheduleId));
     } catch (error) {
-      console.error("Error creating schedule:", error);
+      console.error("Error deleting schedule:", error);
     }
   };
 
   return (
-    <div className="schedules-page">
-      <div className="schedules-container">
-        <button
-          className="back-button"
-          type="button"
-          onClick={() => navigate(-1)}
-        >
-          ←
-        </button>
-
+    <div className="saved-schedules-page">
+      <div className="saved-schedules-container">
         <h1 className="page-title">Select Schedule</h1>
 
         <div className="add-row">
@@ -50,11 +57,7 @@ export default function SavedSchedules() {
             placeholder="Schedule Name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleAdd();
-              }
-            }}
+            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
           <button className="primary" type="button" onClick={handleAdd}>
             Add
@@ -65,15 +68,27 @@ export default function SavedSchedules() {
           {schedules.map((s) => (
             <button
               key={s.id}
-              type="button"
               className="schedule-card"
+              type="button"
               onClick={() => navigate(`/dashboard?scheduleId=${s.id}`)}
             >
               <div className="schedule-card-row">
                 <div className="schedule-name">{s.name}</div>
-                <div className="schedule-meta-count">{s.classes} classes</div>
+                <div className="schedule-meta-count">
+                  {s.classes ?? s.eventCount ?? 0} classes
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={(e) => handleDelete(s.id, e)}
+                    aria-label={`Delete ${s.name}`}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-              <div className="schedule-sub">Last modified: {s.modified}</div>
+              <div className="schedule-sub">
+                Last modified: {s.modified ?? s.updatedAt ?? ""}
+              </div>
             </button>
           ))}
         </div>

@@ -1,14 +1,18 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Event } from "./Event";
-import { fetchScheduleEvents, fetchScheduleById } from "./api/schedules";
+import {
+  fetchScheduleEvents,
+  fetchScheduleById,
+  exportSchedule,
+} from "./api/schedules";
+import { validateSchedule } from "./api/validation";
 import "./Dashboard.css";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const START_HOUR = 8;
 const END_HOUR = 19;
 const SLOT_HEIGHT = 40; // pixels per 30-minute slot
-const DEFAULT_SCHEDULE_ID = "s1"; // Default to first schedule
 
 function minutesToLabel(minutes) {
   const h = Math.floor(minutes / 60);
@@ -22,6 +26,7 @@ function useConflicts(events) {
   const conflicts = [];
   for (let i = 0; i < events.length; i++) {
     for (let j = i + 1; j < events.length; j++) {
+      // Assume Event guarantees .overlapsWith
       if (events[i].overlapsWith(events[j])) {
         conflicts.push({ event1: events[i], event2: events[j] });
       }
@@ -33,47 +38,90 @@ function useConflicts(events) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const scheduleId = searchParams.get("scheduleId") || DEFAULT_SCHEDULE_ID;
+  const scheduleId = searchParams.get("scheduleId");
+
   const [events, setEvents] = useState([]);
   const [currentSchedule, setCurrentSchedule] = useState(null);
 
-  // Fetch schedule and events from backend
+  // If no scheduleId, send user to picker (always backend; no local fallback)
   useEffect(() => {
-    const loadScheduleData = async () => {
-      const [scheduleData, eventsData] = await Promise.all([
-        fetchScheduleById(scheduleId),
-        fetchScheduleEvents(scheduleId),
-      ]);
+    if (!scheduleId) navigate("/schedules", { replace: true });
+  }, [scheduleId, navigate]);
 
-      setCurrentSchedule(scheduleData);
-      const events = eventsData.map((data) => new Event(data));
-      setEvents(events);
+  // Fetch schedule + events from backend
+  useEffect(() => {
+    if (!scheduleId) return;
+
+    const load = async () => {
+      try {
+        const [sched, evs] = await Promise.all([
+          fetchScheduleById(scheduleId),
+          fetchScheduleEvents(scheduleId),
+        ]);
+
+        setCurrentSchedule(sched || null);
+
+        const mapped = Array.isArray(evs)
+          ? evs.map(
+              (d) =>
+                new Event({
+                  id: d.id,
+                  courseName: d.courseName,
+                  day: d.day,
+                  startTime: d.startTime,
+                  endTime: d.endTime,
+                  professor: d.professor || "",
+                  room: d.room || "",
+                  credits: d.credits != null ? Number(d.credits) : 4,
+                }),
+            )
+          : [];
+
+        // Keep empty array if backend has no events (new schedule)
+        setEvents(mapped);
+      } catch (e) {
+        console.warn("Failed to load schedule/events", e);
+        setCurrentSchedule(null);
+        setEvents([]);
+      }
     };
 
-    loadScheduleData();
+    load();
   }, [scheduleId]);
+
+  // Validation UI state + action
+  const [warnings, setWarnings] = useState([]);
+  const [creditTotal, setCreditTotal] = useState(0);
+
+  async function runValidation() {
+    try {
+      const data = await validateSchedule(events, 12, 20);
+      setWarnings(data.warnings || []);
+      setCreditTotal((data.details && data.details.creditTotal) || 0);
+    } catch (e) {
+      console.warn("Validation error", e);
+      setWarnings(["Could not validate schedule (server unavailable)"]);
+      setCreditTotal(0);
+    }
+  }
 
   const conflicts = useConflicts(events);
 
   const timeSlots = useMemo(() => {
     const slots = [];
     for (let h = START_HOUR; h < END_HOUR; h++) {
-      slots.push(h * 60); // Top of hour
-      slots.push(h * 60 + 30); // Half hour
+      slots.push(h * 60); // top of hour
+      slots.push(h * 60 + 30); // half hour
     }
-    slots.push(END_HOUR * 60); // Final time
+    slots.push(END_HOUR * 60); // final time
     return slots;
   }, []);
 
-  const getEventsForDay = (dayIndex) => {
-    return events.filter((e) => e.day === dayIndex);
-  };
+  const getEventsForDay = (dayIndex) =>
+    events.filter((e) => e.day === dayIndex);
 
-  const isEventInConflict = (event) => {
-    return conflicts.some(
-      (c) => c.event1.id === event.id || c.event2.id === event.id,
-    );
-  };
+  const isEventInConflict = (event) =>
+    conflicts.some((c) => c.event1.id === event.id || c.event2.id === event.id);
 
   const calculateEventStyle = (event) => {
     const startMinutes = event.getStartMinutes();
@@ -87,6 +135,14 @@ export default function Dashboard() {
     const height = ((endMinutes - startMinutes) / 30) * SLOT_HEIGHT;
 
     return { top: `${top}px`, height: `${height}px` };
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportSchedule(scheduleId);
+    } catch (error) {
+      console.error("Error exporting schedule:", error);
+    }
   };
 
   return (
@@ -135,8 +191,8 @@ export default function Dashboard() {
               {/* Day Columns */}
               {DAYS.map((_, dayIndex) => (
                 <div key={dayIndex} className="day-column">
-                  {timeSlots.slice(0, -1).map((minutes) => (
-                    <div key={minutes} className="time-cell"></div>
+                  {timeSlots.slice(0, -1).map((m) => (
+                    <div key={m} className="time-cell"></div>
                   ))}
 
                   {/* Events for this day */}
@@ -168,23 +224,43 @@ export default function Dashboard() {
         </section>
 
         <div className="calendar-footer">
+          <button
+            className="validate-btn"
+            type="button"
+            onClick={runValidation}
+          >
+            Validate Schedule
+          </button>
+
+          {warnings.length > 0 ? (
+            <div className="warnings-banner">
+              <strong>Warnings:</strong> {warnings.join(" | ")} • Credits:{" "}
+              {creditTotal}
+            </div>
+          ) : creditTotal > 0 ? (
+            <div className="valid-banner">
+              ✅ This schedule is valid! • Total Credits: {creditTotal}
+            </div>
+          ) : null}
+
           <div className="current-schedule">
             <span>Current Schedule:</span>
-            {/* TODO: Get the current schedule from the backend. What should be
-                considered first? Might need to store last selected schedule in
-                our database. */}
             <button
               className="schedule-button"
               type="button"
               onClick={() => navigate("/schedules")}
+              title="Choose a different saved schedule"
             >
               {currentSchedule?.name || ""}
               <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
-          <button className="export-button" type="button">
+          <button
+            className="export-button"
+            type="button"
+            onClick={handleExport}
+          >
             Export
-            <span className="export-icon">▼</span>
           </button>
           <button
             className="settings-button"

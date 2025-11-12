@@ -14,10 +14,9 @@ function Login({ onLogin }) {
       email,
       password,
     });
-    // TODO: implement actual authentication logic... for now, just simulate successful login
     onLogin?.();
-    // TODO: this should point to the homepage/dashboard not courses
-    navigate("/dashboard");
+    // Redirect to schedules page so user can select a schedule
+    navigate("/schedules");
   };
 
   const toggleMode = () => {

@@ -2,7 +2,16 @@
  * Event class for creating calendar events
  */
 export class Event {
-  constructor({ id, courseName, day, startTime, endTime, professor, room }) {
+  constructor({
+    id,
+    courseName,
+    day,
+    startTime,
+    endTime,
+    professor,
+    room,
+    credits,
+  }) {
     this.id =
       id || `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     this.courseName = courseName;
@@ -16,6 +25,7 @@ export class Event {
     this.professor = professor || "";
     // TODO: Consider using a room ID instead of a name.
     this.room = room || "";
+    this.credits = Number(credits || 0);
   }
 
   /**
@@ -88,6 +98,7 @@ export class Event {
         startTime: this.startTime,
         endTime: this.endTime,
         courseName: this.courseName,
+        credits: this.credits,
       },
     };
   }
