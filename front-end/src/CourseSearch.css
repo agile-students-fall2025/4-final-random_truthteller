@@ -24,6 +24,8 @@
   padding: 0.75rem 1rem;
   font-size: 1rem;
   border: 1px solid var(--color-border-input);
+  background-color: var(--card-bg);
+  color: var(--fg);
 }
 
 .search-input:focus {
@@ -31,8 +33,7 @@
 }
 
 .search-button,
-.filter-button,
-.back-button {
+.filter-button {
   padding: 0.75rem 1rem;
   font-size: 1rem;
   background: var(--color-button-dark);
@@ -52,8 +53,9 @@
   max-width: 800px;
   margin: 0 auto 2rem;
   padding: 2rem;
-  background: var(--color-white);
+  background: var(--card-bg);
   border: 1px solid var(--color-border-input);
+  color: var(--fg);
 }
 
 .filter-popup h3 {
@@ -109,7 +111,7 @@
 }
 
 .course-card {
-  background: var(--color-white);
+  background: var(--card-bg);
   border: 1px solid var(--color-border-input);
   padding: 1.5rem;
   margin-bottom: 1rem;
@@ -180,11 +182,50 @@
   position: fixed;
   top: 1rem;
   left: 1rem;
-  background: none;
-  border: 1px solid var(--color-border-input);
   border-radius: 10px;
   width: 40px;
   height: 40px;
-  font-size: 1.2rem;
   cursor: pointer;
+  z-index: 1000;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .course-search-page {
+    padding: 1rem;
+  }
+
+  .course-search-page h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-button,
+  .filter-button {
+    width: 100%;
+  }
+
+  .filter-popup {
+    padding: 1.25rem;
+  }
+
+  .course-card {
+    padding: 1rem;
+  }
+
+  .course-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .course-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }

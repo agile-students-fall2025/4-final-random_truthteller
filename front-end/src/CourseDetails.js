@@ -48,21 +48,24 @@ function CourseDetails() {
       >
         ←
       </button>
-      <h1>{course.title || course.courseName}</h1>
+      <h1 className="page-title">Course Details</h1>
       <div className="course-overview">
-        <div className="course-code-large">{course.code}</div>
+        <div className="course-header">
+          <span className="course-code-large">{course.code}</span>
+          <h2 className="course-name">{course.title || course.courseName}</h2>
+        </div>
         <p className="course-long-desc">{course.description}</p>
         <div className="course-info-row">
           <span>{course.credits ? `${course.credits} credits` : ""}</span>
           <span>Department: {course.department || "TBA"}</span>
-          <button
-            type="button"
-            className="review-button"
-            onClick={goToCourseReviews}
-          >
-            See course reviews
-          </button>
         </div>
+        <button
+          type="button"
+          className="review-button course-reviews-button"
+          onClick={goToCourseReviews}
+        >
+          Course reviews
+        </button>
       </div>
 
       <section className="sections">

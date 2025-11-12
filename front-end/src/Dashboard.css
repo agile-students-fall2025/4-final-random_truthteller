@@ -180,7 +180,7 @@
   right: 4px;
   background: var(--color-transparent);
   border: none;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-overlay-light);
   font-size: 1.25rem;
   font-weight: 300;
   line-height: 1;
@@ -204,12 +204,12 @@
 }
 
 .event-remove:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-overlay-hover);
   opacity: 1;
 }
 
 .event-remove:active {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--color-overlay-active);
 }
 
 .event-title {
@@ -324,11 +324,32 @@
   background: var(--color-background-light);
 }
 
-/* TODO: should remove the hover for deleting events on mobile */
+/* Mobile responsive styles */
 @media (max-width: 768px) {
+  .dashboard-page {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .button {
     padding: 0.5rem 1rem;
     font-size: 0.8125rem;
+    width: 100%;
   }
 
   .schedule-button {
@@ -340,6 +361,7 @@
   .export-button {
     padding: 0.4375rem 0.875rem;
     font-size: 0.8125rem;
+    width: 100%;
   }
 
   .settings-button {
@@ -348,21 +370,66 @@
     padding: 0.4375rem;
     font-size: 1.125rem;
   }
+
+  .calendar-card {
+    overflow-x: auto;
+  }
+
+  .calendar-header-row,
+  .calendar-body {
+    min-width: 600px;
+  }
+
+  .calendar-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .current-schedule {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .event-block {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  .event-title {
+    font-size: 0.75rem;
+  }
+
+  .event-professor {
+    font-size: 0.6875rem;
+  }
+
+  .event-meta {
+    font-size: 0.625rem;
+  }
 }
 
 .validate-btn {
-  padding: 8px 12px;
+  padding: 8px 16px;
   margin-right: 12px;
-  border: none;
+  border: 1px solid var(--color-border-input);
   border-radius: 8px;
   cursor: pointer;
+  background: var(--color-button-dark);
+  color: var(--color-white);
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.validate-btn:hover {
+  background: var(--color-button-dark-hover);
 }
 
 .warnings-banner {
   display: inline-block;
-  background: #fff3cd;
-  color: #664d03;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid #ffe69c;
+  border: 1px solid var(--color-warning-border);
 }

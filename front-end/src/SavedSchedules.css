@@ -1,29 +1,38 @@
+.saved-schedules-page,
 .schedules-page {
   min-height: 100vh;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
+.saved-schedules-container,
 .schedules-container {
+  width: 100%;
   max-width: 560px;
-  margin: 0 auto;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .back-button {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  background: none;
-  border: 1px solid var(--color-border-input);
   border-radius: 10px;
   width: 40px;
   height: 40px;
-  font-size: 1.2rem;
   cursor: pointer;
+  z-index: 1000;
 }
 
 .page-title {
   margin: 1rem 0 1.25rem;
   font-size: 1.6rem;
+  text-align: center;
+  color: var(--color-text-primary);
 }
 
 .add-row {
@@ -36,6 +45,8 @@
   flex: 1;
   padding: 0.6rem 0.8rem;
   border: 1px solid var(--color-border-input);
+  background-color: var(--card-bg);
+  color: var(--fg);
 }
 
 .name-input:focus {
@@ -44,15 +55,16 @@
 
 .primary {
   padding: 0.6rem 0.9rem;
-  background: var(--color-button-dark);
+  background: var(--color-primary-blue);
   color: var(--color-white);
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .primary:hover {
-  background: var(--color-button-dark-hover);
+  background: var(--color-primary-blue-hover);
 }
 
 .schedule-list {
@@ -112,4 +124,41 @@
 
 .delete-button:hover {
   color: var(--color-text-dark);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .saved-schedules-page,
+  .schedules-page {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+    margin: 0.75rem 0 1rem;
+  }
+
+  .add-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .primary {
+    width: 100%;
+  }
+
+  .schedule-card {
+    padding: 0.75rem;
+  }
+
+  .schedule-card-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .schedule-meta-count {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
