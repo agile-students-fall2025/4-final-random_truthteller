@@ -13,15 +13,12 @@ function CourseSearch() {
 
   // fetch courses from Mockaroo
   useEffect(() => {
-    // Reset state when component mounts
-    setQuery("");
-    setCourses([]);
-    setDisplayedCourses([]);
-
     const loadCourses = async () => {
       try {
         const data = await fetchCourses();
 
+        // TODO: We don't have to do this once we can guarantee course
+        // uniqueness from the backend/database.
         const uniqueCoursesMap = new Map();
         data.forEach((course) => {
           if (course.courseName && course.courseName.trim().length > 0) {
@@ -129,7 +126,10 @@ function CourseSearch() {
             const [maybeCode, maybeTitle] = raw.split(" - ", 2);
             const code = course.code || (maybeTitle ? maybeCode : "");
             const title = course.title || (maybeTitle ? maybeTitle : raw);
-            const description = course.description || course.shortDescription || "No description available.";
+            const description =
+              course.description ||
+              course.shortDescription ||
+              "No description available.";
             const credits = course.credits ? `${course.credits} credits` : "";
             const instructor = course.instructor || course.professor || "TBA";
 
@@ -137,7 +137,9 @@ function CourseSearch() {
               <div
                 key={course.id}
                 className="course-card"
-                onClick={() => handleCourseClick(course.id, course.courseName || title)}
+                onClick={() =>
+                  handleCourseClick(course.id, course.courseName || title)
+                }
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
@@ -153,7 +155,9 @@ function CourseSearch() {
                 <p className="course-desc">{description}</p>
                 <div className="course-meta">
                   {credits && <span className="course-credits">{credits}</span>}
-                  <span className="course-instructor">Instructor: {instructor}</span>
+                  <span className="course-instructor">
+                    Instructor: {instructor}
+                  </span>
                 </div>
               </div>
             );

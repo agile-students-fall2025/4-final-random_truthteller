@@ -19,29 +19,31 @@
 
 .home-subtitle {
   font-size: 1.1rem;
-  color: #555;
+  color: var(--color-text-secondary);
   margin-bottom: 1rem;
 }
 
 .home-blurb {
   font-size: 1rem;
-  color: #333;
+  color: var(--color-text-primary);
   margin-bottom: 2rem;
 }
 
 .home-button {
   padding: 1rem 2rem;
   font-size: 1rem;
-  background: #333;
-  color: white;
+  background: var(--color-button-dark);
+  color: var(--color-white);
   border: none;
   cursor: pointer;
   border-radius: 8px;
-  transition: background 0.2s ease, transform 0.05s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.05s ease;
 }
 
 .home-button:hover {
-  background: #555;
+  background: var(--color-button-dark-hover);
 }
 
 .home-button:active {
@@ -59,10 +61,10 @@
 
 .highlight {
   padding: 1.25rem;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border-light);
   border-radius: 12px;
   text-align: center;
-  background: #fafafa;
+  background: var(--color-background-light);
 }
 
 .highlight h3 {

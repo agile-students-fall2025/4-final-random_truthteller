@@ -10,8 +10,8 @@
 
 .course-code-large {
   display: inline-block;
-  background: #eef2ff;
-  color: #1f2a56;
+  background: var(--color-background-light);
+  color: var(--color-text-primary);
   padding: 0.25rem 0.6rem;
   border-radius: 6px;
   font-weight: 700;
@@ -19,7 +19,7 @@
 }
 
 .course-long-desc {
-  color: #444;
+  color: var(--color-text-primary);
   margin-top: 0.5rem;
 }
 
@@ -30,6 +30,22 @@
   margin-top: 0.75rem;
 }
 
+.sections {
+  max-width: 900px;
+}
+
+.sections h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+}
+
+.results-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
 .sections-list {
   list-style: none;
   padding: 0;
@@ -37,12 +53,14 @@
 }
 
 .section-item {
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-medium);
   padding: 1rem;
   margin-bottom: 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--color-white);
+  border-radius: 8px;
 }
 
 .section-main div {
@@ -55,32 +73,47 @@
 }
 
 .add-calendar {
-  background: #2b7cff;
-  color: white;
+  background: var(--color-primary-blue);
+  color: var(--color-white);
   border: none;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-calendar:hover {
+  background: var(--color-primary-blue-hover);
 }
 
 .review-button {
   background: none;
-  border: 1px solid #888;
-  color: #333;
+  border: 1px solid var(--color-border-input);
+  color: var(--color-text-primary);
   padding: 0.4rem 0.6rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.review-button:hover {
+  background: var(--color-background-hover);
 }
 
 .back-button {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  background: none;
-  border: 1px solid #ccc;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-input);
   border-radius: 10px;
   width: 40px;
   height: 40px;
   font-size: 1.2rem;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background: var(--color-background-hover);
 }
