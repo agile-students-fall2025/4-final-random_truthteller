@@ -147,7 +147,7 @@ function CourseSearch() {
           {/*credits section */}
           <div className="filter-section">
             <h4>Credits</h4>
-            {[1, 3, 2, 4].map((c) => (
+            {[1, 2, 3, 4].map((c) => (
               <button
                 key={c}
                 className={`filter-option ${
