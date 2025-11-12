@@ -56,3 +56,37 @@
     transform: rotate(360deg);
   }
 }
+
+/*new*/
+
+:root[data-theme="light"] {
+  --bg: white;
+  --fg: black;
+  --card-bg: #f7f7f7;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
+  --card-bg: #111;
+}
+
+/* ---------- BASE STYLES ---------- */
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  background-color: var(--card-bg);
+  color: var(--fg);
+  border: 1px solid var(--fg);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
