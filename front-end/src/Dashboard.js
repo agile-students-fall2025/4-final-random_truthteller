@@ -5,6 +5,8 @@ import {
   fetchScheduleEvents,
   fetchScheduleById,
   exportSchedule,
+  getCurrentSchedule,
+  setCurrentSchedule as saveCurrentSchedule,
 } from "./api/schedules";
 import { validateSchedule } from "./api/validation";
 import "./Dashboard.css";
@@ -43,51 +45,56 @@ export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [currentSchedule, setCurrentSchedule] = useState(null);
 
-  // If no scheduleId, send user to picker (always backend; no local fallback)
+  // Fetch schedule + events from backend and save as current schedule
   useEffect(() => {
-    if (!scheduleId) navigate("/schedules", { replace: true });
-  }, [scheduleId, navigate]);
-
-  // Fetch schedule + events from backend
-  useEffect(() => {
-    if (!scheduleId) return;
-
     const load = async () => {
+      // If no scheduleId, try to load current schedule or redirect to picker
+      let targetScheduleId = scheduleId;
+      if (!targetScheduleId) {
+        try {
+          const { scheduleId: currentScheduleId } = await getCurrentSchedule();
+          if (currentScheduleId) {
+            navigate(`/dashboard?scheduleId=${currentScheduleId}`, {
+              replace: true,
+            });
+            targetScheduleId = currentScheduleId;
+          } else {
+            navigate("/schedules", { replace: true });
+            return;
+          }
+        } catch (e) {
+          console.error("Cannot load current schedule", e);
+          navigate("/schedules", { replace: true });
+          return;
+        }
+      }
+
+      // Load schedule and events
       try {
-        const [sched, evs] = await Promise.all([
-          fetchScheduleById(scheduleId),
-          fetchScheduleEvents(scheduleId),
+        const [schedule, scheduleEvents] = await Promise.all([
+          fetchScheduleById(targetScheduleId),
+          fetchScheduleEvents(targetScheduleId),
         ]);
 
-        setCurrentSchedule(sched || null);
+        setCurrentSchedule(schedule || null);
 
-        const mapped = Array.isArray(evs)
-          ? evs.map(
-              (d) =>
-                new Event({
-                  id: d.id,
-                  courseName: d.courseName,
-                  day: d.day,
-                  startTime: d.startTime,
-                  endTime: d.endTime,
-                  professor: d.professor || "",
-                  room: d.room || "",
-                  credits: d.credits != null ? Number(d.credits) : 4,
-                }),
-            )
-          : [];
+        try {
+          await saveCurrentSchedule(targetScheduleId);
+        } catch (e) {
+          console.error("Unable to record current schedule", e);
+        }
 
-        // Keep empty array if backend has no events (new schedule)
-        setEvents(mapped);
+        const events = scheduleEvents.map((eventData) => new Event(eventData));
+        setEvents(events);
       } catch (e) {
-        console.warn("Failed to load schedule/events", e);
+        console.error("Unable to load schedule or events", e);
         setCurrentSchedule(null);
         setEvents([]);
       }
     };
 
     load();
-  }, [scheduleId]);
+  }, [scheduleId, navigate]);
 
   // Validation UI state + action
   const [warnings, setWarnings] = useState([]);
@@ -99,7 +106,7 @@ export default function Dashboard() {
       setWarnings(data.warnings || []);
       setCreditTotal((data.details && data.details.creditTotal) || 0);
     } catch (e) {
-      console.warn("Validation error", e);
+      console.error("Validation error", e);
       setWarnings(["Could not validate schedule (server unavailable)"]);
       setCreditTotal(0);
     }

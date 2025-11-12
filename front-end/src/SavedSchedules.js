@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   fetchSchedules,
   createSchedule,
   deleteSchedule,
+  setCurrentSchedule,
 } from "./api/schedules";
 import "./SavedSchedules.css";
 
 export default function SavedSchedules() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [schedules, setSchedules] = useState([]);
   const [newName, setNewName] = useState("");
 
@@ -22,7 +24,7 @@ export default function SavedSchedules() {
       }
     };
     load();
-  }, []);
+  }, [location.pathname]);
 
   const handleAdd = async () => {
     const trimmed = newName.trim();
@@ -31,6 +33,15 @@ export default function SavedSchedules() {
       const created = await createSchedule(trimmed);
       setSchedules((prev) => [...prev, created]);
       setNewName("");
+      // Set as current schedule and navigate to dashboard
+      try {
+        await setCurrentSchedule(created.id);
+        navigate(`/dashboard?scheduleId=${created.id}`);
+      } catch (e) {
+        console.error("Failed to set current schedule", e);
+        // Still navigate even if saving fails
+        navigate(`/dashboard?scheduleId=${created.id}`);
+      }
     } catch (e) {
       console.error("createSchedule failed", e);
     }
@@ -70,7 +81,16 @@ export default function SavedSchedules() {
               key={s.id}
               className="schedule-card"
               type="button"
-              onClick={() => navigate(`/dashboard?scheduleId=${s.id}`)}
+              onClick={async () => {
+                try {
+                  await setCurrentSchedule(s.id);
+                  navigate(`/dashboard?scheduleId=${s.id}`);
+                } catch (error) {
+                  console.error("Failed to set current schedule:", error);
+                  // Still navigate even if saving fails
+                  navigate(`/dashboard?scheduleId=${s.id}`);
+                }
+              }}
             >
               <div className="schedule-card-row">
                 <div className="schedule-name">{s.name}</div>

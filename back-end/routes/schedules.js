@@ -60,6 +60,49 @@ const scheduleEvents = {
   s3: [],
 };
 
+// Track a user's last selected schedule in memory until we add persistence.
+// TODO: replace with storage once auth is wired up.
+const userCurrentSchedules = Object.create(null);
+
+router.get("/current", (req, res) => {
+  const userId = req.query.userId || "default";
+  let scheduleId = userCurrentSchedules[userId];
+
+  const scheduleExists =
+    scheduleId && schedules.some((schedule) => schedule.id === scheduleId);
+
+  if (!scheduleExists) {
+    scheduleId = schedules.length > 0 ? schedules[0].id : null;
+    if (scheduleId) {
+      userCurrentSchedules[userId] = scheduleId;
+    } else {
+      delete userCurrentSchedules[userId];
+    }
+  }
+
+  res.json({ scheduleId });
+});
+
+/*
+ * PUT /api/schedules/current
+ * Set the current schedule ID for the user
+ */
+router.put("/current", (req, res) => {
+  const { scheduleId } = req.body;
+  if (!scheduleId) {
+    return res.status(400).json({ error: "scheduleId is required" });
+  }
+
+  const userId = req.query.userId || "default";
+  const schedule = schedules.find((s) => s.id === scheduleId);
+  if (!schedule) {
+    return res.status(404).json({ error: "Schedule not found" });
+  }
+
+  userCurrentSchedules[userId] = scheduleId;
+  res.json({ scheduleId });
+});
+
 /*
  * GET /api/schedules
  * Get all schedules
@@ -118,6 +161,12 @@ router.delete("/:id", (req, res) => {
   schedules.splice(index, 1);
   delete scheduleEvents[req.params.id];
 
+  for (const [userId, currentId] of Object.entries(userCurrentSchedules)) {
+    if (currentId === req.params.id) {
+      delete userCurrentSchedules[userId];
+    }
+  }
+
   res.status(204).send();
 });
 
@@ -133,6 +182,46 @@ router.get("/:id/events", (req, res) => {
 
   const events = scheduleEvents[req.params.id] || [];
   res.json(events);
+});
+
+/*
+ * POST /api/schedules/:id/events
+ * Add events to a schedule
+ */
+router.post("/:id/events", (req, res) => {
+  const schedule = schedules.find((s) => s.id === req.params.id);
+  if (!schedule) {
+    return res.status(404).json({ error: "Schedule not found" });
+  }
+
+  const { events } = req.body;
+  if (!Array.isArray(events)) {
+    return res.status(400).json({ error: "Events must be an array" });
+  }
+
+  if (!scheduleEvents[req.params.id]) {
+    scheduleEvents[req.params.id] = [];
+  }
+
+  const timestamp = Date.now();
+  const newEvents = events.map((event, index) => ({
+    id: event.id || `event-${timestamp}-${index}`,
+    courseName: event.courseName,
+    day: event.day,
+    startTime: event.startTime,
+    endTime: event.endTime,
+    professor: event.professor || "",
+    room: event.room || "",
+    credits: event.credits != null ? Number(event.credits) : 4,
+  }));
+
+  scheduleEvents[req.params.id].push(...newEvents);
+
+  const now = new Date();
+  schedule.modified = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
+  schedule.classes = scheduleEvents[req.params.id].length;
+
+  res.status(201).json(newEvents);
 });
 
 /*

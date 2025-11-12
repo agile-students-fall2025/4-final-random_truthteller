@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CourseDetails.css";
 import { fetchCourseById } from "./mockData";
+import { getCurrentSchedule, addEventsToSchedule } from "./api/schedules";
 
 function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [sections, setSections] = useState([]);
+  const [currentScheduleId, setCurrentScheduleId] = useState(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -20,13 +23,86 @@ function CourseDetails() {
       setCourse(c);
       // if the mock data includes sections, use them; otherwise show placeholder
       setSections(c.sections || []);
+
+      try {
+        const { scheduleId } = await getCurrentSchedule();
+        setCurrentScheduleId(scheduleId);
+      } catch (e) {
+        console.warn("Failed to load current schedule", e);
+      }
     };
     load();
   }, [id, navigate]);
 
-  const handleAddToCalendar = (section) => {
-    // Placeholder: in a real app we'd integrate with calendar APIs or add to user's schedule
-    alert(`Added section ${section.sectionId} to your calendar (placeholder).`);
+  const parseSectionToEvents = (section, course) => {
+    const DAYS = new Map([
+      ["Mon", 0],
+      ["Tue", 1],
+      ["Wed", 2],
+      ["Thu", 3],
+      ["Fri", 4],
+    ]);
+
+    if (!section.time) {
+      return [];
+    }
+
+    const parts = String(section.time).match(
+      /(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/,
+    );
+    if (!parts) {
+      return [];
+    }
+
+    const startTime = `${parts[1].padStart(2, "0")}:${parts[2]}`;
+    const endTime = `${parts[3].padStart(2, "0")}:${parts[4]}`;
+    const courseName = course.courseName || course.title || course.code;
+    const days = String(section.days || "")
+      .split("/")
+      .map((day) => day.trim())
+      .filter(Boolean);
+
+    return days
+      .map((day) => DAYS.get(day))
+      .filter((day) => day !== undefined)
+      .map((day) => ({
+        courseName,
+        day,
+        startTime,
+        endTime,
+        professor: section.instructor || course.instructor || "",
+        room: section.location || "",
+        credits: course.credits || 4,
+      }));
+  };
+
+  const handleAddToCalendar = async (section) => {
+    if (!currentScheduleId) {
+      console.error("No current schedule ID");
+      navigate("/schedules");
+      return;
+    }
+
+    if (!course) {
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const events = parseSectionToEvents(section, course);
+      if (events.length === 0) {
+        alert("We couldn't read the meeting time for that section.");
+        return;
+      }
+
+      await addEventsToSchedule(currentScheduleId, events);
+      navigate(`/dashboard?scheduleId=${currentScheduleId}`);
+    } catch (error) {
+      console.error("Error adding course to schedule:", error);
+      alert(`Failed to add course to schedule: ${error.message}`);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const goToCourseReviews = () => {
@@ -89,8 +165,13 @@ function CourseDetails() {
                   <button
                     className="add-calendar"
                     onClick={() => handleAddToCalendar(s)}
+                    disabled={isAdding || !currentScheduleId}
                   >
-                    Add to calendar
+                    {isAdding
+                      ? "Adding..."
+                      : currentScheduleId
+                        ? "Add to schedule"
+                        : "Select schedule first"}
                   </button>
                   <button
                     className="review-button"
