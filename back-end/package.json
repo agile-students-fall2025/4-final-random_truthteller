@@ -1,6 +1,7 @@
 {
   "name": "back-end",
   "version": "1.0.0",
+  "private": true,
   "description": "Express.js back-end server for ProfPick",
   "main": "server.js",
   "scripts": {
