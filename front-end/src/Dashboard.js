@@ -7,6 +7,7 @@ import {
   exportSchedule,
   getCurrentSchedule,
   setCurrentSchedule as saveCurrentSchedule,
+  deleteEventFromSchedule,
 } from "./api/schedules";
 import { validateSchedule } from "./api/validation";
 import "./Dashboard.css";
@@ -44,6 +45,7 @@ export default function Dashboard() {
 
   const [events, setEvents] = useState([]);
   const [currentSchedule, setCurrentSchedule] = useState(null);
+  const [eventBeingDeleted, setEventBeingDeleted] = useState(null);
 
   // Fetch schedule + events from backend and save as current schedule
   useEffect(() => {
@@ -144,6 +146,32 @@ export default function Dashboard() {
     return { top: `${top}px`, height: `${height}px` };
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    const activeScheduleId = scheduleId || currentSchedule?.id;
+    if (!activeScheduleId) {
+      return;
+    }
+
+    setEventBeingDeleted(eventId);
+    try {
+      await deleteEventFromSchedule(activeScheduleId, eventId);
+      setEvents((prev) => prev.filter((event) => event.id !== eventId));
+      try {
+        const refreshedSchedule = await fetchScheduleById(activeScheduleId);
+        setCurrentSchedule(refreshedSchedule || null);
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh schedule after deletion",
+          refreshError,
+        );
+      }
+    } catch (error) {
+      console.error("Failed to delete event", error);
+    } finally {
+      setEventBeingDeleted(null);
+    }
+  };
+
   const handleExport = async () => {
     try {
       await exportSchedule(scheduleId);
@@ -211,6 +239,18 @@ export default function Dashboard() {
                         className={`event-block${isConflict ? " conflict" : ""}`}
                         style={calculateEventStyle(event)}
                       >
+                        <button
+                          type="button"
+                          className="event-remove"
+                          aria-label="Remove event"
+                          disabled={eventBeingDeleted === event.id}
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            handleDeleteEvent(event.id);
+                          }}
+                        >
+                          ×
+                        </button>
                         <div className="event-title">{event.courseName}</div>
                         {event.professor && (
                           <div className="event-professor">

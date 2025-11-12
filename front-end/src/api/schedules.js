@@ -122,3 +122,15 @@ export const setCurrentSchedule = async (scheduleId) => {
   }
   return await response.json();
 };
+
+export const deleteEventFromSchedule = async (scheduleId, eventId) => {
+  const response = await fetch(
+    `${API_BASE_URL}/schedules/${scheduleId}/events/${eventId}`,
+    {
+      method: "DELETE",
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to delete event: ${response.statusText}`);
+  }
+};
