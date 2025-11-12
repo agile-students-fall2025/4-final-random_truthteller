@@ -1,77 +1,112 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CourseSearch.css";
-import { fetchCourses } from "./mockData";
 
 function CourseSearch() {
   const [query, setQuery] = useState("");
   const [courses, setCourses] = useState([]);
   const [displayedCourses, setDisplayedCourses] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
-  const [selectedMajor, setSelectedMajor] = useState("");
+  const [filters, setFilters] = useState({
+    building: "",
+    credits: "",
+    days: [],
+  });
+
   const navigate = useNavigate();
 
-  // fetch courses from backendd
+  //filter courses based on search
   useEffect(() => {
-  const loadCourses = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/api/courses");
-      const data = await res.json();
-      setCourses(data);
-      setDisplayedCourses(data);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  };
+    const loadCourses = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/courses");
+        const data = await res.json();
+        setCourses(data);
+        setDisplayedCourses(data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
 
     loadCourses();
   }, []);
 
-  // filter courses based on search
   useEffect(() => {
-  let filtered = courses;
+    let filtered = courses;
 
-  if (query) {
-    const lowerQuery = query.toLowerCase();
+    //search query
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter((course) => {
+        const name = course.name || "";
+        const code = course.code || "";
+        const prof = course.professor || course.instructor || "";
+        return (
+          name.toLowerCase().includes(lowerQuery) ||
+          code.toLowerCase().includes(lowerQuery) ||
+          prof.toLowerCase().includes(lowerQuery)
+        );
+      });
+    }
 
-    filtered = filtered.filter((course) => {
-      const name = course.name || "";
-      const code = course.code || "";
-      const prof = course.professor || course.instructor || "";
-
-      return (
-        name.toLowerCase().includes(lowerQuery) ||
-        code.toLowerCase().includes(lowerQuery) ||
-        prof.toLowerCase().includes(lowerQuery)
+    //building filter
+    if (filters.building) {
+      filtered = filtered.filter(
+        (course) =>
+          course.building &&
+          course.building.toLowerCase() === filters.building.toLowerCase()
       );
-    });
-  }
+    }
 
-  setDisplayedCourses(filtered);
-  }, [query, courses]);
+    //credits filter
+    if (filters.credits) {
+      filtered = filtered.filter(
+        (course) => Number(course.credits) === Number(filters.credits)
+      );
+    }
 
+    //days filter
+    if (filters.days.length > 0) {
+      filtered = filtered.filter((course) => {
+        if (!course.days) return false;
+        return filters.days.some((d) =>
+          course.days.map((x) => x.toLowerCase()).includes(d.toLowerCase())
+        );
+      });
+    }
+
+    setDisplayedCourses(filtered);
+  }, [query, filters, courses]);
 
   const handleCourseClick = (courseId, courseName) => {
-    // Navigate to Course Details page for the selected course
     navigate(`/courses/${encodeURIComponent(courseId)}`);
   };
 
-  const toggleFilter = () => {
-    setShowFilter(!showFilter);
+  const toggleFilter = () => setShowFilter(!showFilter);
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key] === value ? "" : value, //toggle selection
+    }));
   };
 
-  const handleMajorSelect = (major) => {
-    setSelectedMajor(major);
-    setShowFilter(false);
+  const toggleDay = (day) => {
+    setFilters((prev) => {
+      const newDays = prev.days.includes(day)
+        ? prev.days.filter((d) => d !== day)
+        : [...prev.days, day];
+      return { ...prev, days: newDays };
+    });
+  };
+
+  const clearFilters = () => {
+    setFilters({ building: "", credits: "", days: [] });
   };
 
   return (
     <div className="course-search-page">
-      <button
-        type="button"
-        className="back-button"
-        onClick={() => navigate(-1)}
-      >
+      <button type="button" className="back-button" onClick={() => navigate(-1)}>
         ←
       </button>
       <h1>Course Search</h1>
@@ -91,33 +126,73 @@ function CourseSearch() {
 
       {showFilter && (
         <div className="filter-popup">
-          <h3>Filter by Major</h3>
-          <ul>
-            {["Computer Science", "Biology", "Mathematics", "Economics"].map(
-              (major) => (
-                <li key={major}>
-                  <button
-                    className="major-option"
-                    onClick={() => handleMajorSelect(major)}
-                  >
-                    {major}
-                  </button>
-                </li>
-              ),
-            )}
-          </ul>
-          <button onClick={toggleFilter} className="close-popup">
-            Close
-          </button>
+          <h3>Filter Courses</h3>
+
+          {/*building section */}
+          <div className="filter-section">
+            <h4>Building</h4>
+            {["Hall A", "Hall B", "Hall C"].map((b) => (
+              <button
+                key={b}
+                className={`filter-option ${
+                  filters.building === b ? "selected" : ""
+                }`}
+                onClick={() => handleFilterChange("building", b)}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+
+          {/*credits section */}
+          <div className="filter-section">
+            <h4>Credits</h4>
+            {[1, 3, 2, 4].map((c) => (
+              <button
+                key={c}
+                className={`filter-option ${
+                  filters.credits === c ? "selected" : ""
+                }`}
+                onClick={() => handleFilterChange("credits", c)}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+
+          {/*days section */}
+          <div className="filter-section">
+            <h4>Days</h4>
+            {["Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
+              <button
+                key={day}
+                className={`filter-option ${
+                  filters.days.includes(day) ? "selected" : ""
+                }`}
+                onClick={() => toggleDay(day)}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+
+          <div className="filter-actions">
+            <button onClick={clearFilters} className="clear-filters">
+              Clear Filters
+            </button>
+            <button onClick={() => setShowFilter(false)} className="close-popup">
+              Done
+            </button>
+          </div>
         </div>
       )}
 
+      {/*course list */}
       <div className="courses-list">
         {displayedCourses.length === 0 ? (
           <div className="results-placeholder">No courses found.</div>
         ) : (
           displayedCourses.map((course) => {
-            // Support richer course objects if available, otherwise derive from courseName
             const raw = course.name || "";
             const [maybeCode, maybeTitle] = raw.split(" - ", 2);
             const code = course.code || (maybeTitle ? maybeCode : "");
