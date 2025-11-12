@@ -46,7 +46,7 @@ export default function Dashboard() {
       ]);
 
       setCurrentSchedule(scheduleData);
-      events = eventsData.map((data) => new Event(data));
+      const events = eventsData.map((data) => new Event(data));
       setEvents(events);
     };
 
