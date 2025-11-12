@@ -1,0 +1,24 @@
+{
+  "name": "ProfPick",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ProfPick - Smarter course planning with in-context professor ratings",
+  "scripts": {
+    "frontend:start": "cd front-end && npm start",
+    "frontend:build": "cd front-end && npm run build",
+    "frontend:test": "cd front-end && npm test",
+    "frontend:format": "cd front-end && npm run format",
+    "backend:start": "cd back-end && npm start",
+    "backend:test": "cd back-end && npm test",
+    "backend:test:coverage": "cd back-end && npm run test:coverage",
+    "backend:format": "cd back-end && npm run format",
+    "format": "npm run frontend:format && npm run backend:format",
+    "install:all": "cd front-end && npm install && cd ../back-end && npm install",
+    "test": "npm run frontend:test && npm run backend:test",
+    "dev": "concurrently \"npm run frontend:start\" \"npm run backend:start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
+
