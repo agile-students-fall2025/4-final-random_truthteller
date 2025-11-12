@@ -15,8 +15,7 @@ function Login({ onLogin }) {
       password,
     });
     onLogin?.();
-    // Redirect to schedules page so user can select a schedule
-    navigate("/schedules");
+    navigate("/dashboard");
   };
 
   const toggleMode = () => {

@@ -15,7 +15,7 @@
     "format": "npm run frontend:format && npm run backend:format",
     "install:all": "cd front-end && npm install && cd ../back-end && npm install",
     "test": "npm run frontend:test && npm run backend:test",
-    "dev": "concurrently \"npm run frontend:start\" \"npm run backend:start\""
+    "start": "concurrently \"npm run frontend:start\" \"npm run backend:start\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

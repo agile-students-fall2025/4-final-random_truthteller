@@ -83,3 +83,42 @@ export const exportSchedule = async (scheduleId) => {
   window.URL.revokeObjectURL(url);
   document.body.removeChild(a);
 };
+
+export const addEventsToSchedule = async (scheduleId, events) => {
+  const response = await fetch(
+    `${API_BASE_URL}/schedules/${scheduleId}/events`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ events }),
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to add events to schedule: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+export const getCurrentSchedule = async () => {
+  const response = await fetch(`${API_BASE_URL}/schedules/current`);
+  if (!response.ok) {
+    throw new Error(`Failed to get current schedule: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
+export const setCurrentSchedule = async (scheduleId) => {
+  const response = await fetch(`${API_BASE_URL}/schedules/current`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ scheduleId }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to set current schedule: ${response.statusText}`);
+  }
+  return await response.json();
+};
