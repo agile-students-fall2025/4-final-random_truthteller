@@ -106,6 +106,16 @@ function App() {
               )
             }
           />
+          <Route
+              path="/settings"
+              element={
+                isAuthenticated ? (
+                  <Settings />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
         </Routes>
       </div>
     </Router>

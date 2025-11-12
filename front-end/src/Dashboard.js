@@ -185,7 +185,7 @@ export default function Dashboard() {
             <span>Current Schedule:</span>
             {/* TODO: Get the current schedule from the backend. What should be
                 considered first? Might need to store last selected schedule in
-                our database. */}
+                our database.h */}
             <button
               className="schedule-button"
               type="button"
@@ -202,6 +202,7 @@ export default function Dashboard() {
             className="settings-button"
             type="button"
             aria-label="Settings"
+            onClick={() => navigate("/settings")}
           >
             ⚙
           </button>
