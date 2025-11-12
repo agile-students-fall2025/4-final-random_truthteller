@@ -118,6 +118,7 @@
   align-items: flex-start;
   justify-content: flex-end;
   padding: 4px 8px;
+  box-sizing: border-box;
 }
 
 .time-label {
@@ -129,6 +130,7 @@
   position: relative;
   border-right: 1px solid var(--color-border-light);
   background: var(--color-white);
+  box-sizing: border-box;
 }
 
 .day-column:last-child {
@@ -138,6 +140,7 @@
 .time-cell {
   height: 40px;
   border-bottom: 1px solid var(--color-border-light);
+  box-sizing: border-box;
 }
 
 /* Events */
