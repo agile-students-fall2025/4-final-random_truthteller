@@ -121,8 +121,9 @@
   color: var(--fg);
 }
 
+
 .course-card:hover {
-  background: var(--color-background-hover);
+  background: #2a2a2a;
 }
 
 .course-name {
