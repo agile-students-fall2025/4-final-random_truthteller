@@ -9,32 +9,6 @@ const START_HOUR = 8;
 const END_HOUR = 19;
 const SLOT_HEIGHT = 40; // pixels per 30-minute slot
 
-const DEFAULT_SCHEDULE_ID = "s1"; // default used when param missing
-
-// Fallback sample events (used if nothing else available)
-const createSampleEvents = () => [
-  new Event({
-    id: "cs101",
-    courseName: "Intro to Computer Science",
-    day: 0,
-    startTime: "09:00",
-    endTime: "10:30",
-    professor: "Prof 1",
-    room: "Room 204",
-    credits: 4,
-  }),
-  new Event({
-    id: "cs102",
-    courseName: "Intro to Data Structures",
-    day: 2,
-    startTime: "10:00",
-    endTime: "11:30",
-    professor: "Prof 2",
-    room: "Hall A",
-    credits: 4,
-  }),
-];
-
 function minutesToLabel(minutes) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -47,7 +21,8 @@ function useConflicts(events) {
   const conflicts = [];
   for (let i = 0; i < events.length; i++) {
     for (let j = i + 1; j < events.length; j++) {
-      if (events[i].overlapsWith && events[i].overlapsWith(events[j])) {
+      // Assume Event guarantees .overlapsWith
+      if (events[i].overlapsWith(events[j])) {
         conflicts.push({ event1: events[i], event2: events[j] });
       }
     }
@@ -58,59 +33,31 @@ function useConflicts(events) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const scheduleIdFromQuery = searchParams.get("scheduleId");
+  const scheduleId = searchParams.get("scheduleId");
 
   const [events, setEvents] = useState([]);
   const [currentSchedule, setCurrentSchedule] = useState(null);
-  const [currentScheduleName, setCurrentScheduleName] = useState("(custom)");
 
-  // Load events by priority:
-  // 1) If ?scheduleId=... present → fetch from backend
-  // 2) Else try localStorage (SavedSchedules.js writes there)
-  // 3) Else fallback samples
+  // If no scheduleId, send user to picker (always backend; no local fallback)
   useEffect(() => {
+    if (!scheduleId) navigate("/schedules", { replace: true });
+  }, [scheduleId, navigate]);
+
+  // Fetch schedule + events from backend
+  useEffect(() => {
+    if (!scheduleId) return;
+
     const load = async () => {
       try {
-        if (scheduleIdFromQuery) {
-          const sid = scheduleIdFromQuery || DEFAULT_SCHEDULE_ID;
-          const [sched, evs] = await Promise.all([
-            fetchScheduleById(sid),
-            fetchScheduleEvents(sid),
-          ]);
-          setCurrentSchedule(sched || null);
-          if (sched?.name) setCurrentScheduleName(sched.name);
-          const mapped = (evs || []).map((d) =>
-            new Event({
-              id: d.id,
-              courseName: d.courseName,
-              day: d.day,
-              startTime: d.startTime,
-              endTime: d.endTime,
-              professor: d.professor || "",
-              room: d.room || "",
-              credits: d.credits != null ? Number(d.credits) : 4,
-            }),
-          );
-          setEvents(mapped.length ? mapped : createSampleEvents());
-          return;
-        }
+        const [sched, evs] = await Promise.all([
+          fetchScheduleById(scheduleId),
+          fetchScheduleEvents(scheduleId),
+        ]);
 
-        // localStorage path
-        const eventsKey = "currentScheduleEvents";
-        const nameKey = "currentScheduleName";
-        const idKey = "currentScheduleId";
+        setCurrentSchedule(sched || null);
 
-        const raw = localStorage.getItem(eventsKey);
-        const savedName = localStorage.getItem(nameKey);
-        const savedId = localStorage.getItem(idKey);
-
-        if (savedName) setCurrentScheduleName(savedName);
-        else if (savedId) setCurrentScheduleName(String(savedId).toUpperCase());
-
-        if (raw) {
-          const list = JSON.parse(raw);
-          if (Array.isArray(list) && list.length) {
-            const mapped = list.map(
+        const mapped = Array.isArray(evs)
+          ? evs.map(
               (d) =>
                 new Event({
                   id: d.id,
@@ -122,24 +69,22 @@ export default function Dashboard() {
                   room: d.room || "",
                   credits: d.credits != null ? Number(d.credits) : 4,
                 }),
-            );
-            setEvents(mapped);
-            return;
-          }
-        }
+            )
+          : [];
 
-        // fallback
-        setEvents(createSampleEvents());
+        // Keep empty array if backend has no events (new schedule)
+        setEvents(mapped);
       } catch (e) {
-        console.warn("Failed to load schedule; falling back to samples", e);
-        setEvents(createSampleEvents());
+        console.warn("Failed to load schedule/events", e);
+        setCurrentSchedule(null);
+        setEvents([]);
       }
     };
 
     load();
-  }, [scheduleIdFromQuery]);
+  }, [scheduleId]);
 
-  // --- Validation banner state + action ---
+  // Validation UI state + action
   const [warnings, setWarnings] = useState([]);
   const [creditTotal, setCreditTotal] = useState(0);
 
@@ -153,7 +98,7 @@ export default function Dashboard() {
           day: e.day,
           startTime: e.startTime,
           endTime: e.endTime,
-          credits: e.credits ?? 4, // default 4
+          credits: e.credits ?? 4,
         })),
         creditMin: 12,
         creditMax: 20,
@@ -180,10 +125,10 @@ export default function Dashboard() {
   const timeSlots = useMemo(() => {
     const slots = [];
     for (let h = START_HOUR; h < END_HOUR; h++) {
-      slots.push(h * 60);
-      slots.push(h * 60 + 30);
+      slots.push(h * 60); // top of hour
+      slots.push(h * 60 + 30); // half hour
     }
-    slots.push(END_HOUR * 60);
+    slots.push(END_HOUR * 60); // final time
     return slots;
   }, []);
 
@@ -211,11 +156,7 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <h1 className="dashboard-title">Weekly Planner</h1>
           <div className="dashboard-actions">
-            <button
-              className="button"
-              type="button"
-              onClick={() => navigate("/courses")}
-            >
+            <button className="button" type="button" onClick={() => navigate("/courses")}>
               Register For Courses
             </button>
           </div>
@@ -253,7 +194,7 @@ export default function Dashboard() {
                     <div key={m} className="time-cell"></div>
                   ))}
 
-                  {/* Events */}
+                  {/* Events for this day */}
                   {getEventsForDay(dayIndex).map((event) => {
                     const isConflict = isEventInConflict(event);
                     return (
@@ -302,7 +243,7 @@ export default function Dashboard() {
               onClick={() => navigate("/schedules")}
               title="Choose a different saved schedule"
             >
-              {currentSchedule?.name || currentScheduleName}
+              {currentSchedule?.name || ""}
               <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
