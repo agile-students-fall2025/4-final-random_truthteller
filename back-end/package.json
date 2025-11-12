@@ -4,7 +4,7 @@
   "description": "Express.js back-end server for ProfPick",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --watch server.js",
     "test": "mocha --recursive --timeout 10000",
     "test:coverage": "c8 --reporter=text --reporter=html npm test",
     "format": "prettier --write ."
