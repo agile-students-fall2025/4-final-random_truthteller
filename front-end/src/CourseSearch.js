@@ -13,43 +13,42 @@ function CourseSearch() {
 
   // fetch courses from backendd
   useEffect(() => {
-  const loadCourses = async () => {
-    try {
-      const res = await fetch("http://localhost:8000/api/courses");
-      const data = await res.json();
-      setCourses(data);
-      setDisplayedCourses(data);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    }
-  };
+    const loadCourses = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/courses");
+        const data = await res.json();
+        setCourses(data);
+        setDisplayedCourses(data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
 
     loadCourses();
   }, []);
 
   // filter courses based on search
   useEffect(() => {
-  let filtered = courses;
+    let filtered = courses;
 
-  if (query) {
-    const lowerQuery = query.toLowerCase();
+    if (query) {
+      const lowerQuery = query.toLowerCase();
 
-    filtered = filtered.filter((course) => {
-      const name = course.name || "";
-      const code = course.code || "";
-      const prof = course.professor || course.instructor || "";
+      filtered = filtered.filter((course) => {
+        const name = course.name || "";
+        const code = course.code || "";
+        const prof = course.professor || course.instructor || "";
 
-      return (
-        name.toLowerCase().includes(lowerQuery) ||
-        code.toLowerCase().includes(lowerQuery) ||
-        prof.toLowerCase().includes(lowerQuery)
-      );
-    });
-  }
+        return (
+          name.toLowerCase().includes(lowerQuery) ||
+          code.toLowerCase().includes(lowerQuery) ||
+          prof.toLowerCase().includes(lowerQuery)
+        );
+      });
+    }
 
-  setDisplayedCourses(filtered);
+    setDisplayedCourses(filtered);
   }, [query, courses]);
-
 
   const handleCourseClick = (courseId, courseName) => {
     // Navigate to Course Details page for the selected course

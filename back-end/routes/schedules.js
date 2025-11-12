@@ -105,6 +105,22 @@ router.post("/", (req, res) => {
 });
 
 /*
+ * DELETE /api/schedules/:id
+ * Delete a schedule
+ */
+router.delete("/:id", (req, res) => {
+  const index = schedules.findIndex((s) => s.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Schedule not found" });
+  }
+
+  schedules.splice(index, 1);
+  delete scheduleEvents[req.params.id];
+
+  res.status(204).send();
+});
+
+/*
  * GET /api/schedules/:id/events
  * Get all events for a schedule
  */

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Event } from "./Event";
 import { fetchScheduleEvents, fetchScheduleById } from "./api/schedules";
+import { validateSchedule } from "./api/validation";
 import "./Dashboard.css";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
@@ -90,27 +91,7 @@ export default function Dashboard() {
 
   async function runValidation() {
     try {
-      const API_BASE = process.env.REACT_APP_API_BASE ?? "http://localhost:8000";
-      const payload = {
-        items: events.map((e) => ({
-          id: e.id,
-          courseName: e.courseName,
-          day: e.day,
-          startTime: e.startTime,
-          endTime: e.endTime,
-          credits: e.credits ?? 4,
-        })),
-        creditMin: 12,
-        creditMax: 20,
-      };
-
-      const resp = await fetch(`${API_BASE}/api/validate-schedule`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await resp.json();
+      const data = await validateSchedule(events, 12, 20);
       setWarnings(data.warnings || []);
       setCreditTotal((data.details && data.details.creditTotal) || 0);
     } catch (e) {
@@ -132,7 +113,8 @@ export default function Dashboard() {
     return slots;
   }, []);
 
-  const getEventsForDay = (dayIndex) => events.filter((e) => e.day === dayIndex);
+  const getEventsForDay = (dayIndex) =>
+    events.filter((e) => e.day === dayIndex);
 
   const isEventInConflict = (event) =>
     conflicts.some((c) => c.event1.id === event.id || c.event2.id === event.id);
@@ -144,7 +126,8 @@ export default function Dashboard() {
     const totalMinutes = (END_HOUR - START_HOUR) * 60;
     const totalHeight = (timeSlots.length - 1) * SLOT_HEIGHT;
 
-    const top = ((startMinutes - startSlotMinutes) / totalMinutes) * totalHeight;
+    const top =
+      ((startMinutes - startSlotMinutes) / totalMinutes) * totalHeight;
     const height = ((endMinutes - startMinutes) / 30) * SLOT_HEIGHT;
 
     return { top: `${top}px`, height: `${height}px` };
@@ -156,7 +139,11 @@ export default function Dashboard() {
         <header className="dashboard-header">
           <h1 className="dashboard-title">Weekly Planner</h1>
           <div className="dashboard-actions">
-            <button className="button" type="button" onClick={() => navigate("/courses")}>
+            <button
+              className="button"
+              type="button"
+              onClick={() => navigate("/courses")}
+            >
               Register For Courses
             </button>
           </div>
@@ -181,7 +168,9 @@ export default function Dashboard() {
                 {timeSlots.slice(0, -1).map((minutes, idx) => (
                   <div key={minutes} className="time-slot">
                     {idx % 2 === 0 && (
-                      <span className="time-label">{minutesToLabel(minutes)}</span>
+                      <span className="time-label">
+                        {minutesToLabel(minutes)}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -205,7 +194,9 @@ export default function Dashboard() {
                       >
                         <div className="event-title">{event.courseName}</div>
                         {event.professor && (
-                          <div className="event-professor">{event.professor}</div>
+                          <div className="event-professor">
+                            {event.professor}
+                          </div>
                         )}
                         <div className="event-meta">
                           {event.startTime} – {event.endTime}
@@ -221,13 +212,18 @@ export default function Dashboard() {
         </section>
 
         <div className="calendar-footer">
-          <button className="validate-btn" type="button" onClick={runValidation}>
+          <button
+            className="validate-btn"
+            type="button"
+            onClick={runValidation}
+          >
             Validate Schedule
           </button>
 
           {warnings.length > 0 ? (
             <div className="warnings-banner">
-              <strong>Warnings:</strong> {warnings.join(" | ")} • Credits: {creditTotal}
+              <strong>Warnings:</strong> {warnings.join(" | ")} • Credits:{" "}
+              {creditTotal}
             </div>
           ) : creditTotal > 0 ? (
             <div className="valid-banner">

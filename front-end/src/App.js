@@ -71,42 +71,50 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/courses/:id"
-            element={
-              isAuthenticated ? (
-                <CourseDetails />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/reviews/:type/:name?"
-            element={
-              isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/schedules"
-            element={
-              isAuthenticated ? (
-                <SavedSchedules />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
+                isAuthenticated ? (
+                  <Dashboard />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/courses/:id"
+              element={
+                isAuthenticated ? (
+                  <CourseDetails />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/reviews/:type/:name?"
+              element={
+                isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                isAuthenticated ? (
+                  <Dashboard />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/schedules"
+              element={
+                isAuthenticated ? (
+                  <SavedSchedules />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
               path="/settings"
               element={
                 isAuthenticated ? (
@@ -116,10 +124,10 @@ function App() {
                 )
               }
             />
-        </Routes>
-      </div>
-    </Router>
-  </ThemeProvider>
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
