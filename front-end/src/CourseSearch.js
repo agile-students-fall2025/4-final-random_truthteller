@@ -54,14 +54,14 @@ function CourseSearch() {
       filtered = filtered.filter(
         (course) =>
           course.building &&
-          course.building.toLowerCase() === filters.building.toLowerCase()
+          course.building.toLowerCase() === filters.building.toLowerCase(),
       );
     }
 
     //credits filter
     if (filters.credits) {
       filtered = filtered.filter(
-        (course) => Number(course.credits) === Number(filters.credits)
+        (course) => Number(course.credits) === Number(filters.credits),
       );
     }
 
@@ -70,7 +70,7 @@ function CourseSearch() {
       filtered = filtered.filter((course) => {
         if (!course.days) return false;
         return filters.days.some((d) =>
-          course.days.map((x) => x.toLowerCase()).includes(d.toLowerCase())
+          course.days.map((x) => x.toLowerCase()).includes(d.toLowerCase()),
         );
       });
     }
@@ -106,7 +106,11 @@ function CourseSearch() {
 
   return (
     <div className="course-search-page">
-      <button type="button" className="back-button" onClick={() => navigate(-1)}>
+      <button
+        type="button"
+        className="back-button"
+        onClick={() => navigate(-1)}
+      >
         ←
       </button>
       <h1>Course Search</h1>
@@ -180,7 +184,10 @@ function CourseSearch() {
             <button onClick={clearFilters} className="clear-filters">
               Clear Filters
             </button>
-            <button onClick={() => setShowFilter(false)} className="close-popup">
+            <button
+              onClick={() => setShowFilter(false)}
+              className="close-popup"
+            >
               Done
             </button>
           </div>

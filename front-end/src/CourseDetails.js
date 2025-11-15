@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CourseDetails.css";
-import { fetchCourseById } from "./mockData";
+import { fetchCourseById } from "./api/courses";
 import { getCurrentSchedule, addEventsToSchedule } from "./api/schedules";
 
 function CourseDetails() {
