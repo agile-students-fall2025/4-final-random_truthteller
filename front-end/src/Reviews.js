@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./Reviews.css";
-import { fetchCourseReviews, fetchProfReviews } from "./mockData";
+import { fetchCourseReviews, fetchProfReviews } from "./api/reviews";
 
 function Reviews() {
   const { type, name } = useParams();
