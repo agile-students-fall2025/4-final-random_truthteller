@@ -1,27 +1,43 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import * as authApi from "./api/auth";
 
 function Login({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${isLogin ? "Login" : "Signup"} attempt with:`, {
-      email,
-      password,
-    });
-    onLogin?.();
-    navigate("/dashboard");
+    setError("");
+    try {
+      const result = isLogin
+        ? await authApi.login(email.trim(), password)
+        : await authApi.register(email.trim(), password);
+
+      // store token
+      if (result && result.token) {
+        localStorage.setItem("authToken", result.token);
+        // keep existing flag for backward compatibility
+        localStorage.setItem("isAuthenticated", "true");
+        onLogin?.();
+        navigate("/dashboard");
+      } else {
+        throw new Error("No token received from server");
+      }
+    } catch (err) {
+      setError(err.message || "Login failed");
+    }
   };
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setEmail("");
     setPassword("");
+    setError("");
   };
 
   return (
@@ -68,6 +84,7 @@ function Login({ onLogin }) {
             <button type="submit" className="login-button">
               {isLogin ? "Sign In" : "Create Account"}
             </button>
+            {error && <div className="login-error">{error}</div>}
           </form>
 
           <div className="login-footer">
