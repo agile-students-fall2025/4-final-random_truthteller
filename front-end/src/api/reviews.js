@@ -24,3 +24,36 @@ export const fetchProfReviews = async (profName) => {
   const response = await fetch(endpoint);
   return await handleResponse(response);
 };
+
+export const submitCourseReview = async (course, rating, reviewText) => {
+  const response = await fetch(`${API_BASE_URL}/reviews/course`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ course, rating, reviewText }),
+  });
+  return await handleResponse(response);
+};
+
+export const submitProfReview = async (professor, rating, reviewText) => {
+  const response = await fetch(`${API_BASE_URL}/reviews/professor`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ professor, rating, reviewText }),
+  });
+  return await handleResponse(response);
+};
+
+export const flagReview = async (reviewId, reason, reviewType) => {
+  const response = await fetch(`${API_BASE_URL}/reviews/flag`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ reviewId, reason, reviewType }),
+  });
+  return await handleResponse(response);
+};
