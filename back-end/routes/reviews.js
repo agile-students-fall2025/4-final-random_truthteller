@@ -363,4 +363,69 @@ router.get("/professor/:name", (req, res) => {
   res.json(filtered);
 });
 
+// POST route to submit a new review
+router.post("/course", (req, res) => {
+  const { course, rating, reviewText } = req.body;
+
+  if (!course || !rating || !reviewText) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Rating must be between 1 and 5" });
+  }
+
+  const newReview = {
+    id: courseReviews.length + 1,
+    course,
+    rating: Number(rating),
+    reviewText: reviewText.trim(),
+    date: new Date().toISOString().split("T")[0],
+  };
+
+  courseReviews.push(newReview);
+  res.status(201).json(newReview);
+});
+
+router.post("/professor", (req, res) => {
+  const { professor, rating, reviewText } = req.body;
+
+  if (!professor || !rating || !reviewText) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Rating must be between 1 and 5" });
+  }
+
+  const newReview = {
+    id: professorReviews.length + 1,
+    professor,
+    rating: Number(rating),
+    reviewText: reviewText.trim(),
+    date: new Date().toISOString().split("T")[0],
+  };
+
+  professorReviews.push(newReview);
+  res.status(201).json(newReview);
+});
+
+// POST route to flag a review
+router.post("/flag", (req, res) => {
+  const { reviewId, reason, reviewType } = req.body;
+
+  if (!reviewId || !reason) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  // For now, we just acknowledge the flag - actual removal will be handled later
+  // In a real app, you'd store this in a database
+  console.log(`Review ${reviewId} (${reviewType}) flagged: ${reason}`);
+
+  res.status(200).json({
+    message: "Review flagged successfully",
+    reviewId,
+  });
+});
+
 module.exports = router;
