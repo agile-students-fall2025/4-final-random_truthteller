@@ -9,18 +9,24 @@ const handleResponse = async (response) => {
   return await response.json();
 };
 
-export const fetchCourseReviews = async (courseName) => {
-  const endpoint = courseName
+export const fetchCourseReviews = async (courseName, options = {}) => {
+  const params = new URLSearchParams();
+  if (options.sort) params.set('sort', options.sort);
+  const base = courseName
     ? `${API_BASE_URL}/reviews/course/${encodeURIComponent(courseName)}`
     : `${API_BASE_URL}/reviews/course`;
+  const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
 };
 
-export const fetchProfReviews = async (profName) => {
-  const endpoint = profName
+export const fetchProfReviews = async (profName, options = {}) => {
+  const params = new URLSearchParams();
+  if (options.sort) params.set('sort', options.sort);
+  const base = profName
     ? `${API_BASE_URL}/reviews/professor/${encodeURIComponent(profName)}`
     : `${API_BASE_URL}/reviews/professor`;
+  const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
 };
