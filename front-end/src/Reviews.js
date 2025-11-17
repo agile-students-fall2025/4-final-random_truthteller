@@ -31,23 +31,46 @@ function Reviews() {
   const pageTitle = isProfessor ? "Professor" : "Course";
 
   // fetch reviews (can be either professor or course)
+  // map UI condition strings to backend sort keys
+  const mapSortKey = (condition) => {
+    switch ((condition || '').toLowerCase()) {
+      case 'newest first':
+      case 'newest':
+        return 'newest';
+      case 'oldest first':
+      case 'oldest':
+        return 'oldest';
+      case 'most positive first':
+      case 'most positive':
+        return 'most_positive';
+      case 'most negative first':
+      case 'most negative':
+        return 'most_negative';
+      default:
+        return undefined;
+    }
+  };
+
   useEffect(() => {
     const loadReviews = async () => {
       try {
+        const sortKey = mapSortKey(selectedCondition);
+        const options = sortKey ? { sort: sortKey } : {};
         const data = isProfessor
-          ? await fetchProfReviews(decodedName)
-          : await fetchCourseReviews(decodedName);
+          ? await fetchProfReviews(decodedName, options)
+          : await fetchCourseReviews(decodedName, options);
         setReviews(data);
         setDisplayedReviews(data);
       } catch (error) {
-        console.error("Error fetching mock data:", error);
+        console.error("Error fetching reviews:", error);
       }
     };
 
     loadReviews();
-  }, [decodedName, isProfessor]);
+  }, [decodedName, isProfessor, selectedCondition]);
 
   // filter reviews based on search query
+  // filter reviews based on search query (client-side) after we receive sorted data from server
   useEffect(() => {
     let filtered = reviews;
 

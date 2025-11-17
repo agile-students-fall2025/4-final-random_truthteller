@@ -339,8 +339,39 @@ const professorReviews = [
 const caseInsensitiveMatch = (value = "", target = "") =>
   value.trim().toLowerCase() === target.trim().toLowerCase();
 
+// Sorting helper used by endpoints. Accepts sort keys:
+// 'newest' | 'oldest' | 'most_positive' | 'most_negative'
+const parseDate = (d) => new Date(d).getTime();
+function sortReviews(list = [], sortKey) {
+  const copy = list.slice();
+  switch ((sortKey || "").toLowerCase()) {
+    case "newest":
+    case "newest first":
+      return copy.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    case "oldest":
+    case "oldest first":
+      return copy.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+    case "most_positive":
+    case "most positive first":
+      return copy.sort((a, b) => {
+        if (a.rating !== b.rating) return b.rating - a.rating;
+        return parseDate(b.date) - parseDate(a.date);
+      });
+    case "most_negative":
+    case "most negative first":
+      return copy.sort((a, b) => {
+        if (a.rating !== b.rating) return a.rating - b.rating;
+        return parseDate(b.date) - parseDate(a.date);
+      });
+    default:
+      return copy;
+  }
+}
+
 router.get("/course", (req, res) => {
-  res.json(courseReviews);
+  const { sort } = req.query || {};
+  const sorted = sortReviews(courseReviews, sort);
+  res.json(sorted);
 });
 
 router.get("/course/:name", (req, res) => {
@@ -348,11 +379,15 @@ router.get("/course/:name", (req, res) => {
   const filtered = courseReviews.filter(({ course }) =>
     caseInsensitiveMatch(course, name),
   );
-  res.json(filtered);
+  const { sort } = req.query || {};
+  const sorted = sortReviews(filtered, sort);
+  res.json(sorted);
 });
 
 router.get("/professor", (req, res) => {
-  res.json(professorReviews);
+  const { sort } = req.query || {};
+  const sorted = sortReviews(professorReviews, sort);
+  res.json(sorted);
 });
 
 router.get("/professor/:name", (req, res) => {
@@ -360,7 +395,9 @@ router.get("/professor/:name", (req, res) => {
   const filtered = professorReviews.filter(({ professor }) =>
     caseInsensitiveMatch(professor, name),
   );
-  res.json(filtered);
+  const { sort } = req.query || {};
+  const sorted = sortReviews(filtered, sort);
+  res.json(sorted);
 });
 
 // POST route to submit a new review
