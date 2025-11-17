@@ -73,6 +73,33 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Change password: POST /api/auth/change-password { currentPassword, newPassword }
+router.post('/change-password', requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'currentPassword and newPassword are required' });
+    }
+
+    const userId = req.auth && req.auth.userId;
+    const user = users[userId];
+    if (!user) return res.status(404).json({ error: 'user not found' });
+
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!ok) return res.status(401).json({ error: 'current password is incorrect' });
+
+    const newHash = await bcrypt.hash(newPassword, 8);
+    user.passwordHash = newHash;
+
+    // Optionally invalidate existing tokens by clearing blacklist or using token versioning.
+    // For now, just respond success.
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('change-password error', err);
+    return res.status(500).json({ error: 'internal error' });
+  }
+});
+
 module.exports = router;
 module.exports.users = users;
 module.exports.requireAuth = requireAuth;
