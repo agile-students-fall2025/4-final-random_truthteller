@@ -34,3 +34,16 @@ export async function logout(token) {
   // treat non-2xx as non-fatal for logout
   return res.status;
 }
+
+export async function changePassword(token, currentPassword, newPassword) {
+  const res = await fetch(`${API_BASE}/auth/change-password`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!res.ok) {
+    const txt = await res.json().catch(() => ({}));
+    throw new Error(txt.error || 'Failed to change password');
+  }
+  return res.json();
+}
