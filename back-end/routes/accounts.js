@@ -1,6 +1,6 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { users, requireAuth } = require('./auth');
+const { users, requireAuth } = require("./auth");
 
 // Helper: get user object from auth payload
 function getUserFromReq(req) {
@@ -10,19 +10,22 @@ function getUserFromReq(req) {
 }
 
 // Get accounts: GET /api/accounts
-router.get('/', requireAuth, (req, res) => {
+router.get("/", requireAuth, (req, res) => {
   const user = getUserFromReq(req);
-  if (!user) return res.status(404).json({ error: 'user not found' });
-  res.json({ accounts: user.accounts || [], currentAccountId: user.currentAccountId || null });
+  if (!user) return res.status(404).json({ error: "user not found" });
+  res.json({
+    accounts: user.accounts || [],
+    currentAccountId: user.currentAccountId || null,
+  });
 });
 
 // Add an account: POST /api/accounts { email, name }
-router.post('/', requireAuth, (req, res) => {
+router.post("/", requireAuth, (req, res) => {
   const { email, name } = req.body || {};
-  if (!email) return res.status(400).json({ error: 'email required' });
+  if (!email) return res.status(400).json({ error: "email required" });
 
   const user = getUserFromReq(req);
-  if (!user) return res.status(404).json({ error: 'user not found' });
+  if (!user) return res.status(404).json({ error: "user not found" });
 
   const accountId = `a-${user.id}-${Date.now()}`;
   const account = { id: accountId, email, name: name || email };
@@ -35,12 +38,12 @@ router.post('/', requireAuth, (req, res) => {
 });
 
 // Delete an account: DELETE /api/accounts/:id
-router.delete('/:id', requireAuth, (req, res) => {
+router.delete("/:id", requireAuth, (req, res) => {
   const user = getUserFromReq(req);
-  if (!user) return res.status(404).json({ error: 'user not found' });
+  if (!user) return res.status(404).json({ error: "user not found" });
 
-  const idx = (user.accounts || []).findIndex(a => a.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'account not found' });
+  const idx = (user.accounts || []).findIndex((a) => a.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "account not found" });
 
   const removed = user.accounts.splice(idx, 1)[0];
   if (user.currentAccountId === removed.id) {
@@ -51,12 +54,12 @@ router.delete('/:id', requireAuth, (req, res) => {
 });
 
 // Switch current account: PUT /api/accounts/:id/current
-router.put('/:id/current', requireAuth, (req, res) => {
+router.put("/:id/current", requireAuth, (req, res) => {
   const user = getUserFromReq(req);
-  if (!user) return res.status(404).json({ error: 'user not found' });
+  if (!user) return res.status(404).json({ error: "user not found" });
 
-  const acc = (user.accounts || []).find(a => a.id === req.params.id);
-  if (!acc) return res.status(404).json({ error: 'account not found' });
+  const acc = (user.accounts || []).find((a) => a.id === req.params.id);
+  if (!acc) return res.status(404).json({ error: "account not found" });
 
   user.currentAccountId = acc.id;
   res.json({ currentAccountId: acc.id });

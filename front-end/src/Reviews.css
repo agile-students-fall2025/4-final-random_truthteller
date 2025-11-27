@@ -249,7 +249,9 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   padding: 0;
-  transition: transform 0.1s ease, color 0.2s ease;
+  transition:
+    transform 0.1s ease,
+    color 0.2s ease;
 }
 
 .star-button:hover {

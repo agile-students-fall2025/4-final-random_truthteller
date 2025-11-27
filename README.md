@@ -2,6 +2,13 @@
 
 Smarter course planning with in‑context professor ratings
 
+## Team Members
+
+- [Haider Asif](https://github.com/rediah321)
+- [Ethan Zheng](https://github.com/ethanzzheng)
+- [Evan Zuo](https://github.com/EvanZuo1108)
+- [Ogechi Okafor](https://github.com/ookafor410)
+
 ---
 
 ## What is it?
@@ -29,22 +36,22 @@ This launches the React app at `http://localhost:3000`.
 > **Environment variables:**  
 > Copy `front-end/.env.example` to `front-end/.env`, and enter your actual Mockaroo API key as `REACT_APP_MOCKAROO_API_KEY`.
 
-# Project Repository
+## Run the back-end
 
-This repository will be used for team projects.
+```bash
+cd back-end
+npm install
+npm start
+```
 
-Several sets of instructions are included in this repository. They should each be treated as separate assignments with their own due dates and sets of requirements.
+This launches the Express.js server at `http://localhost:8000`.
 
-1. See the [App Map & Wireframes](instructions-0a-app-map-wireframes.md) and [Prototyping](./instructions-0b-prototyping.md) instructions for the requirements of the initial user experience design of the app.
+> **Environment variables:**  
+> Copy `back-end/.env.example` to `back-end/.env`, and enter your MongoDB Atlas connection string as `MONGODB_URI`.
 
-1. Delete the contents of this file and replace with the contents of a proper README.md, as described in the [project setup instructions](./instructions-0c-project-setup.md)
-
-1. See the [Sprint Planning instructions](instructions-0d-sprint-planning.md) for the requirements of Sprint Planning for each Sprint.
-
-1. See the [Front-End Development instructions](./instructions-1-front-end.md) for the requirements of the initial Front-End Development.
-
-1. See the [Back-End Development instructions](./instructions-2-back-end.md) for the requirements of the initial Back-End Development.
-
-1. See the [Database Integration instructions](./instructions-3-database.md) for the requirements of integrating a database into the back-end.
-
-1. See the [Deployment instructions](./instructions-4-deployment.md) for the requirements of deploying an app.
+> **Database setup:**  
+> After setting up your MongoDB connection, seed the database with initial course data:
+> ```bash
+> cd back-end
+> node scripts/seedCourses.js
+> ```

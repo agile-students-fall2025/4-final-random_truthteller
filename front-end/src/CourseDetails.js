@@ -14,7 +14,7 @@ function CourseDetails() {
 
   useEffect(() => {
     const load = async () => {
-      const c = await fetchCourseById(parseInt(id, 10));
+      const c = await fetchCourseById(id);
       if (!c) {
         // If course not found, go back to search
         navigate("/courses");
@@ -56,7 +56,7 @@ function CourseDetails() {
 
     const startTime = `${parts[1].padStart(2, "0")}:${parts[2]}`;
     const endTime = `${parts[3].padStart(2, "0")}:${parts[4]}`;
-    const courseName = course.courseName || course.title || course.code;
+    const courseName = `${course.code} - ${course.title}`;
     const days = String(section.days || "")
       .split("/")
       .map((day) => day.trim())
@@ -106,7 +106,8 @@ function CourseDetails() {
   };
 
   const goToCourseReviews = () => {
-    navigate(`/reviews/course/${encodeURIComponent(course.courseName)}`);
+    const courseName = `${course.code} - ${course.title}`;
+    navigate(`/reviews/course/${encodeURIComponent(courseName)}`);
   };
 
   const goToProfReviews = (profName) => {
@@ -128,7 +129,7 @@ function CourseDetails() {
       <div className="course-overview">
         <div className="course-header">
           <span className="course-code-large">{course.code}</span>
-          <h2 className="course-name">{course.title || course.courseName}</h2>
+          <h2 className="course-name">{course.title}</h2>
         </div>
         <p className="course-long-desc">{course.description}</p>
         <div className="course-info-row">

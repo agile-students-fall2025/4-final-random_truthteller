@@ -20,7 +20,10 @@ function App() {
   // check if user is authenticated
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     // prefer token presence
-    return !!localStorage.getItem("authToken") || localStorage.getItem("isAuthenticated") === "true";
+    return (
+      !!localStorage.getItem("authToken") ||
+      localStorage.getItem("isAuthenticated") === "true"
+    );
   });
 
   // use local storage to persist authentication state
@@ -34,15 +37,15 @@ function App() {
 
     // listen for cross-tab logout/login events
     function onStorage(e) {
-      if (e.key === 'auth-logout-time') {
+      if (e.key === "auth-logout-time") {
         setIsAuthenticated(false);
       }
-      if (e.key === 'authToken' && e.newValue) {
+      if (e.key === "authToken" && e.newValue) {
         setIsAuthenticated(true);
       }
     }
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, [isAuthenticated]);
 
   const handleLogin = () => {

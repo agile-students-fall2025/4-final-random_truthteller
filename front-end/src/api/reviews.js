@@ -11,7 +11,7 @@ const handleResponse = async (response) => {
 
 export const fetchCourseReviews = async (courseName, options = {}) => {
   const params = new URLSearchParams();
-  if (options.sort) params.set('sort', options.sort);
+  if (options.sort) params.set("sort", options.sort);
   const base = courseName
     ? `${API_BASE_URL}/reviews/course/${encodeURIComponent(courseName)}`
     : `${API_BASE_URL}/reviews/course`;
@@ -22,7 +22,7 @@ export const fetchCourseReviews = async (courseName, options = {}) => {
 
 export const fetchProfReviews = async (profName, options = {}) => {
   const params = new URLSearchParams();
-  if (options.sort) params.set('sort', options.sort);
+  if (options.sort) params.set("sort", options.sort);
   const base = profName
     ? `${API_BASE_URL}/reviews/professor/${encodeURIComponent(profName)}`
     : `${API_BASE_URL}/reviews/professor`;
