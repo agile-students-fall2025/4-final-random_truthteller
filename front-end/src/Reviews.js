@@ -33,19 +33,19 @@ function Reviews() {
   // fetch reviews (can be either professor or course)
   // map UI condition strings to backend sort keys
   const mapSortKey = (condition) => {
-    switch ((condition || '').toLowerCase()) {
-      case 'newest first':
-      case 'newest':
-        return 'newest';
-      case 'oldest first':
-      case 'oldest':
-        return 'oldest';
-      case 'most positive first':
-      case 'most positive':
-        return 'most_positive';
-      case 'most negative first':
-      case 'most negative':
-        return 'most_negative';
+    switch ((condition || "").toLowerCase()) {
+      case "newest first":
+      case "newest":
+        return "newest";
+      case "oldest first":
+      case "oldest":
+        return "oldest";
+      case "most positive first":
+      case "most positive":
+        return "most_positive";
+      case "most negative first":
+      case "most negative":
+        return "most_negative";
       default:
         return undefined;
     }
@@ -135,7 +135,11 @@ function Reviews() {
     }
 
     try {
-      await flagReview(selectedReviewId, flagReason, isProfessor ? "professor" : "course");
+      await flagReview(
+        selectedReviewId,
+        flagReason,
+        isProfessor ? "professor" : "course",
+      );
       alert("Review flagged successfully. Thank you for your feedback.");
       setShowFlagModal(false);
       setSelectedReviewId(null);
@@ -235,7 +239,10 @@ function Reviews() {
 
       {/* Add Review Modal */}
       {showAddReviewModal && (
-        <div className="modal-overlay" onClick={() => setShowAddReviewModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAddReviewModal(false)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Add your review</h2>
             <div className="star-rating">

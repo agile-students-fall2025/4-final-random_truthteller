@@ -34,22 +34,24 @@ function CourseSearch() {
   useEffect(() => {
     let filtered = courses;
 
-    //search query
+    // search query
     if (query) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter((course) => {
-        const name = course.name || "";
         const code = course.code || "";
+        const title = course.title || "";
+        const fullName = `${code} - ${title}`;
         const prof = course.professor || course.instructor || "";
         return (
-          name.toLowerCase().includes(lowerQuery) ||
+          fullName.toLowerCase().includes(lowerQuery) ||
           code.toLowerCase().includes(lowerQuery) ||
+          title.toLowerCase().includes(lowerQuery) ||
           prof.toLowerCase().includes(lowerQuery)
         );
       });
     }
 
-    //building filter
+    // building filter
     if (filters.building) {
       filtered = filtered.filter(
         (course) =>
@@ -58,14 +60,14 @@ function CourseSearch() {
       );
     }
 
-    //credits filter
+    // credits filter
     if (filters.credits) {
       filtered = filtered.filter(
         (course) => Number(course.credits) === Number(filters.credits),
       );
     }
 
-    //days filter
+    // days filter
     if (filters.days.length > 0) {
       filtered = filtered.filter((course) => {
         if (!course.days) return false;
@@ -87,7 +89,7 @@ function CourseSearch() {
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
       ...prev,
-      [key]: prev[key] === value ? "" : value, //toggle selection
+      [key]: prev[key] === value ? "" : value, // toggle selection
     }));
   };
 
@@ -200,10 +202,9 @@ function CourseSearch() {
           <div className="results-placeholder">No courses found.</div>
         ) : (
           displayedCourses.map((course) => {
-            const raw = course.name || "";
-            const [maybeCode, maybeTitle] = raw.split(" - ", 2);
-            const code = course.code || (maybeTitle ? maybeCode : "");
-            const title = course.title || (maybeTitle ? maybeTitle : raw);
+            const code = course.code || "";
+            const title = course.title || "";
+            const fullName = `${code} - ${title}`;
             const description =
               course.description ||
               course.shortDescription ||
@@ -213,16 +214,16 @@ function CourseSearch() {
 
             return (
               <div
-                key={course.id}
+                key={course._id}
                 className="course-card"
                 onClick={() =>
-                  handleCourseClick(course.id, course.courseName || title)
+                  handleCourseClick(course._id, fullName)
                 }
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
-                    handleCourseClick(course.id, course.courseName || title);
+                    handleCourseClick(course._id, fullName);
                   }
                 }}
               >

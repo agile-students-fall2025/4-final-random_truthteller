@@ -49,11 +49,11 @@ export default function Settings() {
     } catch (err) {
       // ignore
     }
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("isAuthenticated");
     // notify other tabs via storage event
-    localStorage.setItem('auth-logout-time', Date.now());
-    navigate('/login');
+    localStorage.setItem("auth-logout-time", Date.now());
+    navigate("/login");
   };
 
   return (
@@ -109,15 +109,30 @@ export default function Settings() {
               <div className="password-dropdown">
                 <div className="form-group">
                   <label>Current password</label>
-                  <input className="password-input" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
+                  <input
+                    className="password-input"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
                 </div>
                 <div className="form-group">
                   <label>New password</label>
-                  <input className="password-input" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+                  <input
+                    className="password-input"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Confirm new password</label>
-                  <input className="password-input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                  <input
+                    className="password-input"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
                 </div>
                 <div className="form-actions">
                   <button
@@ -126,15 +141,25 @@ export default function Settings() {
                       setPasswordMsg("");
                       setError("");
                       try {
-                        if (!currentPassword || !newPassword) return setPasswordMsg('Please fill both password fields');
-                        if (newPassword !== confirmPassword) return setPasswordMsg('New passwords do not match');
-                        await authApi.changePassword(token, currentPassword, newPassword);
-                        setPasswordMsg('Password changed successfully');
-                        setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+                        if (!currentPassword || !newPassword)
+                          return setPasswordMsg(
+                            "Please fill both password fields",
+                          );
+                        if (newPassword !== confirmPassword)
+                          return setPasswordMsg("New passwords do not match");
+                        await authApi.changePassword(
+                          token,
+                          currentPassword,
+                          newPassword,
+                        );
+                        setPasswordMsg("Password changed successfully");
+                        setCurrentPassword("");
+                        setNewPassword("");
+                        setConfirmPassword("");
                         // auto-close after success
                         setTimeout(() => setShowPasswordForm(false), 800);
                       } catch (err) {
-                        setError(err.message || 'Failed to change password');
+                        setError(err.message || "Failed to change password");
                       }
                     }}
                   >
@@ -144,14 +169,19 @@ export default function Settings() {
                     className="light-button"
                     onClick={() => {
                       setShowPasswordForm(false);
-                      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
-                      setError(''); setPasswordMsg('');
+                      setCurrentPassword("");
+                      setNewPassword("");
+                      setConfirmPassword("");
+                      setError("");
+                      setPasswordMsg("");
                     }}
                   >
                     Cancel
                   </button>
                 </div>
-                {passwordMsg && <div className="password-success">{passwordMsg}</div>}
+                {passwordMsg && (
+                  <div className="password-success">{passwordMsg}</div>
+                )}
               </div>
             )}
 
