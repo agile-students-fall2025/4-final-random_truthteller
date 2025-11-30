@@ -216,9 +216,7 @@ function CourseSearch() {
               <div
                 key={course._id}
                 className="course-card"
-                onClick={() =>
-                  handleCourseClick(course._id, fullName)
-                }
+                onClick={() => handleCourseClick(course._id, fullName)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {

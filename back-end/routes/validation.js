@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import { validateSchedule } from "../utils/schedule.js";
+
 const router = express.Router();
-const { validateSchedule } = require("../utils/schedule");
 
 router.post("/validate-schedule", (req, res) => {
   try {
@@ -34,4 +35,4 @@ router.post("/validate-schedule", (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

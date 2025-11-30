@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import { users, requireAuth } from "./auth.js";
+
 const router = express.Router();
-const { users, requireAuth } = require("./auth");
 
 // Helper: get user object from auth payload
 function getUserFromReq(req) {
@@ -65,4 +66,4 @@ router.put("/:id/current", requireAuth, (req, res) => {
   res.json({ currentAccountId: acc.id });
 });
 
-module.exports = router;
+export default router;

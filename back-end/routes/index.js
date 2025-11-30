@@ -1,11 +1,18 @@
-const express = require("express");
+import express from "express";
+import validationRouter from "./validation.js";
+import schedulesRouter from "./schedules.js";
+import coursesRouter from "./courses.js";
+import reviewsRouter from "./reviews.js";
+import authRouter from "./auth.js";
+import accountsRouter from "./accounts.js";
+
 const router = express.Router();
 
-router.use("/", require("./validation"));
-router.use("/schedules", require("./schedules.js"));
-router.use("/courses", require("./courses"));
-router.use("/reviews", require("./reviews"));
-router.use("/auth", require("./auth"));
-router.use("/accounts", require("./accounts"));
+router.use("/", validationRouter);
+router.use("/schedules", schedulesRouter);
+router.use("/courses", coursesRouter);
+router.use("/reviews", reviewsRouter);
+router.use("/auth", authRouter);
+router.use("/accounts", accountsRouter);
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const { expect } = require("chai");
-const {
+import { expect } from "chai";
+import {
   validateSchedule,
   toMinutes,
   normalizeMeetings,
-} = require("../utils/schedule");
+} from "../utils/schedule.js";
 
 describe("Schedule validation", () => {
   it("should convert time to minutes", () => {

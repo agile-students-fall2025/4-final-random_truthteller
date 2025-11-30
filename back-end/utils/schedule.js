@@ -160,4 +160,4 @@ function validateSchedule(items, opts) {
   return { ok: warnings.length === 0, warnings, details };
 }
 
-module.exports = { validateSchedule, toMinutes, normalizeMeetings };
+export { validateSchedule, toMinutes, normalizeMeetings };
