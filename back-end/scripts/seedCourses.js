@@ -1,7 +1,7 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-const Course = require("../models/Course");
-const connectDB = require("../config/database");
+import "dotenv/config";
+import mongoose from "mongoose";
+import Course from "../models/Course.js";
+import connectDB from "../config/database.js";
 
 const coursesData = [
   {

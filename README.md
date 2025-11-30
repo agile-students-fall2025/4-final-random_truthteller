@@ -50,8 +50,25 @@ This launches the Express.js server at `http://localhost:8000`.
 > Copy `back-end/.env.example` to `back-end/.env`, and enter your MongoDB Atlas connection string as `MONGODB_URI`.
 
 > **Database setup:**  
-> After setting up your MongoDB connection, seed the database with initial course data:
-> ```bash
-> cd back-end
-> node scripts/seedCourses.js
-> ```
+> After setting up your MongoDB connection, you can either:
+> 
+> - Seed the database with sample course data:
+>   ```bash
+>   cd back-end
+>   node scripts/seedCourses.js
+>   ```
+> 
+> - Scrape real NYU course data from the course catalog:
+>   ```bash
+>   cd back-end
+>   node scripts/scrapeNYUCourses.js [--clear] [--limit N]
+>   ```
+>   
+>   The scraper supports optional flags:
+>   - `--clear`: Clear existing courses before scraping
+>   - `--limit=N`: Limit the number of courses to scrape (e.g., `--limit=10`)
+>   
+>   Example:
+>   ```bash
+>   node scripts/scrapeNYUCourses.js --clear --limit=50
+>   ```

@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import Course from "../models/Course.js";
+
 const router = express.Router();
-const Course = require("../models/Course");
 
 router.get("/", async (req, res) => {
   try {
@@ -51,4 +52,4 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -70,8 +70,8 @@ function CourseDetails() {
         day,
         startTime,
         endTime,
-        professor: section.instructor || course.instructor || "",
-        room: section.location || "",
+        professor: section.instructor || "TBA",
+        room: section.location || "TBA",
         credits: course.credits || 4,
       }));
   };

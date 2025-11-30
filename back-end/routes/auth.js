@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
 const router = express.Router();
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 
 // In-memory users store (replace with DB in production)
 // Structure: { userId: { id, email, passwordHash, accounts: [{id, email, name}], currentAccountId } }
@@ -113,7 +114,5 @@ router.post("/change-password", requireAuth, async (req, res) => {
   }
 });
 
-module.exports = router;
-module.exports.users = users;
-module.exports.requireAuth = requireAuth;
-module.exports.tokenBlacklist = tokenBlacklist;
+export default router;
+export { users, requireAuth, tokenBlacklist };

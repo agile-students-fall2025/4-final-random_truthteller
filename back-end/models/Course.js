@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema({
   // day: 0 = Monday, 1 = Tuesday, ..., 4 = Friday
@@ -73,4 +73,4 @@ const courseSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("Course", courseSchema);
+export default mongoose.model("Course", courseSchema);

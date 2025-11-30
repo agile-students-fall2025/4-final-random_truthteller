@@ -1,6 +1,7 @@
-const express = require("express");
+import express from "express";
+import { createEvents } from "ics";
+
 const router = express.Router();
-const { createEvents } = require("ics");
 
 // Default schedules data
 // TODO: Replace with database
@@ -337,4 +338,4 @@ router.get("/:id/export", (req, res) => {
   res.send(result.value);
 });
 
-module.exports = router;
+export default router;
