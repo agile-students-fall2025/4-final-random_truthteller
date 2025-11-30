@@ -61,7 +61,7 @@ This launches the Express.js server at `http://localhost:8000`.
 > - Scrape real NYU course data from the course catalog:
 >   ```bash
 >   cd back-end
->   node scripts/scrapeNYUCourses.js
+>   node scripts/scrapeNYUCourses.js [--clear] [--limit N]
 >   ```
 >   
 >   The scraper supports optional flags:

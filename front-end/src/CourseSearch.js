@@ -41,12 +41,10 @@ function CourseSearch() {
         const code = course.code || "";
         const title = course.title || "";
         const fullName = `${code} - ${title}`;
-        const prof = course.professor || course.instructor || "";
         return (
           fullName.toLowerCase().includes(lowerQuery) ||
           code.toLowerCase().includes(lowerQuery) ||
-          title.toLowerCase().includes(lowerQuery) ||
-          prof.toLowerCase().includes(lowerQuery)
+          title.toLowerCase().includes(lowerQuery)
         );
       });
     }
@@ -210,7 +208,6 @@ function CourseSearch() {
               course.shortDescription ||
               "No description available.";
             const credits = course.credits ? `${course.credits} credits` : "";
-            const instructor = course.instructor || course.professor || "TBA";
 
             return (
               <div
@@ -232,9 +229,6 @@ function CourseSearch() {
                 <p className="course-desc">{description}</p>
                 <div className="course-meta">
                   {credits && <span className="course-credits">{credits}</span>}
-                  <span className="course-instructor">
-                    Instructor: {instructor}
-                  </span>
                 </div>
               </div>
             );
