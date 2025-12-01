@@ -280,53 +280,58 @@ export default function Dashboard() {
         </section>
 
         <div className="calendar-footer">
-          <button
-            className="validate-btn"
-            type="button"
-            onClick={runValidation}
-          >
-            Validate Schedule
-          </button>
-
-          {warnings.length > 0 ? (
-            <div className="warnings-banner">
-              <strong>Warnings:</strong> {warnings.join(" | ")} • Credits:{" "}
-              {creditTotal}
-            </div>
-          ) : creditTotal > 0 ? (
-            <div className="valid-banner">
-              ✅ This schedule is valid! • Total Credits: {creditTotal}
-            </div>
-          ) : null}
-
-          <div className="current-schedule">
-            <span>Current Schedule:</span>
+          <div className="footer-schedule">
             <button
               className="schedule-button"
               type="button"
               onClick={() => navigate("/schedules")}
               title="Choose a different saved schedule"
             >
-              {currentSchedule?.name || ""}
+              {currentSchedule?.name || "New Schedule"}
               <span className="schedule-dropdown-icon">▼</span>
             </button>
           </div>
-          <button
-            className="export-button"
-            type="button"
-            onClick={handleExport}
-          >
-            Export
-          </button>
-          <button
-            className="settings-button"
-            type="button"
-            aria-label="Settings"
-            onClick={() => navigate("/settings")}
-          >
-            ⚙
-          </button>
+          <div className="footer-actions">
+            <button
+              className="icon-button validate-icon-button"
+              type="button"
+              onClick={runValidation}
+              title="Validate schedule"
+              aria-label="Validate schedule"
+            >
+              ✓
+            </button>
+            <button
+              className="icon-button export-icon-button"
+              type="button"
+              onClick={handleExport}
+              title="Export schedule"
+              aria-label="Export schedule"
+            >
+              ⤓
+            </button>
+            <button
+              className="icon-button settings-icon-button"
+              type="button"
+              aria-label="Settings"
+              title="Settings"
+              onClick={() => navigate("/settings")}
+            >
+              ⚙
+            </button>
+          </div>
         </div>
+
+        {warnings.length > 0 ? (
+          <div className="warnings-banner">
+            <strong>Warnings:</strong> {warnings.join(" | ")} • Credits:{" "}
+            {creditTotal}
+          </div>
+        ) : creditTotal > 0 ? (
+          <div className="valid-banner">
+            ✅ This schedule is valid! • Total Credits: {creditTotal}
+          </div>
+        ) : null}
       </div>
       {selectedEvent && (
         <div
