@@ -230,20 +230,27 @@ router.get("/:id/export", (req, res) => {
     return [hours, minutes];
   };
 
-  const getNextOccurrence = (dayOfWeek) => {
+  // Find the most recent past occurrence of the given weekday (Mon–Fri),
+  // so that exported events start in the past rather than in the future.
+  const getPreviousOccurrence = (dayOfWeek) => {
     const today = new Date();
-    const currentDay = today.getDay();
-    const targetDay = dayOfWeek === 0 ? 1 : dayOfWeek + 1;
-    let daysUntilTarget = targetDay - currentDay;
-    if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7;
+    const currentDay = today.getDay(); // 0 (Sun) - 6 (Sat)
+    const targetDay = dayOfWeek === 0 ? 1 : dayOfWeek + 1; // Map 0–4 (Mon–Fri) to 1–5
+
+    let daysSinceTarget = currentDay - targetDay;
+    if (daysSinceTarget <= 0) {
+      // If today is the same weekday or earlier in the week,
+      // go back to the previous week's occurrence.
+      daysSinceTarget += 7;
     }
-    const nextDate = new Date(today);
-    nextDate.setDate(today.getDate() + daysUntilTarget);
+
+    const prevDate = new Date(today);
+    prevDate.setDate(today.getDate() - daysSinceTarget);
+
     return [
-      nextDate.getFullYear(),
-      nextDate.getMonth() + 1, // ics uses 1-based months
-      nextDate.getDate(),
+      prevDate.getFullYear(),
+      prevDate.getMonth() + 1, // ics uses 1-based months
+      prevDate.getDate(),
     ];
   };
 
@@ -258,7 +265,7 @@ router.get("/:id/export", (req, res) => {
   // Examples: https://icalendar.org/rrule-tool.html
   const icalDays = ["MO", "TU", "WE", "TH", "FR"];
   const icsEvents = events.map((event) => {
-    const [year, month, day] = getNextOccurrence(event.day);
+    const [year, month, day] = getPreviousOccurrence(event.day);
     const [startHour, startMinute] = parseTime(event.startTime);
     const [endHour, endMinute] = parseTime(event.endTime);
 
