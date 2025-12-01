@@ -106,7 +106,7 @@ function requireAuth(req, res, next) {
   }
 }
 
-// CHANGE PASSWORD
+//CHANGE PASSWORD
 router.post("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
