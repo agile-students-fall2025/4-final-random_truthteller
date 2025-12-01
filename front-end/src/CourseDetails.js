@@ -35,45 +35,41 @@ function CourseDetails() {
   }, [id, navigate]);
 
   const parseSectionToEvents = (section, course) => {
-    const DAYS = new Map([
-      ["Mon", 0],
-      ["Tue", 1],
-      ["Wed", 2],
-      ["Thu", 3],
-      ["Fri", 4],
-    ]);
-
-    if (!section.time) {
+    if (!section.events || section.events.length === 0) {
       return [];
     }
 
-    const parts = String(section.time).match(
-      /(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/,
-    );
-    if (!parts) {
-      return [];
-    }
-
-    const startTime = `${parts[1].padStart(2, "0")}:${parts[2]}`;
-    const endTime = `${parts[3].padStart(2, "0")}:${parts[4]}`;
     const courseName = `${course.code} - ${course.title}`;
-    const days = String(section.days || "")
-      .split("/")
-      .map((day) => day.trim())
-      .filter(Boolean);
 
-    return days
-      .map((day) => DAYS.get(day))
-      .filter((day) => day !== undefined)
-      .map((day) => ({
-        courseName,
-        day,
-        startTime,
-        endTime,
-        professor: section.instructor || "TBA",
-        room: section.location || "TBA",
-        credits: course.credits || 4,
-      }));
+    return section.events.map((event) => ({
+      courseName,
+      day: event.day,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      professor: section.instructor || "TBA",
+      room: section.location || "TBA",
+      credits: course.credits || 4,
+    }));
+  };
+
+  // Convert events array to display strings
+  const formatSectionTime = (section) => {
+    if (!section.events || section.events.length === 0) {
+      return "";
+    }
+    const firstEvent = section.events[0];
+    return `${firstEvent.startTime}-${firstEvent.endTime}`;
+  };
+
+  const formatSectionDays = (section) => {
+    if (!section.events || section.events.length === 0) {
+      return "";
+    }
+    const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    return section.events
+      .map((e) => DAY_NAMES[e.day])
+      .filter(Boolean)
+      .join("/");
   };
 
   const handleAddToCalendar = async (section) => {
@@ -154,10 +150,10 @@ function CourseDetails() {
         ) : (
           <ul className="sections-list">
             {sections.map((s) => (
-              <li key={s.sectionId} className="section-item">
+              <li key={s.number} className="section-item">
                 <div className="section-main">
                   <div>
-                    <strong>{s.sectionId}</strong> &nbsp; {s.days} {s.time}
+                    <strong>{s.number}</strong> &nbsp; {formatSectionDays(s)} {formatSectionTime(s)}
                   </div>
                   <div>Location: {s.location || "TBA"}</div>
                   <div>Instructor: {s.instructor}</div>
