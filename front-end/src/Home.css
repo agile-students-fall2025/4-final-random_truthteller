@@ -17,12 +17,6 @@
   margin-bottom: 0.5rem;
 }
 
-.home-subtitle {
-  font-size: 1.1rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 1rem;
-}
-
 .home-blurb {
   font-size: 1rem;
   color: var(--color-text-primary);
@@ -83,10 +77,6 @@
 
   .home-title {
     font-size: 2rem;
-  }
-
-  .home-subtitle {
-    font-size: 1rem;
   }
 
   .home-blurb {
