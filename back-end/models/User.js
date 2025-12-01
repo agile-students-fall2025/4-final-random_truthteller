@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 
 const AccountSchema = new mongoose.Schema({
-  _id: { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: () => new mongoose.Types.ObjectId(),
+  },
   email: { type: String, required: true },
-  name: { type: String, required: true }
+  name: { type: String, required: true },
 });
 
 const UserSchema = new mongoose.Schema({
@@ -11,7 +14,7 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   accounts: [AccountSchema],
   currentAccountId: { type: mongoose.Schema.Types.ObjectId, ref: "Account" },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", UserSchema);
