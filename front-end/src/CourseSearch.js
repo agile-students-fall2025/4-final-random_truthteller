@@ -204,9 +204,7 @@ function CourseSearch() {
             const title = course.title || "";
             const fullName = `${code} - ${title}`;
             const description =
-              course.description ||
-              course.shortDescription ||
-              "No description available.";
+              course.description || "No description available.";
             const credits = course.credits ? `${course.credits} credits` : "";
 
             return (
