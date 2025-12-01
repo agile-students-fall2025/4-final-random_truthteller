@@ -185,16 +185,7 @@ export default function Dashboard() {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <header className="dashboard-header">
-          <h1 className="dashboard-title">Weekly Planner</h1>
-          <div className="dashboard-actions">
-            <button
-              className="button"
-              type="button"
-              onClick={() => navigate("/courses")}
-            >
-              Register For Courses
-            </button>
-          </div>
+          <h1 className="page-title">Weekly Planner</h1>
         </header>
 
         <section className="calendar-card">
@@ -293,13 +284,13 @@ export default function Dashboard() {
           </div>
           <div className="footer-actions">
             <button
-              className="icon-button validate-icon-button"
+              className="icon-button settings-icon-button"
               type="button"
-              onClick={runValidation}
-              title="Validate schedule"
-              aria-label="Validate schedule"
+              aria-label="Settings"
+              title="Settings"
+              onClick={() => navigate("/settings")}
             >
-              ✓
+              ⚙
             </button>
             <button
               className="icon-button export-icon-button"
@@ -311,13 +302,22 @@ export default function Dashboard() {
               ⤓
             </button>
             <button
-              className="icon-button settings-icon-button"
+              className="icon-button validate-icon-button"
               type="button"
-              aria-label="Settings"
-              title="Settings"
-              onClick={() => navigate("/settings")}
+              onClick={runValidation}
+              title="Validate schedule"
+              aria-label="Validate schedule"
             >
-              ⚙
+              ✓
+            </button>
+            <button
+              className="icon-button add-course-icon-button"
+              type="button"
+              onClick={() => navigate("/courses")}
+              title="Register for courses"
+              aria-label="Register for courses"
+            >
+              +
             </button>
           </div>
         </div>

@@ -113,7 +113,7 @@ function CourseSearch() {
       >
         ←
       </button>
-      <h1>Course Search</h1>
+      <h1 className="page-title">Courses</h1>
 
       <div className="search-form">
         <input

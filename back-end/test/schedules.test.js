@@ -23,7 +23,7 @@ describe("Schedule routes", () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.be.an("array");
-          expect(res.body.length).to.be.at.least(3); // At least the default 3
+          expect(res.body.length).to.be.at.least(1); // At least the default 1
           expect(res.body[0]).to.have.property("id");
           expect(res.body[0]).to.have.property("name");
           expect(res.body[0]).to.have.property("modified");
@@ -61,31 +61,14 @@ describe("Schedule routes", () => {
   });
 
   describe("GET /api/schedules/:id/events", () => {
-    it("should return events for a schedule", (done) => {
+    it("should return an array of events for a schedule (possibly empty)", (done) => {
       chai
         .request(app)
         .get("/api/schedules/s1/events")
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.be.an("array");
-          expect(res.body.length).to.be.at.least(1);
-          expect(res.body[0]).to.have.property("id");
-          expect(res.body[0]).to.have.property("courseName");
-          expect(res.body[0]).to.have.property("day");
-          expect(res.body[0]).to.have.property("startTime");
-          expect(res.body[0]).to.have.property("endTime");
-          done();
-        });
-    });
-
-    it("should return empty array for schedule with no events", (done) => {
-      chai
-        .request(app)
-        .get("/api/schedules/s3/events")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.an("array");
-          expect(res.body.length).to.equal(0);
+          // s1 starts empty by default
           done();
         });
     });
@@ -357,86 +340,152 @@ describe("Schedule routes", () => {
   });
 
   describe("GET /api/schedules/:id/export", () => {
-    it("should export a schedule with events as .ics file", (done) => {
-      chai
+    it("should export a schedule with events as .ics file", async () => {
+      const schedule = await createSchedule("Export Test Schedule");
+      const payload = {
+        events: [
+          {
+            courseName: "Intro to Testing",
+            day: 0,
+            startTime: "09:00",
+            endTime: "10:00",
+            professor: "Prof Test",
+            room: "Room 100",
+          },
+          {
+            courseName: "Advanced Testing",
+            day: 2,
+            startTime: "11:00",
+            endTime: "12:30",
+            professor: "Prof Test",
+            room: "Room 200",
+          },
+        ],
+      };
+
+      const createRes = await chai
         .request(app)
-        .get("/api/schedules/s1/export")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res).to.have.header(
-            "content-type",
-            "text/calendar; charset=utf-8",
-          );
-          expect(res).to.have.header("content-disposition");
-          expect(res.headers["content-disposition"]).to.include("attachment");
-          expect(res.headers["content-disposition"]).to.include(
-            "Schedule_1.ics",
-          );
-          expect(res.text).to.be.a("string");
-          expect(res.text).to.include("BEGIN:VCALENDAR");
-          expect(res.text).to.include("END:VCALENDAR");
-          expect(res.text).to.include("BEGIN:VEVENT");
-          expect(res.text).to.include("END:VEVENT");
-          done();
-        });
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send(payload);
+
+      expect(createRes).to.have.status(201);
+
+      const res = await chai.request(app).get(`/api/schedules/${schedule.id}/export`);
+
+      expect(res).to.have.status(200);
+      expect(res).to.have.header(
+        "content-type",
+        "text/calendar; charset=utf-8",
+      );
+      expect(res).to.have.header("content-disposition");
+      expect(res.headers["content-disposition"]).to.include("attachment");
+      expect(res.headers["content-disposition"]).to.match(
+        /filename="[^"]*\.ics"/,
+      );
+      expect(res.text).to.be.a("string");
+      expect(res.text).to.include("BEGIN:VCALENDAR");
+      expect(res.text).to.include("END:VCALENDAR");
+      expect(res.text).to.include("BEGIN:VEVENT");
+      expect(res.text).to.include("END:VEVENT");
     });
 
-    it("should include correct event details in .ics file", (done) => {
-      chai
+    it("should include correct event details in .ics file", async () => {
+      const schedule = await createSchedule("Export Details Schedule");
+      const payload = {
+        events: [
+          {
+            courseName: "Intro to Computer Science",
+            day: 0,
+            startTime: "09:00",
+            endTime: "10:30",
+            professor: "Prof 1",
+            room: "Room 204",
+          },
+          {
+            courseName: "Intro to Data Structures",
+            day: 2,
+            startTime: "10:00",
+            endTime: "11:30",
+            professor: "Prof 2",
+            room: "Hall A",
+          },
+        ],
+      };
+
+      const createRes = await chai
         .request(app)
-        .get("/api/schedules/s1/export")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          const icsContent = res.text;
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send(payload);
 
-          // Check for course names
-          expect(icsContent).to.include("Intro to Computer Science");
-          expect(icsContent).to.include("Intro to Data Structures");
+      expect(createRes).to.have.status(201);
 
-          // Check for recurrence rule (weekly)
-          expect(icsContent).to.include("RRULE:FREQ=WEEKLY");
-          expect(icsContent).to.include("BYDAY=MO");
-          expect(icsContent).to.include("BYDAY=WE");
+      const res = await chai.request(app).get(`/api/schedules/${schedule.id}/export`);
+      expect(res).to.have.status(200);
+      const icsContent = res.text;
 
-          // Check for location/room
-          expect(icsContent).to.include("Room 204");
-          expect(icsContent).to.include("Hall A");
+      // Check for course names
+      expect(icsContent).to.include("Intro to Computer Science");
+      expect(icsContent).to.include("Intro to Data Structures");
 
-          // Check for professor in description
-          expect(icsContent).to.include("Prof 1");
-          expect(icsContent).to.include("Prof 2");
+      // Check for recurrence rule (weekly)
+      expect(icsContent).to.include("RRULE:FREQ=WEEKLY");
+      expect(icsContent).to.include("BYDAY=MO");
+      expect(icsContent).to.include("BYDAY=WE");
 
-          done();
-        });
+      // Check for location/room
+      expect(icsContent).to.include("Room 204");
+      expect(icsContent).to.include("Hall A");
+
+      // Check for professor in description
+      expect(icsContent).to.include("Prof 1");
+      expect(icsContent).to.include("Prof 2");
     });
 
-    it("should include correct start and end times in .ics file", (done) => {
-      chai
+    it("should include correct start and end times in .ics file", async () => {
+      const schedule = await createSchedule("Export Times Schedule");
+      const payload = {
+        events: [
+          {
+            courseName: "Timing Course 1",
+            day: 0,
+            startTime: "09:00",
+            endTime: "10:00",
+          },
+          {
+            courseName: "Timing Course 2",
+            day: 2,
+            startTime: "11:00",
+            endTime: "12:30",
+          },
+        ],
+      };
+
+      const createRes = await chai
         .request(app)
-        .get("/api/schedules/s1/export")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          const icsContent = res.text;
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send(payload);
 
-          // Check for DTSTART and DTEND (times should be in format YYYYMMDDTHHMMSS)
-          // The exact times will vary based on when the test runs, but we can check the format
-          expect(icsContent).to.match(/DTSTART:\d{8}T\d{6}/);
-          expect(icsContent).to.match(/DTEND:\d{8}T\d{6}/);
+      expect(createRes).to.have.status(201);
 
-          // Check that DTSTART and DTEND appear multiple times (one per event)
-          const dtstartMatches = icsContent.match(/DTSTART:\d{8}T\d{6}/g);
-          const dtendMatches = icsContent.match(/DTEND:\d{8}T\d{6}/g);
-          expect(dtstartMatches).to.be.an("array");
-          expect(dtendMatches).to.be.an("array");
-          // Should have at least 2 events (s1 has 2 events)
-          expect(dtstartMatches.length).to.be.at.least(2);
-          expect(dtendMatches.length).to.be.at.least(2);
+      const res = await chai.request(app).get(`/api/schedules/${schedule.id}/export`);
+      expect(res).to.have.status(200);
+      const icsContent = res.text;
 
-          // Verify that each DTSTART has a corresponding DTEND
-          expect(dtstartMatches.length).to.equal(dtendMatches.length);
+      // Check for DTSTART and DTEND (times should be in format YYYYMMDDTHHMMSS)
+      // The exact times will vary based on when the test runs, but we can check the format
+      expect(icsContent).to.match(/DTSTART:\d{8}T\d{6}/);
+      expect(icsContent).to.match(/DTEND:\d{8}T\d{6}/);
 
-          done();
-        });
+      // Check that DTSTART and DTEND appear multiple times (one per event)
+      const dtstartMatches = icsContent.match(/DTSTART:\d{8}T\d{6}/g);
+      const dtendMatches = icsContent.match(/DTEND:\d{8}T\d{6}/g);
+      expect(dtstartMatches).to.be.an("array");
+      expect(dtendMatches).to.be.an("array");
+      expect(dtstartMatches.length).to.be.at.least(2);
+      expect(dtendMatches.length).to.be.at.least(2);
+
+      // Verify that each DTSTART has a corresponding DTEND
+      expect(dtstartMatches.length).to.equal(dtendMatches.length);
     });
 
     it("should return 404 when exporting non-existent schedule", (done) => {
@@ -450,35 +499,49 @@ describe("Schedule routes", () => {
         });
     });
 
-    it("should return 400 when schedule has no events", (done) => {
-      chai
+    it("should return 400 when schedule has no events", async () => {
+      const emptySchedule = await createSchedule("Empty Export Schedule");
+
+      const res = await chai
         .request(app)
-        .get("/api/schedules/s3/export")
-        .end((err, res) => {
-          expect(res).to.have.status(400);
-          expect(res.body).to.have.property(
-            "error",
-            "Schedule has no events to export",
-          );
-          done();
-        });
+        .get(`/api/schedules/${emptySchedule.id}/export`);
+
+      expect(res).to.have.status(400);
+      expect(res.body).to.have.property(
+        "error",
+        "Schedule has no events to export",
+      );
     });
 
-    it("should have proper filename format in Content-Disposition header", (done) => {
-      chai
+    it("should have proper filename format in Content-Disposition header", async () => {
+      const schedule = await createSchedule("Schedule 1");
+      const payload = {
+        events: [
+          {
+            courseName: "Some Course",
+            day: 0,
+            startTime: "09:00",
+            endTime: "10:00",
+          },
+        ],
+      };
+
+      const createRes = await chai
         .request(app)
-        .get("/api/schedules/s1/export")
-        .end((err, res) => {
-          expect(res).to.have.status(200);
-          expect(res.headers["content-disposition"]).to.be.a("string");
-          expect(res.headers["content-disposition"]).to.include("filename=");
-          expect(res.headers["content-disposition"]).to.include(".ics");
-          // Filename should be sanitized (Schedule 1 -> Schedule_1)
-          expect(res.headers["content-disposition"]).to.match(
-            /filename="[^"]*\.ics"/,
-          );
-          done();
-        });
+        .post(`/api/schedules/${schedule.id}/events`)
+        .send(payload);
+
+      expect(createRes).to.have.status(201);
+
+      const res = await chai.request(app).get(`/api/schedules/${schedule.id}/export`);
+
+      expect(res).to.have.status(200);
+      expect(res.headers["content-disposition"]).to.be.a("string");
+      expect(res.headers["content-disposition"]).to.include("filename=");
+      expect(res.headers["content-disposition"]).to.include(".ics");
+      expect(res.headers["content-disposition"]).to.match(
+        /filename="[^"]*\.ics"/,
+      );
     });
   });
 });

@@ -10,55 +10,12 @@ let schedules = [
     id: "s1",
     name: "Schedule 1",
     modified: "12-11-2024",
-    classes: 2,
-  },
-  {
-    id: "s2",
-    name: "Schedule 2",
-    modified: "9-10-2024",
-    classes: 1,
-  },
-  {
-    id: "s3",
-    name: "Schedule 3",
-    modified: "3-7-2023",
     classes: 0,
   },
 ];
 
 const scheduleEvents = {
-  s1: [
-    {
-      id: "cs101",
-      courseName: "Intro to Computer Science",
-      day: 0, // Monday
-      startTime: "09:00",
-      endTime: "10:30",
-      professor: "Prof 1",
-      room: "Room 204",
-    },
-    {
-      id: "cs102",
-      courseName: "Intro to Data Structures",
-      day: 2, // Wednesday
-      startTime: "10:00",
-      endTime: "11:30",
-      professor: "Prof 2",
-      room: "Hall A",
-    },
-  ],
-  s2: [
-    {
-      id: "math201",
-      courseName: "Calculus II",
-      day: 1, // Tuesday
-      startTime: "09:00",
-      endTime: "10:30",
-      professor: "Prof 3",
-      room: "Math Building 1",
-    },
-  ],
-  s3: [],
+  s1: [],
 };
 
 // Track a user's last selected schedule in memory until we add persistence.
