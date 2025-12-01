@@ -75,7 +75,7 @@
 
 .calendar-header-row {
   display: grid;
-  grid-template-columns: 80px repeat(5, 1fr);
+  grid-template-columns: 60px repeat(5, 1fr);
   border-bottom: 1px solid var(--color-border-medium);
   background: var(--color-background-light);
 }
@@ -102,7 +102,7 @@
 
 .calendar-body {
   display: grid;
-  grid-template-columns: 80px repeat(5, 1fr);
+  grid-template-columns: 60px repeat(5, 1fr);
   position: relative;
 }
 
@@ -161,6 +161,8 @@
   overflow: hidden;
   z-index: 1;
   min-height: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .event-block:hover {
@@ -174,47 +176,19 @@
   background: var(--color-error-red);
 }
 
-.event-remove {
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  background: var(--color-transparent);
-  border: none;
-  color: var(--color-overlay-light);
-  font-size: 1.25rem;
-  font-weight: 300;
-  line-height: 1;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 2px;
-  transition: background-color 0.2s;
-  z-index: 10;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.event-remove:hover {
-  background: var(--color-overlay-hover);
-}
-
-.event-remove:active {
-  background: var(--color-overlay-active);
-}
-
-.event-remove:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 .event-title {
   font-weight: 500;
   margin-bottom: 2px;
-  line-height: 1.3;
-  padding-right: 20px;
+  line-height: 1.2;
   color: var(--color-white);
+  word-break: break-word;
+  text-align: left;
+  /* Clamp title so professor/location stay visible */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 3;
 }
 
 .event-professor {
@@ -231,6 +205,84 @@
   opacity: 0.85;
   line-height: 1.2;
   color: var(--color-white);
+}
+
+.event-footer {
+  margin-top: auto;
+}
+
+/* Event detail modal */
+.event-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.event-modal {
+  background: var(--color-white);
+  color: var(--color-text-primary);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  max-width: 420px;
+  width: calc(100% - 2rem);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.event-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.event-modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.event-modal-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  align-items: center;
+}
+
+.event-modal-label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.event-modal-value {
+  flex: 1;
+}
+
+.event-modal-actions {
+  margin-top: 0.75rem;
+}
+
+.event-modal-delete {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-error-red);
+  background: var(--color-white);
+  color: var(--color-error-red);
+  cursor: pointer;
 }
 
 .calendar-footer {
@@ -324,7 +376,7 @@
 /* Mobile responsive styles */
 @media (max-width: 768px) {
   .dashboard-page {
-    padding: 1rem;
+    padding: 1rem 5px;
   }
 
   .dashboard-header {
@@ -366,15 +418,6 @@
     height: 32px;
     padding: 0.4375rem;
     font-size: 1.125rem;
-  }
-
-  .calendar-card {
-    overflow-x: auto;
-  }
-
-  .calendar-header-row,
-  .calendar-body {
-    min-width: 600px;
   }
 
   .calendar-footer {

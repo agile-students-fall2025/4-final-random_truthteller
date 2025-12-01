@@ -16,6 +16,17 @@ const DAY_MAP = {
   F: 4,
 };
 
+// Normalizes building / room strings from the CS schedule
+// For some reason some classes have "Online Online" locations
+function normalizeLocation(location) {
+  if (!location) return "";
+  const trimmed = location.trim();
+  if (/^Online\s+Online$/i.test(trimmed)) {
+    return "Online";
+  }
+  return trimmed;
+}
+
 // Cleans a course code by removing leading zeros and replacing dot with space
 // Example: "CSCI-UA.0480" -> "CSCI-UA 480"
 function cleanCourseCode(code) {
@@ -170,7 +181,7 @@ async function scrapeCSCourses() {
       const meetTime = $timeSpan.text().trim();
 
       const $roomSpan = $spans.eq(4);
-      const location = $roomSpan.text().trim();
+      const location = normalizeLocation($roomSpan.text());
 
       const descId = $li.attr("id");
       const description = extractDescription($, descId);

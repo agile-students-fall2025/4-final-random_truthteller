@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [currentSchedule, setCurrentSchedule] = useState(null);
   const [eventBeingDeleted, setEventBeingDeleted] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Fetch schedule + events from backend and save as current schedule
   useEffect(() => {
@@ -233,33 +234,41 @@ export default function Dashboard() {
                   {/* Events for this day */}
                   {getEventsForDay(dayIndex).map((event) => {
                     const isConflict = isEventInConflict(event);
+                    // For dashboard view, show only the course title portion
+                    const displayTitle = (() => {
+                      if (!event.courseName) return "";
+                      const parts = String(event.courseName).split(" - ");
+                      if (parts.length >= 2) {
+                        return parts.slice(1).join(" - ").trim();
+                      }
+                      return event.courseName;
+                    })();
+
                     return (
                       <div
                         key={event.id}
                         className={`event-block${isConflict ? " conflict" : ""}`}
                         style={calculateEventStyle(event)}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setSelectedEvent(event)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setSelectedEvent(event);
+                          }
+                        }}
                       >
-                        <button
-                          type="button"
-                          className="event-remove"
-                          aria-label="Remove event"
-                          disabled={eventBeingDeleted === event.id}
-                          onClick={(ev) => {
-                            ev.stopPropagation();
-                            handleDeleteEvent(event.id);
-                          }}
-                        >
-                          ×
-                        </button>
-                        <div className="event-title">{event.courseName}</div>
-                        {event.professor && (
-                          <div className="event-professor">
-                            {event.professor}
+                        <div className="event-title">{displayTitle}</div>
+                        <div className="event-footer">
+                          {event.professor && (
+                            <div className="event-professor">
+                              {event.professor}
+                            </div>
+                          )}
+                          <div className="event-meta">
+                            {event.room || ""}
                           </div>
-                        )}
-                        <div className="event-meta">
-                          {event.startTime} – {event.endTime}
-                          {event.room && ` • ${event.room}`}
                         </div>
                       </div>
                     );
@@ -319,6 +328,66 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+      {selectedEvent && (
+        <div
+          className="event-modal-overlay"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="event-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details for ${selectedEvent.courseName}`}
+          >
+            <button
+              type="button"
+              className="event-modal-close"
+              onClick={() => setSelectedEvent(null)}
+            >
+              ×
+            </button>
+            <h2 className="event-modal-title">{selectedEvent.courseName}</h2>
+            <div className="event-modal-row">
+              <span className="event-modal-label">Professor:</span>
+              <span className="event-modal-value">
+                {selectedEvent.professor || "TBA"}
+              </span>
+            </div>
+            <div className="event-modal-row">
+              <span className="event-modal-label">Time:</span>
+              <span className="event-modal-value">
+                {selectedEvent.startTime} – {selectedEvent.endTime}
+              </span>
+            </div>
+            <div className="event-modal-row">
+              <span className="event-modal-label">Building / Room:</span>
+              <span className="event-modal-value">
+                {selectedEvent.room || "TBA"}
+              </span>
+            </div>
+            <div className="event-modal-row">
+              <span className="event-modal-label">Day:</span>
+              <span className="event-modal-value">
+                {DAYS[selectedEvent.day] ?? ""}
+              </span>
+            </div>
+            <div className="event-modal-actions">
+              <button
+                type="button"
+                className="event-modal-delete"
+                onClick={async () => {
+                  await handleDeleteEvent(selectedEvent.id);
+                  setSelectedEvent(null);
+                }}
+                disabled={eventBeingDeleted === selectedEvent.id}
+              >
+                Delete from schedule
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
