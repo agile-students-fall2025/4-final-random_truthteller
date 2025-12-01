@@ -28,7 +28,7 @@ router.post("/register", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Use ObjectId for accounts and currentAccountId
+    //use ObjectId for accounts and currentAccountId
     const accountId = new mongoose.Types.ObjectId();
 
     const user = await User.create({

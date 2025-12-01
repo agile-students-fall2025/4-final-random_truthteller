@@ -5,7 +5,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// GET /api/accounts — get all schedules/accounts for the logged-in user
+// GET /api/accounts, means get all schedules/accounts for the logged-in user
 router.get("/", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -21,7 +21,7 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/accounts — add a new schedule/account
+// POST /api/accounts, means add a new schedule/account
 router.post("/", requireAuth, async (req, res) => {
   try {
     const { name, email } = req.body;
@@ -44,7 +44,7 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/accounts/:id — remove a schedule/account
+// DELETE /api/accounts/:id, means remove a schedule/account
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -66,7 +66,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// PUT /api/accounts/:id/current — switch current schedule/account
+// PUT /api/accounts/:id/current, means switch current schedule/account
 router.put("/:id/current", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
