@@ -63,3 +63,22 @@ export const flagReview = async (reviewId, reason, reviewType) => {
   });
   return await handleResponse(response);
 };
+
+export const getRecentReviews = async (token) => {
+  const response = await fetch(`${API_BASE_URL}/reviews/recent`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleResponse(response);
+};
+
+export const deleteReview = async (token, type, id) => {
+  const response = await fetch(`${API_BASE_URL}/reviews/${type}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleResponse(response);
+};

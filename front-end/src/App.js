@@ -15,8 +15,11 @@ import Reviews from "./Reviews";
 import SavedSchedules from "./SavedSchedules";
 import { ThemeProvider } from "./ThemeContext";
 import Settings from "./Settings";
+import AdminDashboard from "./AdminDashboard";
 
 function App() {
+  const [user, setUser] = useState(null);
+
   // check if user is authenticated
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     // prefer token presence
@@ -26,22 +29,42 @@ function App() {
     );
   });
 
+  // Helper to decode token
+  const getUserFromToken = (token) => {
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return { email: payload.email, id: payload.userId };
+    } catch (e) {
+      return null;
+    }
+  };
+
   // use local storage to persist authentication state
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      const userData = getUserFromToken(token);
+      setUser(userData);
+    }
+
     if (isAuthenticated) {
       localStorage.setItem("isAuthenticated", "true");
     } else {
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("authToken");
+      setUser(null);
     }
 
     // listen for cross-tab logout/login events
     function onStorage(e) {
       if (e.key === "auth-logout-time") {
         setIsAuthenticated(false);
+        setUser(null);
       }
       if (e.key === "authToken" && e.newValue) {
         setIsAuthenticated(true);
+        setUser(getUserFromToken(e.newValue));
       }
     }
     window.addEventListener("storage", onStorage);
@@ -50,6 +73,8 @@ function App() {
 
   const handleLogin = () => {
     setIsAuthenticated(true);
+    const token = localStorage.getItem("authToken");
+    setUser(getUserFromToken(token));
   };
 
   return (
@@ -89,35 +114,19 @@ function App() {
               path="/dashboard"
               element={
                 isAuthenticated ? (
-                  <Dashboard />
+                  <Dashboard user={user} />
                 ) : (
                   <Navigate to="/login" replace />
                 )
               }
             />
             <Route
-              path="/courses/:id"
+              path="/admin"
               element={
-                isAuthenticated ? (
-                  <CourseDetails />
+                isAuthenticated && user?.email === "admin@nyu.edu" ? (
+                  <AdminDashboard />
                 ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
-            <Route
-              path="/reviews/:type/:name?"
-              element={
-                isAuthenticated ? <Reviews /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                isAuthenticated ? (
-                  <Dashboard />
-                ) : (
-                  <Navigate to="/login" replace />
+                  <Navigate to="/dashboard" replace />
                 )
               }
             />
