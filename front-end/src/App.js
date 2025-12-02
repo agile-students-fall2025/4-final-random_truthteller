@@ -12,6 +12,7 @@ import CourseSearch from "./CourseSearch";
 import CourseDetails from "./CourseDetails";
 import Dashboard from "./Dashboard";
 import Reviews from "./Reviews";
+import AdminReviews from "./AdminReviews";
 import SavedSchedules from "./SavedSchedules";
 import { ThemeProvider } from "./ThemeContext";
 import Settings from "./Settings";
@@ -136,6 +137,16 @@ function App() {
               element={
                 isAuthenticated ? (
                   <Settings />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/admin/reviews"
+              element={
+                isAuthenticated ? (
+                  <AdminReviews />
                 ) : (
                   <Navigate to="/login" replace />
                 )

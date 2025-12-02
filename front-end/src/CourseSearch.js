@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CourseSearch.css";
+import * as coursesApi from "./api/courses";
 
 function CourseSearch() {
   const [query, setQuery] = useState("");
@@ -19,8 +20,7 @@ function CourseSearch() {
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/courses");
-        const data = await res.json();
+        const data = await coursesApi.fetchAllCourses();
         setCourses(data);
         setDisplayedCourses(data);
       } catch (error) {
@@ -138,9 +138,8 @@ function CourseSearch() {
             {["Hall A", "Hall B", "Hall C"].map((b) => (
               <button
                 key={b}
-                className={`filter-option ${
-                  filters.building === b ? "selected" : ""
-                }`}
+                className={`filter-option ${filters.building === b ? "selected" : ""
+                  }`}
                 onClick={() => handleFilterChange("building", b)}
               >
                 {b}
@@ -154,9 +153,8 @@ function CourseSearch() {
             {[1, 2, 3, 4].map((c) => (
               <button
                 key={c}
-                className={`filter-option ${
-                  filters.credits === c ? "selected" : ""
-                }`}
+                className={`filter-option ${filters.credits === c ? "selected" : ""
+                  }`}
                 onClick={() => handleFilterChange("credits", c)}
               >
                 {c}
@@ -170,9 +168,8 @@ function CourseSearch() {
             {["Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
               <button
                 key={day}
-                className={`filter-option ${
-                  filters.days.includes(day) ? "selected" : ""
-                }`}
+                className={`filter-option ${filters.days.includes(day) ? "selected" : ""
+                  }`}
                 onClick={() => toggleDay(day)}
               >
                 {day}

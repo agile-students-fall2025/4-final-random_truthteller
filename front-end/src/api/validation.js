@@ -1,37 +1,28 @@
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
 
+// MOCK IMPLEMENTATION
 export const validateSchedule = async (
   events,
   creditMin = 12,
   creditMax = 20,
 ) => {
-  const payload = {
-    items: events.map((e) => ({
-      id: e.id,
-      courseName: e.courseName,
-      day: e.day,
-      startTime: e.startTime,
-      endTime: e.endTime,
-      credits: e.credits ?? 4,
-    })),
-    creditMin,
-    creditMax,
-  };
+  console.log("MOCK validateSchedule", events);
+  // Calculate total credits from events
+  const creditTotal = events.reduce((sum, e) => sum + (e.credits || 0), 0);
 
-  const response = await fetch(`${API_BASE_URL}/validate-schedule`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Validation failed: ${response.status} ${response.statusText}`,
-    );
+  const warnings = [];
+  if (creditTotal < creditMin) {
+    warnings.push(`Not enough credits (have ${creditTotal}, need ${creditMin})`);
+  } else if (creditTotal > creditMax) {
+    warnings.push(`Too many credits (have ${creditTotal}, max ${creditMax})`);
   }
 
-  return await response.json();
+  return {
+    valid: warnings.length === 0,
+    warnings,
+    details: {
+      creditTotal,
+    },
+  };
 };

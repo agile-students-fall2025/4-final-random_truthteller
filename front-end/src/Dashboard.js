@@ -319,6 +319,18 @@ export default function Dashboard() {
             >
               +
             </button>
+            {localStorage.getItem("isAdmin") === "true" && (
+              <button
+                className="icon-button admin-icon-button"
+                type="button"
+                onClick={() => navigate("/admin/reviews")}
+                title="Admin Dashboard"
+                aria-label="Admin Dashboard"
+                style={{ backgroundColor: "#333", color: "white" }}
+              >
+                🔒
+              </button>
+            )}
           </div>
         </div>
 

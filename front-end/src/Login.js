@@ -23,6 +23,11 @@ function Login({ onLogin }) {
         localStorage.setItem("authToken", result.token);
         // keep existing flag for backward compatibility
         localStorage.setItem("isAuthenticated", "true");
+        if (result.user?.isAdmin) {
+          localStorage.setItem("isAdmin", "true");
+        } else {
+          localStorage.removeItem("isAdmin");
+        }
         onLogin?.();
         navigate("/dashboard");
       } else {

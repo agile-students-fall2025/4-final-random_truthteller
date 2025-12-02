@@ -7,6 +7,8 @@ import {
   submitCourseReview,
   submitProfReview,
   flagReview,
+  deleteReview,
+  fetchRecentReviews,
 } from "./api/reviews";
 
 function Reviews() {
@@ -223,14 +225,46 @@ function Reviews() {
                 {"★".repeat(review.rating)}
                 {"☆".repeat(5 - review.rating)}
               </div>
-              <button
-                type="button"
-                className="flag-button"
-                onClick={() => handleFlagClick(review.id)}
-                title="Flag this review"
-              >
-                🚩
-              </button>
+              <div className="review-actions">
+                <button
+                  type="button"
+                  className="flag-button"
+                  onClick={() => handleFlagClick(review.id)}
+                  title="Flag this review"
+                >
+                  🚩
+                </button>
+                {/* Mock admin check - in real app check user context */}
+                <button
+                  type="button"
+                  className="delete-button"
+                  onClick={async () => {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this review?",
+                      )
+                    ) {
+                      await deleteReview(review.id);
+                      // reload
+                      const data = isProfessor
+                        ? await fetchProfReviews(decodedName)
+                        : await fetchCourseReviews(decodedName);
+                      setReviews(data);
+                      setDisplayedReviews(data);
+                    }
+                  }}
+                  title="Delete this review (Admin)"
+                  style={{
+                    marginLeft: "8px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "1.2rem",
+                  }}
+                >
+                  🗑️
+                </button>
+              </div>
             </div>
             <p className="review-text">{review.reviewText}</p>
           </div>

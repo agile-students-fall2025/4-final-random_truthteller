@@ -5,132 +5,86 @@
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
 
+// MOCK IMPLEMENTATION
 export const fetchSchedules = async () => {
-  const response = await fetch(`${API_BASE_URL}/schedules`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch schedules: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK fetchSchedules");
+  return [
+    {
+      id: "mock-schedule-id",
+      name: "Mock Schedule",
+      events: [],
+    },
+  ];
 };
 
 export const fetchScheduleById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch schedule: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK fetchScheduleById", id);
+  return {
+    id: id || "mock-schedule-id",
+    name: "Mock Schedule",
+    events: [],
+  };
 };
 
 export const fetchScheduleEvents = async (scheduleId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events`,
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch events: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK fetchScheduleEvents", scheduleId);
+  return [
+    {
+      id: "mock-event-1",
+      courseName: "CS-UY 101 - Intro to CS",
+      professor: "John Doe",
+      startTime: "10:00",
+      endTime: "11:30",
+      day: 0, // Monday
+      room: "370 Jay St",
+    },
+    {
+      id: "mock-event-2",
+      courseName: "MA-UY 102 - Calculus I",
+      professor: "Jane Smith",
+      startTime: "14:00",
+      endTime: "15:30",
+      day: 2, // Wednesday
+      room: "2 MetroTech",
+    },
+  ];
 };
 
 export const createSchedule = async (name) => {
-  const response = await fetch(`${API_BASE_URL}/schedules`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ name }),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to create schedule: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK createSchedule", name);
+  return {
+    id: "new-mock-schedule-id",
+    name: name,
+    events: [],
+  };
 };
 
 export const deleteSchedule = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to delete schedule: ${response.statusText}`);
-  }
+  console.log("MOCK deleteSchedule", id);
+  return;
 };
 
 export const exportSchedule = async (scheduleId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/export`,
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to export schedule: ${response.statusText}`);
-  }
-
-  // extract the filename from Content-Disposition header or use default
-  const contentDisposition = response.headers.get("Content-Disposition");
-  let filename = "schedule.ics";
-  if (contentDisposition) {
-    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-    if (filenameMatch) {
-      filename = filenameMatch[1];
-    }
-  }
-
-  // download blob
-  const blob = await response.blob();
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
+  console.log("MOCK exportSchedule", scheduleId);
+  alert("Export not supported in mock mode");
 };
 
 export const addEventsToSchedule = async (scheduleId, events) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ events }),
-    },
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to add events to schedule: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK addEventsToSchedule", scheduleId, events);
+  return { success: true };
 };
 
 export const getCurrentSchedule = async () => {
-  const response = await fetch(`${API_BASE_URL}/schedules/current`);
-  if (!response.ok) {
-    throw new Error(`Failed to get current schedule: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK getCurrentSchedule");
+  return { scheduleId: "mock-schedule-id" };
 };
 
 export const setCurrentSchedule = async (scheduleId) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/current`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ scheduleId }),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to set current schedule: ${response.statusText}`);
-  }
-  return await response.json();
+  console.log("MOCK setCurrentSchedule", scheduleId);
+  return { success: true };
 };
 
 export const deleteEventFromSchedule = async (scheduleId, eventId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events/${eventId}`,
-    {
-      method: "DELETE",
-    },
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to delete event: ${response.statusText}`);
-  }
+  console.log("MOCK deleteEventFromSchedule", scheduleId, eventId);
+  return;
 };
