@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   accounts: [AccountSchema],
   currentAccountId: { type: mongoose.Schema.Types.ObjectId, ref: "Account" },
+  currentSchedule: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Schedule",
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
