@@ -1,4 +1,5 @@
 import express from "express";
+import { requireAuth } from "./auth.js";
 
 const router = express.Router();
 
@@ -463,6 +464,51 @@ router.post("/flag", (req, res) => {
     message: "Review flagged successfully",
     reviewId,
   });
+});
+
+// ADMIN: Get recent reviews
+router.get("/recent", requireAuth, (req, res) => {
+  if (req.auth.email !== "admin@nyu.edu") {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  const allReviews = [
+    ...courseReviews.map((r) => ({ ...r, type: "course" })),
+    ...professorReviews.map((r) => ({ ...r, type: "professor" })),
+  ];
+
+  // Sort by newest first
+  allReviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  res.json(allReviews);
+});
+
+// ADMIN: Delete a review
+router.delete("/:type/:id", requireAuth, (req, res) => {
+  if (req.auth.email !== "admin@nyu.edu") {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  const { type, id } = req.params;
+  const reviewId = Number(id);
+
+  if (type === "course") {
+    const idx = courseReviews.findIndex((r) => r.id === reviewId);
+    if (idx !== -1) {
+      courseReviews.splice(idx, 1);
+      return res.json({ success: true });
+    }
+  } else if (type === "professor") {
+    const idx = professorReviews.findIndex((r) => r.id === reviewId);
+    if (idx !== -1) {
+      professorReviews.splice(idx, 1);
+      return res.json({ success: true });
+    }
+  } else {
+    return res.status(400).json({ error: "Invalid review type" });
+  }
+
+  return res.status(404).json({ error: "Review not found" });
 });
 
 export default router;

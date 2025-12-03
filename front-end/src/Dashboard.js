@@ -38,7 +38,7 @@ function useConflicts(events) {
   return conflicts;
 }
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const scheduleId = searchParams.get("scheduleId");
@@ -319,6 +319,18 @@ export default function Dashboard() {
             >
               +
             </button>
+            {user?.email === "admin@nyu.edu" && (
+              <button
+                className="icon-button admin-icon-button"
+                type="button"
+                onClick={() => navigate("/admin")}
+                title="Admin Dashboard"
+                aria-label="Admin Dashboard"
+                style={{ backgroundColor: "#333", color: "white" }}
+              >
+                A
+              </button>
+            )}
           </div>
         </div>
 
