@@ -17,7 +17,7 @@
 
 .admin-header h1 {
   font-size: 2rem;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .back-button {
@@ -27,12 +27,12 @@
   cursor: pointer;
   padding: 0.5rem;
   line-height: 1;
-  color: #333;
+  color: var(--color-text-primary);
   transition: color 0.2s;
 }
 
 .back-button:hover {
-  color: #000;
+  color: var(--color-text-dark);
   background-color: transparent;
 }
 
@@ -43,8 +43,8 @@
 }
 
 .review-card {
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--card-bg);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -55,13 +55,13 @@
   justify-content: space-between;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .review-type {
   font-weight: bold;
   text-transform: uppercase;
-  background: #eee;
+  background: var(--color-background-hover);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -69,24 +69,24 @@
 
 .review-subject {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .review-rating {
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--color-text-primary);
   margin-bottom: 0.5rem;
 }
 
 .review-text {
   line-height: 1.5;
-  color: #444;
+  color: var(--color-text-primary);
   margin-bottom: 1rem;
 }
 
 .delete-button {
-  background-color: #ff4d4f;
-  color: white;
+  background-color: var(--color-error-red);
+  color: var(--color-white);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -95,7 +95,7 @@
 }
 
 .delete-button:hover {
-  background-color: #ff7875;
+  background-color: var(--color-error-red-hover);
 }
 
 .admin-loading,
@@ -106,5 +106,5 @@
 }
 
 .admin-error {
-  color: #ff4d4f;
+  color: var(--color-error-red);
 }
