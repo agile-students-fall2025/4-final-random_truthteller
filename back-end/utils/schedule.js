@@ -74,42 +74,52 @@ function validateSchedule(items, opts) {
   const warnings = [];
   const details = { duplicates: [], overlaps: [], creditTotal: 0 };
 
-  const seenByCode = new Map();
-  const seenByName = new Map();
+  const courses = new Map(); // course identifier -> { credits, sections: Set, reported: boolean, id }
 
-  // Compute credit total & detect duplicates
-  let totalCredits = 0;
   items.forEach((item) => {
     const code = item.code || item.courseCode;
     const name = item.courseName || item.title || item.name;
     const credits = Number(item.credits || 0);
+    const idParts = item.id ? String(item.id).split("-") : [];
 
-    if (code) {
-      if (seenByCode.has(code)) {
-        details.duplicates.push({
-          by: "code",
-          code,
-          firstId: seenByCode.get(code).id,
-          secondId: item.id || null,
-        });
-      } else {
-        seenByCode.set(code, { id: item.id || null, credits });
-        totalCredits += credits;
-      }
-    } else if (name) {
-      if (seenByName.has(name)) {
-        details.duplicates.push({
-          by: "courseName",
-          name,
-          firstId: seenByName.get(name).id,
-          secondId: item.id || null,
-        });
-      } else {
-        seenByName.set(name, { id: item.id || null, credits });
-        totalCredits += credits;
-      }
+    // The course name from the front-end is "CODE - TITLE". I can get the code from there.
+    let courseIdentifier = code;
+    if (!courseIdentifier && name) {
+      courseIdentifier = name.split(" - ")[0];
     }
+    courseIdentifier = courseIdentifier || name; // fallback to full name
+
+    const sectionId = idParts.length > 1 ? idParts[1] : item.id || name; // Use item.id or name as fallback section id
+
+    if (!courseIdentifier) return;
+
+    if (!courses.has(courseIdentifier)) {
+      courses.set(courseIdentifier, {
+        credits: credits,
+        sections: new Set(),
+        reported: false,
+        id: item.id,
+      });
+    }
+
+    const courseRecord = courses.get(courseIdentifier);
+    courseRecord.sections.add(sectionId);
   });
+
+  let totalCredits = 0;
+  for (const [identifier, record] of courses.entries()) {
+    totalCredits += record.credits;
+    if (record.sections.size > 1 && !record.reported) {
+      details.duplicates.push({
+        by: "course",
+        identifier: identifier,
+        firstId: record.id,
+        secondId: null, // Hard to get second id here
+      });
+      record.reported = true;
+    }
+  }
+
   details.creditTotal = totalCredits;
 
   if (details.duplicates.length > 0) {
