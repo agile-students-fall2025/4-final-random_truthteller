@@ -83,29 +83,30 @@ function validateSchedule(items, opts) {
     const code = item.code || item.courseCode;
     const name = item.courseName || item.title || item.name;
     const credits = Number(item.credits || 0);
-    totalCredits += credits;
 
     if (code) {
       if (seenByCode.has(code)) {
         details.duplicates.push({
           by: "code",
           code,
-          firstId: seenByCode.get(code),
+          firstId: seenByCode.get(code).id,
           secondId: item.id || null,
         });
       } else {
-        seenByCode.set(code, item.id || null);
+        seenByCode.set(code, { id: item.id || null, credits });
+        totalCredits += credits;
       }
     } else if (name) {
       if (seenByName.has(name)) {
         details.duplicates.push({
           by: "courseName",
           name,
-          firstId: seenByName.get(name),
+          firstId: seenByName.get(name).id,
           secondId: item.id || null,
         });
       } else {
-        seenByName.set(name, item.id || null);
+        seenByName.set(name, { id: item.id || null, credits });
+        totalCredits += credits;
       }
     }
   });
