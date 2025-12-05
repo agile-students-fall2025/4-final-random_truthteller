@@ -1,6 +1,18 @@
 import express from "express";
 import { requireAuth } from "./auth.js";
 import Review from "../models/Review.js";
+import ProfessorReview from "../models/ProfessorReview.js";
+
+// Ensure API responses include source/sourceId when present
+const serializeReview = (r) => {
+  if (!r) return r;
+  const obj = typeof r.toObject === "function" ? r.toObject() : r;
+  return {
+    ...obj,
+    source: obj.source || null,
+    sourceId: obj.sourceId || null,
+  };
+};
 
 const router = express.Router();
 
@@ -29,16 +41,38 @@ const getSortObject = (sortKey) => {
     case "most negative first":
       return { rating: 1, date: -1 };
     default:
-      return {};
+      // Default to newest first when no explicit sort provided
+      return { date: -1 };
   }
+};
+
+// Helper to fetch reviews but always prioritize non-RMP reviews first
+const fetchReviewsWithPriority = async (match = {}, sortKey) => {
+  const sortOptions = getSortObject(sortKey) || { date: -1 };
+
+  // Build aggregation pipeline: match -> add isRmp flag -> sort by isRmp then requested sort -> remove flag
+  const pipeline = [
+    { $match: match },
+    {
+      $addFields: {
+        isRmp: {
+          $cond: [{ $eq: ["$source", "ratemyprofessors"] }, 1, 0],
+        },
+      },
+    },
+    { $sort: Object.assign({ isRmp: 1 }, sortOptions) },
+    { $project: { isRmp: 0 } },
+  ];
+
+  const docs = await Review.aggregate(pipeline).exec();
+  return docs;
 };
 
 router.get("/course", async (req, res) => {
   try {
     const { sort } = req.query || {};
-    const sortOptions = getSortObject(sort);
-    const reviews = await Review.find({ type: "course" }).sort(sortOptions);
-    res.json(reviews);
+    const reviews = await fetchReviewsWithPriority({ type: "course" }, sort);
+    res.json(reviews.map(serializeReview));
   } catch (err) {
     console.error("Error fetching course reviews", err);
     res.status(500).json({ error: "Internal server error" });
@@ -53,14 +87,13 @@ router.get("/course/:name", async (req, res) => {
   try {
     const { name } = req.params;
     const { sort } = req.query || {};
-    const sortOptions = getSortObject(sort);
     // Case insensitive search with escaped regex
     const escapedName = escapeRegex(name);
-    const reviews = await Review.find({
-      type: "course",
-      course: { $regex: new RegExp(`^${escapedName}$`, "i") },
-    }).sort(sortOptions);
-    res.json(reviews);
+    const reviews = await fetchReviewsWithPriority(
+      { type: "course", course: { $regex: new RegExp(`^${escapedName}$`, "i") } },
+      sort
+    );
+    res.json(reviews.map(serializeReview));
   } catch (err) {
     console.error("Error fetching course reviews by name", err);
     res.status(500).json({ error: "Internal server error" });
@@ -70,9 +103,8 @@ router.get("/course/:name", async (req, res) => {
 router.get("/professor", async (req, res) => {
   try {
     const { sort } = req.query || {};
-    const sortOptions = getSortObject(sort);
-    const reviews = await Review.find({ type: "professor" }).sort(sortOptions);
-    res.json(reviews);
+    const reviews = await fetchReviewsWithPriority({ type: "professor" }, sort);
+    res.json(reviews.map(serializeReview));
   } catch (err) {
     console.error("Error fetching professor reviews", err);
     res.status(500).json({ error: "Internal server error" });
@@ -83,15 +115,150 @@ router.get("/professor/:name", async (req, res) => {
   try {
     const { name } = req.params;
     const { sort } = req.query || {};
+    const escapedName = escapeRegex(name);
+    const reviews = await fetchReviewsWithPriority(
+      { type: "professor", professor: { $regex: new RegExp(`^${escapedName}$`, "i") } },
+      sort
+    );
+    res.json(reviews.map(serializeReview));
+  } catch (err) {
+    console.error("Error fetching professor reviews by name", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// --- RMP scraped reviews (ProfessorReview collection) ---
+// GET all scraped professor reviews (optionally sorted)
+router.get("/rmp/professor", async (req, res) => {
+  try {
+    const { sort } = req.query || {};
+    const sortOptions = getSortObject(sort);
+    const reviews = await ProfessorReview.find({}).sort(sortOptions);
+    res.json(reviews);
+  } catch (err) {
+    console.error("Error fetching RMP professor reviews", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET RMP reviews for a specific professor by (case-insensitive) name
+router.get("/rmp/professor/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { sort } = req.query || {};
     const sortOptions = getSortObject(sort);
     const escapedName = escapeRegex(name);
-    const reviews = await Review.find({
-      type: "professor",
-      professor: { $regex: new RegExp(`^${escapedName}$`, "i") },
+    const reviews = await ProfessorReview.find({
+      professorName: { $regex: new RegExp(escapedName, "i") },
     }).sort(sortOptions);
     res.json(reviews);
   } catch (err) {
-    console.error("Error fetching professor reviews by name", err);
+    console.error("Error fetching RMP professor reviews by name", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET RMP reviews for a specific course code (canonical e.g. "CSCI-UA 3")
+router.get("/rmp/course/:code", async (req, res) => {
+  try {
+    const { code } = req.params; // expecting canonical code like "CSCI-UA 3"
+    const { sort } = req.query || {};
+    const sortOptions = getSortObject(sort);
+    const escapedCode = escapeRegex(code);
+    const reviews = await ProfessorReview.find({
+      courseCode: { $regex: new RegExp(`^${escapedCode}$`, "i") },
+    }).sort(sortOptions);
+    res.json(reviews);
+  } catch (err) {
+    console.error("Error fetching RMP course reviews by code", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET aggregated RMP course statistics (quality, difficulty, wouldTakeAgain avg/range for all profs teaching the course)
+router.get("/rmp/course-stats/:code", async (req, res) => {
+  try {
+    const { code } = req.params; // expecting canonical code like "CSCI-UA 3"
+    const escapedCode = escapeRegex(code);
+
+    // Aggregate all professor reviews for this course
+    const reviews = await ProfessorReview.find({
+      courseCode: { $regex: new RegExp(`^${escapedCode}$`, "i") },
+    });
+
+    if (reviews.length === 0) {
+      return res.json({
+        courseCode: code,
+        professorCount: 0,
+        reviewCount: 0,
+        quality: null,
+        difficulty: null,
+        wouldTakeAgain: null,
+        grade: null,
+      });
+    }
+
+    // Parse numeric and string metrics
+    const quality = reviews
+      .map((r) => r.quality)
+      .filter((q) => q !== null && q !== undefined && !isNaN(q));
+    const difficulty = reviews
+      .map((r) => r.difficulty)
+      .filter((d) => d !== null && d !== undefined && !isNaN(d));
+
+    // Parse wouldTakeAgain percentages (prefer numeric pct field, fallback to parsing string)
+    const wouldTakeAgainPcts = reviews
+      .map((r) => {
+        if (r.wouldTakeAgainPct != null && !isNaN(r.wouldTakeAgainPct)) return Number(r.wouldTakeAgainPct);
+        if (!r.wouldTakeAgain) return null;
+        const match = String(r.wouldTakeAgain).match(/(\d{1,3})/);
+        return match ? parseInt(match[1], 10) : null;
+      })
+      .filter((p) => p !== null && !isNaN(p));
+
+    // Parse grade distribution (e.g., "A", "B+", etc.) - just track mentions
+    const gradeMap = {};
+    reviews.forEach((r) => {
+      if (r.grade) {
+        gradeMap[r.grade] = (gradeMap[r.grade] || 0) + 1;
+      }
+    });
+
+    // Calculate averages and ranges
+    const calcStats = (arr) => {
+      if (arr.length === 0) return null;
+      const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+      return {
+        average: parseFloat(avg.toFixed(2)),
+        min: Math.min(...arr),
+        max: Math.max(...arr),
+        count: arr.length,
+      };
+    };
+
+    // For wouldTakeAgain, calculate average percentage
+    const wouldTakeAgainStats = calcStats(wouldTakeAgainPcts);
+    const qualityStats = calcStats(quality);
+    const difficultyStats = calcStats(difficulty);
+
+    // Find most common grade
+    let mostCommonGrade = null;
+    if (Object.keys(gradeMap).length > 0) {
+      mostCommonGrade = Object.entries(gradeMap).sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    res.json({
+      courseCode: code,
+      uniqueProfessorCount: new Set(reviews.map((r) => r.professorName)).size,
+      totalReviewCount: reviews.length,
+      quality: qualityStats,
+      difficulty: difficultyStats,
+      wouldTakeAgain: wouldTakeAgainStats,
+      mostCommonGrade,
+      gradeDistribution: gradeMap,
+    });
+  } catch (err) {
+    console.error("Error fetching RMP course statistics", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -116,7 +283,7 @@ router.post("/course", async (req, res) => {
       reviewText: reviewText.trim(),
     });
 
-    res.status(201).json(newReview);
+    res.status(201).json(serializeReview(newReview));
   } catch (err) {
     console.error("Error creating course review", err);
     res.status(500).json({ error: "Internal server error" });
@@ -142,7 +309,7 @@ router.post("/professor", async (req, res) => {
       reviewText: reviewText.trim(),
     });
 
-    res.status(201).json(newReview);
+    res.status(201).json(serializeReview(newReview));
   } catch (err) {
     console.error("Error creating professor review", err);
     res.status(500).json({ error: "Internal server error" });
@@ -176,7 +343,7 @@ router.get("/recent", requireAuth, async (req, res) => {
 
     // Sort by newest first
     const reviews = await Review.find().sort({ date: -1 });
-    res.json(reviews);
+    res.json(reviews.map(serializeReview));
   } catch (err) {
     console.error("Error fetching recent reviews", err);
     res.status(500).json({ error: "Internal server error" });

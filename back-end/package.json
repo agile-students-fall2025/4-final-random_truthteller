@@ -7,6 +7,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node --watch server.js",
+    "migrate:rmp": "node scripts/migrateRMPToReviews.js",
     "test": "mocha --recursive --timeout 10000",
     "test:coverage": "c8 --reporter=text --reporter=html npm test",
     "format": "prettier --write ."
@@ -23,6 +24,7 @@
     "ics": "^3.8.1",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^9.0.0",
+    "puppeteer": "^24.32.0",
     "yargs": "^18.0.0"
   },
   "devDependencies": {
