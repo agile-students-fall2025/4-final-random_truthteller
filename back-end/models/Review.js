@@ -1,3 +1,5 @@
+//Modified
+
 import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
@@ -23,6 +25,15 @@ const reviewSchema = new mongoose.Schema({
         required: true,
         min: 1,
         max: 5,
+    },
+    // Source metadata (optional): where the review originated from
+    source: {
+        type: String,
+        required: false,
+    },
+    sourceId: {
+        type: String,
+        required: false,
     },
     reviewText: {
         type: String,

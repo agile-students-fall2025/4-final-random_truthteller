@@ -1,3 +1,5 @@
+// Modified
+
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
 
@@ -27,6 +29,34 @@ export const fetchProfReviews = async (profName, options = {}) => {
     ? `${API_BASE_URL}/reviews/professor/${encodeURIComponent(profName)}`
     : `${API_BASE_URL}/reviews/professor`;
   const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
+  const response = await fetch(endpoint);
+  return await handleResponse(response);
+};
+
+export const fetchRmpProfReviews = async (profName, options = {}) => {
+  const params = new URLSearchParams();
+  if (options.sort) params.set("sort", options.sort);
+  const base = profName
+    ? `${API_BASE_URL}/reviews/rmp/professor/${encodeURIComponent(profName)}`
+    : `${API_BASE_URL}/reviews/rmp/professor`;
+  const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
+  const response = await fetch(endpoint);
+  return await handleResponse(response);
+};
+
+export const fetchRmpCourseReviews = async (courseCode, options = {}) => {
+  const params = new URLSearchParams();
+  if (options.sort) params.set("sort", options.sort);
+  const base = courseCode
+    ? `${API_BASE_URL}/reviews/rmp/course/${encodeURIComponent(courseCode)}`
+    : `${API_BASE_URL}/reviews/rmp/course`;
+  const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
+  const response = await fetch(endpoint);
+  return await handleResponse(response);
+};
+
+export const fetchRmpCourseStats = async (courseCode) => {
+  const endpoint = `${API_BASE_URL}/reviews/rmp/course-stats/${encodeURIComponent(courseCode)}`;
   const response = await fetch(endpoint);
   return await handleResponse(response);
 };
