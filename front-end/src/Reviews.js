@@ -25,7 +25,7 @@ function Reviews() {
   const [courseStats, setCourseStats] = useState(null);
   const [showAddReviewModal, setShowAddReviewModal] = useState(false);
   const [showFlagModal, setShowFlagModal] = useState(false);
-  
+
   const [selectedReviewId, setSelectedReviewId] = useState(null);
   const [newReviewRating, setNewReviewRating] = useState(0);
   const [newReviewText, setNewReviewText] = useState("");
@@ -62,30 +62,30 @@ function Reviews() {
         const sortKey = mapSortKey(selectedCondition);
         const options = sortKey ? { sort: sortKey } : {};
         let data = [];
-          data = isProfessor
-            ? await fetchProfReviews(decodedName, options)
-            : await fetchCourseReviews(decodedName, options);
+        data = isProfessor
+          ? await fetchProfReviews(decodedName, options)
+          : await fetchCourseReviews(decodedName, options);
 
-          setReviews(data);
-          setDisplayedReviews(data);
+        setReviews(data);
+        setDisplayedReviews(data);
 
-          // If we're on a course page, also fetch aggregated RMP course stats
-          if (!isProfessor && decodedName) {
-            try {
-              // Course pages pass a display name like "CSCI-UA 3 - Course Title".
-              // The RMP stats endpoint expects the canonical course code (e.g. "CSCI-UA 3").
-              const courseKey = decodedName.includes(" - ")
-                ? decodedName.split(" - ")[0].trim()
-                : decodedName.trim();
-              const stats = await fetchRmpCourseStats(courseKey);
-              setCourseStats(stats);
-            } catch (e) {
-              console.warn("Failed to load RMP course stats:", e);
-              setCourseStats(null);
-            }
-          } else {
+        // If we're on a course page, also fetch aggregated RMP course stats
+        if (!isProfessor && decodedName) {
+          try {
+            // Course pages pass a display name like "CSCI-UA 3 - Course Title".
+            // The RMP stats endpoint expects the canonical course code (e.g. "CSCI-UA 3").
+            const courseKey = decodedName.includes(" - ")
+              ? decodedName.split(" - ")[0].trim()
+              : decodedName.trim();
+            const stats = await fetchRmpCourseStats(courseKey);
+            setCourseStats(stats);
+          } catch (e) {
+            console.warn("Failed to load RMP course stats:", e);
             setCourseStats(null);
           }
+        } else {
+          setCourseStats(null);
+        }
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -245,16 +245,21 @@ function Reviews() {
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-label">Difficulty (avg)</div>
-              <div className="stat-value">{courseStats.difficulty ? courseStats.difficulty.average : "—"}</div>
+              <div className="stat-value">
+                {courseStats.difficulty ? courseStats.difficulty.average : "—"}
+              </div>
             </div>
             <div className="stat-item">
               <div className="stat-label">Most Common Grade</div>
-              <div className="stat-value">{courseStats.mostCommonGrade || "—"}</div>
+              <div className="stat-value">
+                {courseStats.mostCommonGrade || "—"}
+              </div>
             </div>
             <div className="stat-item">
               <div className="stat-label">Would Take Again</div>
               <div className="stat-value">
-                {courseStats.wouldTakeAgain && courseStats.wouldTakeAgain.average != null
+                {courseStats.wouldTakeAgain &&
+                courseStats.wouldTakeAgain.average != null
                   ? `${courseStats.wouldTakeAgain.average}%`
                   : "—"}
               </div>
@@ -274,7 +279,8 @@ function Reviews() {
               <div className="review-date">
                 <p>{review.date}</p>
               </div>
-              {(review.source === "ratemyprofessors" || (review.meta && review.meta.source === "ratemyprofessors")) && (
+              {(review.source === "ratemyprofessors" ||
+                (review.meta && review.meta.source === "ratemyprofessors")) && (
                 <div className="review-source">
                   <span className="rmp-badge">From RateMyProfessor</span>
                 </div>

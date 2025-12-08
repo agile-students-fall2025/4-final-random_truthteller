@@ -21,8 +21,8 @@ describe("Schedule validation", () => {
 
   it("should flag credit cap exceeded", () => {
     const items = [
-      { id: "a", credits: 10 },
-      { id: "b", credits: 10 },
+      { id: "a", code: "CS 101", credits: 10 },
+      { id: "b", code: "MATH 101", credits: 10 },
     ];
     const result = validateSchedule(items, 16);
     expect(result.warnings.join(" ")).to.match(/Credit cap exceeded/);

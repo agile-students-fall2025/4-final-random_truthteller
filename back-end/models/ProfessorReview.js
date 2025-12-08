@@ -10,16 +10,16 @@ const ProfessorReviewSchema = new mongoose.Schema(
 
     // Course mapping
     rawCourseCode: { type: String, required: true }, // e.g. "CSCIUA3"
-    courseCode: { type: String, required: true },    // e.g. "CSCI-UA 3"
-    courseTitle: { type: String },                   // optional, if you want to add later
+    courseCode: { type: String, required: true }, // e.g. "CSCI-UA 3"
+    courseTitle: { type: String }, // optional, if you want to add later
 
     // Ratings
-    quality: { type: Number, required: true },       // RMP numeric 0–5
+    quality: { type: Number, required: true }, // RMP numeric 0–5
     difficulty: { type: Number, required: false },
-    stars: { type: Number, required: true },         // 1–5 stars for ProfPick
+    stars: { type: Number, required: true }, // 1–5 stars for ProfPick
 
     // Meta from RMP
-    takenOn: { type: String },                       // e.g. "Sep 11th, 2025"
+    takenOn: { type: String }, // e.g. "Sep 11th, 2025"
     wouldTakeAgain: { type: String },
     // Normalized percentage (0-100) when available
     wouldTakeAgainPct: { type: Number, required: false },

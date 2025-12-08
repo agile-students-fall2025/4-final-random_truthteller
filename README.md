@@ -1,5 +1,7 @@
 # ProfPick
 
+[![CI Pipeline](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml)
+
 Smarter course planning with in‑context professor ratings
 
 ## Team Members

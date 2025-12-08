@@ -1,0 +1,62 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install root dependencies
+      run: npm ci
+
+    - name: Install front-end dependencies
+      run: cd front-end && npm ci
+
+    - name: Install back-end dependencies
+      run: cd back-end && npm ci
+
+    - name: Check formatting (front-end)
+      run: cd front-end && npm run format -- --check
+
+    - name: Check formatting (back-end)
+      run: cd back-end && npm run format -- --check
+
+    - name: Run front-end tests
+      run: cd front-end && npm test -- --watchAll=false --passWithNoTests
+
+    - name: Run back-end tests
+      run: cd back-end && npm run test
+
+    - name: Generate back-end test coverage
+      run: cd back-end && npm run test:coverage
+
+    - name: Build front-end
+      run: cd front-end && npm run build
+
+    - name: Build back-end (check if buildable)
+      run: cd back-end && node --check server.js
+
+    - name: Upload back-end coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-coverage-report-${{ matrix.node-version }}
+        path: back-end/coverage/
+        retention-days: 30
