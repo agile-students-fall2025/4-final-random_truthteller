@@ -1,8 +1,5 @@
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
-
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -15,7 +12,7 @@ export async function login(email, password) {
 }
 
 export async function register(email, password) {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  const res = await fetch("/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -28,7 +25,7 @@ export async function register(email, password) {
 }
 
 export async function logout(token) {
-  const res = await fetch(`${API_BASE}/auth/logout`, {
+  const res = await fetch("/api/auth/logout", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -37,7 +34,7 @@ export async function logout(token) {
 }
 
 export async function changePassword(token, currentPassword, newPassword) {
-  const res = await fetch(`${API_BASE}/auth/change-password`, {
+  const res = await fetch("/api/auth/change-password", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

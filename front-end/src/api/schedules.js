@@ -2,11 +2,8 @@
  * Utility functions for interacting with the schedules API in the backend
  */
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
-
 export const fetchSchedules = async () => {
-  const response = await fetch(`${API_BASE_URL}/schedules`);
+  const response = await fetch("/api/schedules");
   if (!response.ok) {
     throw new Error(`Failed to fetch schedules: ${response.statusText}`);
   }
@@ -14,7 +11,7 @@ export const fetchSchedules = async () => {
 };
 
 export const fetchScheduleById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/${id}`);
+  const response = await fetch(`/api/schedules/${id}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch schedule: ${response.statusText}`);
   }
@@ -22,9 +19,7 @@ export const fetchScheduleById = async (id) => {
 };
 
 export const fetchScheduleEvents = async (scheduleId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events`,
-  );
+  const response = await fetch(`/api/schedules/${scheduleId}/events`);
   if (!response.ok) {
     throw new Error(`Failed to fetch events: ${response.statusText}`);
   }
@@ -32,7 +27,7 @@ export const fetchScheduleEvents = async (scheduleId) => {
 };
 
 export const createSchedule = async (name) => {
-  const response = await fetch(`${API_BASE_URL}/schedules`, {
+  const response = await fetch("/api/schedules", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -46,7 +41,7 @@ export const createSchedule = async (name) => {
 };
 
 export const deleteSchedule = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/${id}`, {
+  const response = await fetch(`/api/schedules/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {
@@ -55,9 +50,7 @@ export const deleteSchedule = async (id) => {
 };
 
 export const exportSchedule = async (scheduleId) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/export`,
-  );
+  const response = await fetch(`/api/schedules/${scheduleId}/export`);
   if (!response.ok) {
     throw new Error(`Failed to export schedule: ${response.statusText}`);
   }
@@ -85,16 +78,13 @@ export const exportSchedule = async (scheduleId) => {
 };
 
 export const addEventsToSchedule = async (scheduleId, events) => {
-  const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ events }),
+  const response = await fetch(`/api/schedules/${scheduleId}/events`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({ events }),
+  });
   if (!response.ok) {
     throw new Error(`Failed to add events to schedule: ${response.statusText}`);
   }
@@ -102,7 +92,7 @@ export const addEventsToSchedule = async (scheduleId, events) => {
 };
 
 export const getCurrentSchedule = async () => {
-  const response = await fetch(`${API_BASE_URL}/schedules/current`);
+  const response = await fetch("/api/schedules/current");
   if (!response.ok) {
     throw new Error(`Failed to get current schedule: ${response.statusText}`);
   }
@@ -110,7 +100,7 @@ export const getCurrentSchedule = async () => {
 };
 
 export const setCurrentSchedule = async (scheduleId) => {
-  const response = await fetch(`${API_BASE_URL}/schedules/current`, {
+  const response = await fetch("/api/schedules/current", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -125,7 +115,7 @@ export const setCurrentSchedule = async (scheduleId) => {
 
 export const deleteEventFromSchedule = async (scheduleId, eventId) => {
   const response = await fetch(
-    `${API_BASE_URL}/schedules/${scheduleId}/events/${eventId}`,
+    `/api/schedules/${scheduleId}/events/${eventId}`,
     {
       method: "DELETE",
     },

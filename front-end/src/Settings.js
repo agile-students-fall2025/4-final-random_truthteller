@@ -9,9 +9,14 @@ import * as authApi from "./api/auth";
 export default function Settings() {
   const navigate = useNavigate();
   const { theme, setTheme } = useContext(ThemeContext);
+  // These state variables are set during load but UI for them is not yet implemented
+  // eslint-disable-next-line no-unused-vars
   const [accounts, setAccounts] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [currentAccountId, setCurrentAccountId] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
