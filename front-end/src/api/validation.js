@@ -1,6 +1,3 @@
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
-
 export const validateSchedule = async (
   events,
   creditMin = 12,
@@ -19,7 +16,7 @@ export const validateSchedule = async (
     creditMax,
   };
 
-  const response = await fetch(`${API_BASE_URL}/validate-schedule`, {
+  const response = await fetch("/api/validate-schedule", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

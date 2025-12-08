@@ -7,8 +7,6 @@ import {
   submitCourseReview,
   submitProfReview,
   flagReview,
-  fetchRmpProfReviews,
-  fetchRmpCourseReviews,
   fetchRmpCourseStats,
 } from "./api/reviews";
 

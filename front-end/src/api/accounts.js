@@ -1,6 +1,3 @@
-const API_BASE =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
-
 function authHeaders(token) {
   return {
     Authorization: `Bearer ${token}`,
@@ -9,7 +6,7 @@ function authHeaders(token) {
 }
 
 export async function getAccounts(token) {
-  const res = await fetch(`${API_BASE}/accounts`, {
+  const res = await fetch("/api/accounts", {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error("Failed to fetch accounts");
@@ -17,7 +14,7 @@ export async function getAccounts(token) {
 }
 
 export async function addAccount(token, { email, name }) {
-  const res = await fetch(`${API_BASE}/accounts`, {
+  const res = await fetch("/api/accounts", {
     method: "POST",
     headers: authHeaders(token),
     body: JSON.stringify({ email, name }),
@@ -30,7 +27,7 @@ export async function addAccount(token, { email, name }) {
 }
 
 export async function deleteAccount(token, id) {
-  const res = await fetch(`${API_BASE}/accounts/${id}`, {
+  const res = await fetch(`/api/accounts/${id}`, {
     method: "DELETE",
     headers: authHeaders(token),
   });
@@ -41,7 +38,7 @@ export async function deleteAccount(token, id) {
 }
 
 export async function switchAccount(token, id) {
-  const res = await fetch(`${API_BASE}/accounts/${id}/current`, {
+  const res = await fetch(`/api/accounts/${id}/current`, {
     method: "PUT",
     headers: authHeaders(token),
   });

@@ -1,8 +1,3 @@
-// Modified
-
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
-
 const handleResponse = async (response) => {
   if (!response.ok) {
     throw new Error(`Failed to fetch reviews: ${response.statusText}`);
@@ -15,8 +10,8 @@ export const fetchCourseReviews = async (courseName, options = {}) => {
   const params = new URLSearchParams();
   if (options.sort) params.set("sort", options.sort);
   const base = courseName
-    ? `${API_BASE_URL}/reviews/course/${encodeURIComponent(courseName)}`
-    : `${API_BASE_URL}/reviews/course`;
+    ? `/api/reviews/course/${encodeURIComponent(courseName)}`
+    : `/api/reviews/course`;
   const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
@@ -26,8 +21,8 @@ export const fetchProfReviews = async (profName, options = {}) => {
   const params = new URLSearchParams();
   if (options.sort) params.set("sort", options.sort);
   const base = profName
-    ? `${API_BASE_URL}/reviews/professor/${encodeURIComponent(profName)}`
-    : `${API_BASE_URL}/reviews/professor`;
+    ? `/api/reviews/professor/${encodeURIComponent(profName)}`
+    : `/api/reviews/professor`;
   const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
@@ -37,8 +32,8 @@ export const fetchRmpProfReviews = async (profName, options = {}) => {
   const params = new URLSearchParams();
   if (options.sort) params.set("sort", options.sort);
   const base = profName
-    ? `${API_BASE_URL}/reviews/rmp/professor/${encodeURIComponent(profName)}`
-    : `${API_BASE_URL}/reviews/rmp/professor`;
+    ? `/api/reviews/rmp/professor/${encodeURIComponent(profName)}`
+    : `/api/reviews/rmp/professor`;
   const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
@@ -48,21 +43,22 @@ export const fetchRmpCourseReviews = async (courseCode, options = {}) => {
   const params = new URLSearchParams();
   if (options.sort) params.set("sort", options.sort);
   const base = courseCode
-    ? `${API_BASE_URL}/reviews/rmp/course/${encodeURIComponent(courseCode)}`
-    : `${API_BASE_URL}/reviews/rmp/course`;
+    ? `/api/reviews/rmp/course/${encodeURIComponent(courseCode)}`
+    : `/api/reviews/rmp/course`;
   const endpoint = params.toString() ? `${base}?${params.toString()}` : base;
   const response = await fetch(endpoint);
   return await handleResponse(response);
 };
 
 export const fetchRmpCourseStats = async (courseCode) => {
-  const endpoint = `${API_BASE_URL}/reviews/rmp/course-stats/${encodeURIComponent(courseCode)}`;
-  const response = await fetch(endpoint);
+  const response = await fetch(
+    `/api/reviews/rmp/course-stats/${encodeURIComponent(courseCode)}`,
+  );
   return await handleResponse(response);
 };
 
 export const submitCourseReview = async (course, rating, reviewText) => {
-  const response = await fetch(`${API_BASE_URL}/reviews/course`, {
+  const response = await fetch("/api/reviews/course", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -73,7 +69,7 @@ export const submitCourseReview = async (course, rating, reviewText) => {
 };
 
 export const submitProfReview = async (professor, rating, reviewText) => {
-  const response = await fetch(`${API_BASE_URL}/reviews/professor`, {
+  const response = await fetch("/api/reviews/professor", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +80,7 @@ export const submitProfReview = async (professor, rating, reviewText) => {
 };
 
 export const flagReview = async (reviewId, reason, reviewType) => {
-  const response = await fetch(`${API_BASE_URL}/reviews/flag`, {
+  const response = await fetch("/api/reviews/flag", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -95,7 +91,7 @@ export const flagReview = async (reviewId, reason, reviewType) => {
 };
 
 export const getRecentReviews = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/reviews/recent`, {
+  const response = await fetch("/api/reviews/recent", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -104,7 +100,7 @@ export const getRecentReviews = async (token) => {
 };
 
 export const deleteReview = async (token, type, id) => {
-  const response = await fetch(`${API_BASE_URL}/reviews/${type}/${id}`, {
+  const response = await fetch(`/api/reviews/${type}/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
