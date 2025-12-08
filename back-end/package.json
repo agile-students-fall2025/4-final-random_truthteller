@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node --watch server.js",
     "migrate:rmp": "node scripts/migrateRMPToReviews.js",
-    "test": "mocha --recursive --timeout 10000",
+    "test": "mocha",
     "test:coverage": "c8 --reporter=text --reporter=html npm test",
     "format": "prettier --write ."
   },

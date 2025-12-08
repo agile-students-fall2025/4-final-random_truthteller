@@ -238,7 +238,9 @@ function normalizeCourseCode(rawCourseCode) {
 
   // Try matching explicit course code patterns like:
   // "CSCI-UA 3", "CS 3", "CSCI UA3", "CSCI-UA3", "COMP SCI 3", etc.
-  const codeMatch = s.match(/(?:CSCI|COMP(?:UTER)?\s*SCI|CS)\s*(?:-?\s*UA\s*)?\.?\s*(\d{1,3})/i);
+  const codeMatch = s.match(
+    /(?:CSCI|COMP(?:UTER)?\s*SCI|CS)\s*(?:-?\s*UA\s*)?\.?\s*(\d{1,3})/i,
+  );
   if (codeMatch && codeMatch[1]) {
     const number = parseInt(codeMatch[1], 10);
     if (!Number.isNaN(number)) {
@@ -314,7 +316,7 @@ async function fetchProfessorRatings(profId) {
           "Content-Type": "application/json",
         },
         timeout: 15000,
-      }
+      },
     );
 
     if (response.data.errors) {
@@ -368,7 +370,12 @@ function convertRatingToReview(rating) {
     grade: rating.grade || null,
     wouldTakeAgain: rawWTA != null ? String(rawWTA) : null,
     wouldTakeAgainPct: wouldTakeAgainPct,
-    textbook: rating.textbookUse === 1 ? "Yes" : rating.textbookUse === -1 ? "N/A" : "No",
+    textbook:
+      rating.textbookUse === 1
+        ? "Yes"
+        : rating.textbookUse === -1
+          ? "N/A"
+          : "No",
     quality: rating.clarityRating,
     difficulty: rating.difficultyRating,
     stars,
@@ -395,12 +402,10 @@ async function scrapeProfessor(prof) {
 
   const ratings = await fetchProfessorRatings(profId);
 
-  const reviews = ratings
-    .map(convertRatingToReview)
-    .filter((r) => r !== null);
+  const reviews = ratings.map(convertRatingToReview).filter((r) => r !== null);
 
   console.log(
-    `Parsed ${reviews.length} matching reviews on RMP for ${prof.name}`
+    `Parsed ${reviews.length} matching reviews on RMP for ${prof.name}`,
   );
 
   return reviews.map((r) => ({
@@ -477,7 +482,7 @@ async function scrapeAll() {
 
           totalSaved += upserts + modified;
           console.log(
-            `Saved/updated ${upserts + modified} reviews for ${prof.name}`
+            `Saved/updated ${upserts + modified} reviews for ${prof.name}`,
           );
         }
       } catch (err) {

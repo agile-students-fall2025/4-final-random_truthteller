@@ -44,7 +44,9 @@ router.get("/current", async (req, res) => {
   try {
     let scheduleId = req.user.currentSchedule;
     if (!scheduleId) {
-      const firstSchedule = await Schedule.findOne({ user: req.user._id }).sort({ createdAt: 1 });
+      const firstSchedule = await Schedule.findOne({ user: req.user._id }).sort(
+        { createdAt: 1 },
+      );
       if (firstSchedule) {
         scheduleId = firstSchedule._id;
         req.user.currentSchedule = scheduleId;
@@ -64,7 +66,10 @@ router.put("/current", async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(scheduleId)) {
       return res.status(400).json({ error: "Invalid scheduleId" });
     }
-    const schedule = await Schedule.findOne({ _id: scheduleId, user: req.user._id });
+    const schedule = await Schedule.findOne({
+      _id: scheduleId,
+      user: req.user._id,
+    });
     if (!schedule) {
       return res.status(404).json({ error: "Schedule not found" });
     }
@@ -86,7 +91,7 @@ router.get("/", async (req, res) => {
         name: s.name,
         modified: s.updatedAt.toISOString().split("T")[0],
         classes: s.sections.length,
-      }))
+      })),
     );
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -99,7 +104,10 @@ router.get("/:id", async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid schedule ID" });
     }
-    const schedule = await Schedule.findOne({ _id: req.params.id, user: req.user._id });
+    const schedule = await Schedule.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
     if (!schedule) {
       return res.status(404).json({ error: "Schedule not found" });
     }
@@ -144,7 +152,10 @@ router.delete("/:id", async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid schedule ID" });
     }
-    const schedule = await Schedule.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    const schedule = await Schedule.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user._id,
+    });
     if (!schedule) {
       return res.status(404).json({ error: "Schedule not found" });
     }
@@ -164,9 +175,12 @@ router.get("/:id/events", async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: "Invalid schedule ID" });
     }
-    const schedule = await Schedule.findOne({ _id: req.params.id, user: req.user._id }).populate({
-        path: "sections.course",
-        model: "Course"
+    const schedule = await Schedule.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    }).populate({
+      path: "sections.course",
+      model: "Course",
     });
     if (!schedule) {
       return res.status(404).json({ error: "Schedule not found" });
@@ -174,24 +188,24 @@ router.get("/:id/events", async (req, res) => {
 
     const events = [];
     for (const item of schedule.sections) {
-        const course = item.course;
-        if (course) {
-            const section = course.sections.id(item.section);
-            if (section) {
-                for (const event of section.events) {
-                    events.push({
-                        id: `${course._id}-${section._id}-${event.day}`, // Composite ID
-                        courseName: `${course.code} - ${course.title}`,
-                        day: event.day,
-                        startTime: event.startTime,
-                        endTime: event.endTime,
-                        professor: section.instructor,
-                        room: section.location,
-                        credits: course.credits,
-                    });
-                }
-            }
+      const course = item.course;
+      if (course) {
+        const section = course.sections.id(item.section);
+        if (section) {
+          for (const event of section.events) {
+            events.push({
+              id: `${course._id}-${section._id}-${event.day}`, // Composite ID
+              courseName: `${course.code} - ${course.title}`,
+              day: event.day,
+              startTime: event.startTime,
+              endTime: event.endTime,
+              professor: section.instructor,
+              room: section.location,
+              credits: course.credits,
+            });
+          }
         }
+      }
     }
     res.json(events);
   } catch (error) {
@@ -211,12 +225,14 @@ router.post("/:id/events", async (req, res) => {
       return res.status(404).json({ error: "Schedule not found" });
     }
     if (schedule.user.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: "Forbidden" });
+      return res.status(403).json({ error: "Forbidden" });
     }
 
     const { events } = req.body;
     if (!events || !Array.isArray(events) || events.length === 0) {
-      return res.status(400).json({ error: "Bad Request: events array is missing or empty." });
+      return res
+        .status(400)
+        .json({ error: "Bad Request: events array is missing or empty." });
     }
 
     // All events in the array are from the same section, so we can use the first one.
@@ -224,44 +240,55 @@ router.post("/:id/events", async (req, res) => {
     const { courseName, professor, room, startTime, day } = representativeEvent;
 
     if (!courseName) {
-        return res.status(400).json({ error: "Bad Request: courseName is missing." });
+      return res
+        .status(400)
+        .json({ error: "Bad Request: courseName is missing." });
     }
-    
+
     const nameParts = courseName.split(" - ");
     if (nameParts.length < 2) {
-        return res.status(400).json({ error: "Bad Request: courseName is not in 'CODE - TITLE' format." });
+      return res.status(400).json({
+        error: "Bad Request: courseName is not in 'CODE - TITLE' format.",
+      });
     }
     const courseCode = nameParts[0].trim();
     const courseTitle = nameParts.slice(1).join(" - ").trim();
-    
-    const course = await Course.findOne({ code: courseCode, title: courseTitle });
-    
+
+    const course = await Course.findOne({
+      code: courseCode,
+      title: courseTitle,
+    });
+
     if (!course) {
-      return res.status(404).json({ error: `Course with name "${courseName}" not found.` });
+      return res
+        .status(404)
+        .json({ error: `Course with name "${courseName}" not found.` });
     }
 
     // Find the section. This is brittle.
-    const section = course.sections.find(s => 
+    const section = course.sections.find(
+      (s) =>
         s.instructor === professor &&
         s.location === room &&
-        s.events.some(e => e.day === day && e.startTime === startTime)
+        s.events.some((e) => e.day === day && e.startTime === startTime),
     );
 
     if (!section) {
-      return res.status(404).json({ error: "Could not find a matching section in the course." });
+      return res
+        .status(404)
+        .json({ error: "Could not find a matching section in the course." });
     }
 
     // Check if section is already in schedule
-    if (schedule.sections.some(s => s.section.equals(section._id))) {
-        // Already exists, so we can just return success
-        return res.status(200).json({ message: "Section already in schedule." });
+    if (schedule.sections.some((s) => s.section.equals(section._id))) {
+      // Already exists, so we can just return success
+      return res.status(200).json({ message: "Section already in schedule." });
     }
-    
+
     schedule.sections.push({ course: course._id, section: section._id });
     await schedule.save();
 
     res.status(201).json({ message: "Section added to schedule." });
-
   } catch (error) {
     console.error("Failed to add events to schedule:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -281,22 +308,24 @@ router.delete("/:id/events/:eventId", async (req, res) => {
       return res.status(404).json({ error: "Schedule not found" });
     }
     if (schedule.user.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ error: "Forbidden" });
+      return res.status(403).json({ error: "Forbidden" });
     }
 
     // The eventId is a composite key: courseId-sectionId-day
     // We only need the sectionId part to remove it from the schedule.
-    const eventIdParts = eventId.split('-');
+    const eventIdParts = eventId.split("-");
     if (eventIdParts.length < 2) {
-        return res.status(400).json({ error: "Invalid eventId format" });
+      return res.status(400).json({ error: "Invalid eventId format" });
     }
     const sectionId = eventIdParts[1];
     if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-        return res.status(400).json({ error: "Invalid sectionId in eventId" });
+      return res.status(400).json({ error: "Invalid sectionId in eventId" });
     }
-    
+
     const initialLength = schedule.sections.length;
-    schedule.sections = schedule.sections.filter(s => s.section.toString() !== sectionId);
+    schedule.sections = schedule.sections.filter(
+      (s) => s.section.toString() !== sectionId,
+    );
 
     if (schedule.sections.length === initialLength) {
       return res.status(404).json({ error: "Section not found in schedule" });
@@ -304,111 +333,116 @@ router.delete("/:id/events/:eventId", async (req, res) => {
 
     await schedule.save();
     res.status(204).send();
-
   } catch (error) {
-      console.error("Failed to delete event:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+    console.error("Failed to delete event:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-
 // GET /api/schedules/:id/export
 router.get("/:id/export", async (req, res) => {
-    // This implementation seems fine and can be reused.
-    try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: "Invalid schedule ID" });
-        }
-
-        const schedule = await Schedule.findOne({ _id: req.params.id, user: req.user._id }).populate("sections.course");
-
-        if (!schedule) {
-            return res.status(404).json({ error: "Schedule not found" });
-        }
-
-        const events = [];
-        for (const item of schedule.sections) {
-            const course = item.course;
-            if (course) {
-                const section = course.sections.id(item.section);
-                if (section) {
-                    for (const event of section.events) {
-                        events.push({
-                            courseName: `${course.code} - ${course.title}`,
-                            day: event.day,
-                            startTime: event.startTime,
-                            endTime: event.endTime,
-                            professor: section.instructor,
-                            room: section.location,
-                        });
-                    }
-                }
-            }
-        }
-
-        if (events.length === 0) {
-            return res.status(400).json({ error: "Schedule has no events to export" });
-        }
-
-        const parseTime = (timeStr) => {
-            const [hours, minutes] = timeStr.split(":").map(Number);
-            return [hours, minutes];
-        };
-
-        const getPreviousOccurrence = (dayOfWeek) => {
-            const today = new Date();
-            const currentDay = today.getDay();
-            const targetDay = (dayOfWeek + 1) % 7; // Convert day index to Date.getDay() index (Sun=0)
-
-            let daysToSubtract = currentDay - targetDay;
-            if (daysToSubtract <= 0) {
-                daysToSubtract += 7;
-            }
-            if (daysToSubtract > 6) daysToSubtract -=7;
-
-
-            const prevDate = new Date();
-            prevDate.setDate(today.getDate() - daysToSubtract);
-            return [prevDate.getFullYear(), prevDate.getMonth() + 1, prevDate.getDate()];
-        };
-
-        const endDate = new Date();
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        const untilDateStr = endDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-        const icalDays = ["MO", "TU", "WE", "TH", "FR"];
-
-        const icsEvents = events.map((event) => {
-            const [year, month, day] = getPreviousOccurrence(event.day);
-            const [startHour, startMinute] = parseTime(event.startTime);
-            const [endHour, endMinute] = parseTime(event.endTime);
-
-            return {
-                start: [year, month, day, startHour, startMinute],
-                end: [year, month, day, endHour, endMinute],
-                title: event.courseName,
-                description: `Professor: ${event.professor}`,
-                location: event.room || "",
-                recurrenceRule: `FREQ=WEEKLY;BYDAY=${icalDays[event.day]};UNTIL=${untilDateStr}`,
-            };
-        });
-
-        const { error, value } = createEvents(icsEvents);
-
-        if (error) {
-            console.error("Error creating .ics file:", error);
-            return res.status(500).json({ error: "Failed to create .ics file" });
-        }
-
-        const filename = `${schedule.name.replace(/[^a-z0-9]/gi, "_")}.ics`;
-        res.setHeader("Content-Type", "text/calendar; charset=utf-8");
-        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-        res.send(value);
-
-    } catch (error) {
-        console.error("Export error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+  // This implementation seems fine and can be reused.
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: "Invalid schedule ID" });
     }
-});
 
+    const schedule = await Schedule.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    }).populate("sections.course");
+
+    if (!schedule) {
+      return res.status(404).json({ error: "Schedule not found" });
+    }
+
+    const events = [];
+    for (const item of schedule.sections) {
+      const course = item.course;
+      if (course) {
+        const section = course.sections.id(item.section);
+        if (section) {
+          for (const event of section.events) {
+            events.push({
+              courseName: `${course.code} - ${course.title}`,
+              day: event.day,
+              startTime: event.startTime,
+              endTime: event.endTime,
+              professor: section.instructor,
+              room: section.location,
+            });
+          }
+        }
+      }
+    }
+
+    if (events.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "Schedule has no events to export" });
+    }
+
+    const parseTime = (timeStr) => {
+      const [hours, minutes] = timeStr.split(":").map(Number);
+      return [hours, minutes];
+    };
+
+    const getPreviousOccurrence = (dayOfWeek) => {
+      const today = new Date();
+      const currentDay = today.getDay();
+      const targetDay = (dayOfWeek + 1) % 7; // Convert day index to Date.getDay() index (Sun=0)
+
+      let daysToSubtract = currentDay - targetDay;
+      if (daysToSubtract <= 0) {
+        daysToSubtract += 7;
+      }
+      if (daysToSubtract > 6) daysToSubtract -= 7;
+
+      const prevDate = new Date();
+      prevDate.setDate(today.getDate() - daysToSubtract);
+      return [
+        prevDate.getFullYear(),
+        prevDate.getMonth() + 1,
+        prevDate.getDate(),
+      ];
+    };
+
+    const endDate = new Date();
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    const untilDateStr =
+      endDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const icalDays = ["MO", "TU", "WE", "TH", "FR"];
+
+    const icsEvents = events.map((event) => {
+      const [year, month, day] = getPreviousOccurrence(event.day);
+      const [startHour, startMinute] = parseTime(event.startTime);
+      const [endHour, endMinute] = parseTime(event.endTime);
+
+      return {
+        start: [year, month, day, startHour, startMinute],
+        end: [year, month, day, endHour, endMinute],
+        title: event.courseName,
+        description: `Professor: ${event.professor}`,
+        location: event.room || "",
+        recurrenceRule: `FREQ=WEEKLY;BYDAY=${icalDays[event.day]};UNTIL=${untilDateStr}`,
+      };
+    });
+
+    const { error, value } = createEvents(icsEvents);
+
+    if (error) {
+      console.error("Error creating .ics file:", error);
+      return res.status(500).json({ error: "Failed to create .ics file" });
+    }
+
+    const filename = `${schedule.name.replace(/[^a-z0-9]/gi, "_")}.ics`;
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(value);
+  } catch (error) {
+    console.error("Export error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 export default router;

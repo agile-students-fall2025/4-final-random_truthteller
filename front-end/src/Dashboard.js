@@ -257,9 +257,7 @@ export default function Dashboard({ user }) {
                               {event.professor}
                             </div>
                           )}
-                          <div className="event-meta">
-                            {event.room || ""}
-                          </div>
+                          <div className="event-meta">{event.room || ""}</div>
                         </div>
                       </div>
                     );

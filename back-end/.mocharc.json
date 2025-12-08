@@ -1,0 +1,5 @@
+{
+  "recursive": true,
+  "timeout": 10000,
+  "file": ["./test/setup.js"]
+}
