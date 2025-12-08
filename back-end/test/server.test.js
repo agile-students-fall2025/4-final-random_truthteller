@@ -1,11 +1,62 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
 import app from "../server.js";
+import Course from "../models/Course.js";
+import Review from "../models/Review.js";
 
 const { expect } = chai;
 chai.use(chaiHttp);
 
 describe("Server", () => {
+  let testCourse;
+
+  before(async () => {
+    // Clean up existing test data
+    await Course.deleteMany({});
+    await Review.deleteMany({});
+
+    // Create test course
+    testCourse = await Course.create({
+      code: "CS 101",
+      title: "Intro to Computer Science",
+      credits: 4,
+      department: "Computer Science",
+      sections: [
+        {
+          number: "001",
+          instructor: "Dr. Test",
+          location: "Room 101",
+          events: [
+            { day: 0, startTime: "10:00", endTime: "11:00" },
+            { day: 2, startTime: "10:00", endTime: "11:00" },
+          ],
+        },
+      ],
+    });
+
+    // Create test course reviews
+    await Review.create({
+      type: "course",
+      course: "CS 101 - Intro to CS",
+      rating: 4,
+      reviewText: "Great introductory course!",
+    });
+
+    // Create test professor reviews
+    await Review.create({
+      type: "professor",
+      professor: "Dr. Ada Lovelace",
+      rating: 5,
+      reviewText: "Excellent professor!",
+    });
+  });
+
+  after(async () => {
+    // Clean up test data
+    await Course.deleteMany({});
+    await Review.deleteMany({});
+  });
+
   describe("GET /health", () => {
     it("should return server health status", (done) => {
       chai
@@ -24,11 +75,10 @@ describe("Server", () => {
     it("should return course details when course exists", (done) => {
       chai
         .request(app)
-        .get("/api/courses/1")
+        .get(`/api/courses/${testCourse._id}`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body).to.include({
-            id: 1,
             code: "CS 101",
             title: "Intro to Computer Science",
           });
@@ -40,7 +90,7 @@ describe("Server", () => {
     it("should return 404 when course does not exist", (done) => {
       chai
         .request(app)
-        .get("/api/courses/999")
+        .get("/api/courses/000000000000000000000000")
         .end((err, res) => {
           expect(res).to.have.status(404);
           expect(res.body).to.have.property("error", "Course not found");

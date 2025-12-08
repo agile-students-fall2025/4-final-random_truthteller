@@ -22,17 +22,24 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "email and password required" });
     // rules
     if (password.length < 8)
-      return res.status(400).json({ error: "password must be at least 8 characters" });
+      return res
+        .status(400)
+        .json({ error: "password must be at least 8 characters" });
 
     if (!/[A-Z]/.test(password))
-      return res.status(400).json({ error: "password must contain at least one uppercase letter" });
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one uppercase letter" });
 
     if (!/[0-9]/.test(password))
-      return res.status(400).json({ error: "password must contain at least one number" });
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one number" });
 
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
-      return res.status(400).json({ error: "password must contain at least one symbol" });
-
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one symbol" });
 
     // Check if email already exists
     const exists = await User.findOne({ email });
@@ -127,20 +134,27 @@ router.post("/change-password", requireAuth, async (req, res) => {
       return res
         .status(400)
         .json({ error: "currentPassword and newPassword are required" });
-    
-        //rules
+
+    //rules
     if (newPassword.length < 8)
-      return res.status(400).json({ error: "password must be at least 8 characters" });
+      return res
+        .status(400)
+        .json({ error: "password must be at least 8 characters" });
 
     if (!/[A-Z]/.test(newPassword))
-      return res.status(400).json({ error: "password must contain at least one uppercase letter" });
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one uppercase letter" });
 
     if (!/[0-9]/.test(newPassword))
-      return res.status(400).json({ error: "password must contain at least one number" });
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one number" });
 
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword))
-      return res.status(400).json({ error: "password must contain at least one symbol" });
-
+      return res
+        .status(400)
+        .json({ error: "password must contain at least one symbol" });
 
     const user = await User.findById(req.auth.userId);
     if (!user) return res.status(404).json({ error: "user not found" });

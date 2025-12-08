@@ -153,7 +153,8 @@ function CourseDetails() {
               <li key={s.number} className="section-item">
                 <div className="section-main">
                   <div>
-                    <strong>{s.number}</strong> &nbsp; {formatSectionDays(s)} {formatSectionTime(s)}
+                    <strong>{s.number}</strong> &nbsp; {formatSectionDays(s)}{" "}
+                    {formatSectionTime(s)}
                   </div>
                   <div>Location: {s.location || "TBA"}</div>
                   <div>Instructor: {s.instructor}</div>

@@ -31,7 +31,9 @@ async function migrate() {
     let totalSkipped = 0;
 
     for (const r of docs) {
-      const date = normalizeDate(r.takenOn || r.createdAt || r.updatedAt || r.date);
+      const date = normalizeDate(
+        r.takenOn || r.createdAt || r.updatedAt || r.date,
+      );
 
       // Create professor review object
       // professor-level review
@@ -50,12 +52,13 @@ async function migrate() {
           profExisting._id,
           {
             $set: {
-              rating: r.stars || Math.round(r.quality || 0) || profExisting.rating,
+              rating:
+                r.stars || Math.round(r.quality || 0) || profExisting.rating,
               source: "ratemyprofessors",
               sourceId: `${r._id}:prof`,
             },
           },
-          { new: true }
+          { new: true },
         );
         if (updated) totalUpserted++;
       } else {
@@ -88,12 +91,15 @@ async function migrate() {
             courseExisting._id,
             {
               $set: {
-                rating: r.stars || Math.round(r.quality || 0) || courseExisting.rating,
+                rating:
+                  r.stars ||
+                  Math.round(r.quality || 0) ||
+                  courseExisting.rating,
                 source: "ratemyprofessors",
                 sourceId: `${r._id}:course`,
               },
             },
-            { new: true }
+            { new: true },
           );
           if (updated) totalUpserted++;
         } else {

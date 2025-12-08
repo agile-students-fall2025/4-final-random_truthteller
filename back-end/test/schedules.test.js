@@ -1,8 +1,6 @@
 import chai from "chai";
 import chaiHttp from "chai-http";
 import app from "../server.js";
-import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 
 import User from "../models/User.js";
 import Course from "../models/Course.js";
@@ -12,15 +10,15 @@ const { expect } = chai;
 chai.use(chaiHttp);
 
 describe("Schedule API Endpoints", () => {
-  let mongoServer;
   let testUser;
   let testCourse;
   let testSection;
 
   before(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
+    // Clean up any existing data
+    await User.deleteMany({});
+    await Course.deleteMany({});
+    await Schedule.deleteMany({});
 
     testUser = new User({
       email: "test@example.com",
@@ -53,8 +51,10 @@ describe("Schedule API Endpoints", () => {
   });
 
   after(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    // Clean up test data
+    await User.deleteMany({});
+    await Course.deleteMany({});
+    await Schedule.deleteMany({});
   });
 
   afterEach(async () => {
@@ -120,8 +120,16 @@ describe("Schedule API Endpoints", () => {
         .request(app)
         .post(`/api/schedules/${schedule.id}/events?userId=${testUser._id}`)
         .send({
-          courseId: testCourse._id.toString(),
-          sectionId: testSection._id.toString(),
+          events: [
+            {
+              courseName: `${testCourse.code} - ${testCourse.title}`,
+              professor: testSection.instructor,
+              room: testSection.location,
+              day: testSection.events[0].day,
+              startTime: testSection.events[0].startTime,
+              endTime: testSection.events[0].endTime,
+            },
+          ],
         });
 
       const res = await chai
@@ -129,11 +137,11 @@ describe("Schedule API Endpoints", () => {
         .get(`/api/schedules/${schedule.id}/events?userId=${testUser._id}`);
 
       expect(res).to.have.status(200);
-      expect(res.body).to.be.an("array").with.lengthOf(2); 
+      expect(res.body).to.be.an("array").with.lengthOf(2);
       const event = res.body[0];
       expect(event).to.have.property(
         "courseName",
-        `${testCourse.code} ${testCourse.title}`
+        `${testCourse.code} - ${testCourse.title}`,
       );
       expect(event).to.have.property("professor", testSection.instructor);
       expect(event).to.have.property("room", testSection.location);
@@ -145,8 +153,16 @@ describe("Schedule API Endpoints", () => {
     it("should add a section to a schedule", async () => {
       const schedule = await createSchedule("Add Section Test");
       const payload = {
-        courseId: testCourse._id.toString(),
-        sectionId: testSection._id.toString(),
+        events: [
+          {
+            courseName: `${testCourse.code} - ${testCourse.title}`,
+            professor: testSection.instructor,
+            room: testSection.location,
+            day: testSection.events[0].day,
+            startTime: testSection.events[0].startTime,
+            endTime: testSection.events[0].endTime,
+          },
+        ],
       };
 
       const res = await chai
@@ -155,20 +171,19 @@ describe("Schedule API Endpoints", () => {
         .send(payload);
 
       expect(res).to.have.status(201);
-      expect(res.body).to.be.an("array").with.lengthOf(2);
 
       const updatedSchedule = await Schedule.findById(schedule.id);
       expect(updatedSchedule.sections).to.have.lengthOf(1);
       expect(updatedSchedule.sections[0].course.toString()).to.equal(
-        testCourse._id.toString()
+        testCourse._id.toString(),
       );
       expect(updatedSchedule.sections[0].section.toString()).to.equal(
-        testSection._id.toString()
+        testSection._id.toString(),
       );
     });
   });
 
-  describe("DELETE /api/schedules/:id/events/:sectionId", () => {
+  describe("DELETE /api/schedules/:id/events/:eventId", () => {
     it("should delete a section from a schedule", async () => {
       const schedule = await Schedule.create({
         name: "Delete Section Test",
@@ -176,10 +191,13 @@ describe("Schedule API Endpoints", () => {
         sections: [{ course: testCourse._id, section: testSection._id }],
       });
 
+      // The eventId format is: courseId-sectionId-day
+      const eventId = `${testCourse._id}-${testSection._id}-0`;
+
       const res = await chai
         .request(app)
         .delete(
-          `/api/schedules/${schedule._id}/events/${testSection._id}?userId=${testUser._id}`
+          `/api/schedules/${schedule._id}/events/${eventId}?userId=${testUser._id}`,
         );
 
       expect(res).to.have.status(204);

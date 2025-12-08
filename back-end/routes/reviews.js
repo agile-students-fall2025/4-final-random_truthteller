@@ -3,12 +3,13 @@ import { requireAuth } from "./auth.js";
 import Review from "../models/Review.js";
 import ProfessorReview from "../models/ProfessorReview.js";
 
-// Ensure API responses include source/sourceId when present
+// Ensure API responses include source/sourceId and id when present
 const serializeReview = (r) => {
   if (!r) return r;
   const obj = typeof r.toObject === "function" ? r.toObject() : r;
   return {
     ...obj,
+    id: obj.id || obj._id?.toString() || obj._id,
     source: obj.source || null,
     sourceId: obj.sourceId || null,
   };
@@ -90,8 +91,11 @@ router.get("/course/:name", async (req, res) => {
     // Case insensitive search with escaped regex
     const escapedName = escapeRegex(name);
     const reviews = await fetchReviewsWithPriority(
-      { type: "course", course: { $regex: new RegExp(`^${escapedName}$`, "i") } },
-      sort
+      {
+        type: "course",
+        course: { $regex: new RegExp(`^${escapedName}$`, "i") },
+      },
+      sort,
     );
     res.json(reviews.map(serializeReview));
   } catch (err) {
@@ -117,8 +121,11 @@ router.get("/professor/:name", async (req, res) => {
     const { sort } = req.query || {};
     const escapedName = escapeRegex(name);
     const reviews = await fetchReviewsWithPriority(
-      { type: "professor", professor: { $regex: new RegExp(`^${escapedName}$`, "i") } },
-      sort
+      {
+        type: "professor",
+        professor: { $regex: new RegExp(`^${escapedName}$`, "i") },
+      },
+      sort,
     );
     res.json(reviews.map(serializeReview));
   } catch (err) {
@@ -209,7 +216,8 @@ router.get("/rmp/course-stats/:code", async (req, res) => {
     // Parse wouldTakeAgain percentages (prefer numeric pct field, fallback to parsing string)
     const wouldTakeAgainPcts = reviews
       .map((r) => {
-        if (r.wouldTakeAgainPct != null && !isNaN(r.wouldTakeAgainPct)) return Number(r.wouldTakeAgainPct);
+        if (r.wouldTakeAgainPct != null && !isNaN(r.wouldTakeAgainPct))
+          return Number(r.wouldTakeAgainPct);
         if (!r.wouldTakeAgain) return null;
         const match = String(r.wouldTakeAgain).match(/(\d{1,3})/);
         return match ? parseInt(match[1], 10) : null;
@@ -244,7 +252,9 @@ router.get("/rmp/course-stats/:code", async (req, res) => {
     // Find most common grade
     let mostCommonGrade = null;
     if (Object.keys(gradeMap).length > 0) {
-      mostCommonGrade = Object.entries(gradeMap).sort((a, b) => b[1] - a[1])[0][0];
+      mostCommonGrade = Object.entries(gradeMap).sort(
+        (a, b) => b[1] - a[1],
+      )[0][0];
     }
 
     res.json({
