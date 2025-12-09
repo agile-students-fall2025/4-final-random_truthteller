@@ -122,8 +122,12 @@ export default function AdminDashboard() {
                   <strong>Flag Reason:</strong> {review.flagReason}
                 </div>
               )}
-              <div className="review-rating">Rating: {review.rating}/5</div>
-              <p className="review-text">{review.reviewText}</p>
+              <div className="review-content-wrapper">
+                <div className="review-text-content">
+                  <p className="review-text">{review.reviewText}</p>
+                </div>
+                <div className="review-rating">Rating: {review.rating}/5</div>
+              </div>
             </div>
           ))
         )}
