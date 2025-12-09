@@ -1,7 +1,7 @@
 .admin-dashboard {
   padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 1200px;
+  margin: 0;
   font-family: "Inter", sans-serif;
 }
 
@@ -70,6 +70,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
 }
 
 .review-card {
@@ -82,8 +83,8 @@
 }
 
 .review-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -105,13 +106,16 @@
   font-weight: 600;
   color: var(--color-text-primary);
   text-align: left;
+  flex: 1;
+  min-width: 200px;
 }
 
 .review-date {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .flag-icon {
@@ -137,9 +141,9 @@
 }
 
 .no-reviews {
-  text-align: center;
+  text-align: left;
   color: var(--color-text-secondary);
-  padding: 2rem;
+  padding: 2rem 0;
   font-size: 1rem;
 }
 
@@ -180,7 +184,7 @@
 
 .admin-loading,
 .admin-error {
-  text-align: center;
+  text-align: left;
   margin-top: 2rem;
   font-size: 1.2rem;
 }
@@ -214,22 +218,16 @@
   }
 
   .review-header {
-    grid-template-columns: auto 1fr;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.75rem;
   }
 
   .review-date {
-    grid-column: 1 / -1;
-    text-align: left;
-  }
-
-  .flag-icon {
-    grid-column: 1;
-    justify-self: start;
+    margin-left: 0;
   }
 
   .delete-button {
-    grid-column: 2;
-    justify-self: end;
+    align-self: flex-end;
   }
 }
