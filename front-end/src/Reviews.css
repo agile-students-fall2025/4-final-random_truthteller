@@ -3,16 +3,17 @@
   padding: 2rem;
   background-color: var(--bg);
   color: var(--fg);
+  max-width: 1200px;
+  margin: 0;
 }
 
 .reviews-page h1 {
-  text-align: center;
+  text-align: left;
   margin-bottom: 2rem;
 }
 
 .add-review-section {
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: flex-start;
 }
@@ -44,9 +45,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
 }
 
 .search-input {
@@ -78,11 +77,11 @@
 }
 
 .filter-popup {
-  max-width: 800px;
-  margin: 0 auto 2rem;
+  margin-bottom: 2rem;
   padding: 2rem;
   background: var(--color-white);
   border: 1px solid var(--color-border-input);
+  border-radius: 8px;
 }
 
 .filter-popup h3 {
@@ -125,15 +124,12 @@
 }
 
 .results-placeholder {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 2rem 0;
+  text-align: left;
 }
 
 .course-stats-card {
-  max-width: 800px;
-  margin: 0 auto 1.5rem;
+  margin-bottom: 1.5rem;
   padding: 1rem 1.25rem;
   background: var(--card-bg);
   border: 1px solid var(--color-border-input);
@@ -172,8 +168,7 @@
 }
 
 .reviews-list {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .review-card {
@@ -182,11 +177,12 @@
   padding: 1.5rem;
   margin-bottom: 1rem;
   color: var(--fg);
+  border-radius: 8px;
 }
 
 .review-header {
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -206,11 +202,13 @@
   margin: 0;
   font-size: 1.125rem;
   color: var(--color-text-primary);
-  text-align: center;
+  text-align: left;
+  flex: 1;
+  min-width: 200px;
 }
 
 .review-source {
-  text-align: center;
+  text-align: left;
 }
 
 .rmp-badge {
@@ -227,7 +225,9 @@
 .review-rating {
   font-size: 1.25rem;
   color: var(--color-text-primary);
-  text-align: right;
+  text-align: left;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .review-text {
@@ -409,9 +409,13 @@
   }
 
   .review-header {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.75rem;
-    text-align: left;
+  }
+
+  .review-rating {
+    margin-left: 0;
   }
 
   .add-review-section {
@@ -420,7 +424,7 @@
 
   .add-review-button {
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .modal-content {
