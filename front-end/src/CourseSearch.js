@@ -17,18 +17,31 @@ function CourseSearch() {
 
   //filter courses based on search
   useEffect(() => {
-    const loadCourses = async () => {
+    let cancelled = false;
+
+    const loadCourses = async (attempt = 1) => {
       try {
         const res = await fetch("/api/courses");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        setCourses(data);
-        setDisplayedCourses(data);
+        if (!cancelled) {
+          setCourses(data);
+          setDisplayedCourses(data);
+        }
       } catch (error) {
         console.error("Error fetching courses:", error);
+        // Retry once to handle a cold backend without forcing a manual refresh
+        if (!cancelled && attempt < 2) {
+          setTimeout(() => loadCourses(attempt + 1), 800);
+        }
       }
     };
 
     loadCourses();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
