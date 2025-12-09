@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRecentReviews, getFlaggedReviews, deleteReview } from "./api/reviews";
 import "./AdminDashboard.css";
@@ -10,11 +10,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadReviews();
-  }, [activeTab]);
-
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("authToken");
@@ -29,7 +25,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
 
   const handleDelete = async (type, id) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
