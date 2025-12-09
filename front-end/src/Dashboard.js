@@ -15,7 +15,8 @@ import "./Dashboard.css";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const START_HOUR = 8;
 const END_HOUR = 19;
-const SLOT_HEIGHT = 40; // pixels per 30-minute slot
+const SLOT_HEIGHT =
+  typeof window !== "undefined" && window.innerWidth <= 768 ? 28 : 40; // pixels per 30-minute slot
 
 function minutesToLabel(minutes) {
   const h = Math.floor(minutes / 60);
@@ -147,6 +148,11 @@ export default function Dashboard({ user }) {
     return { top: `${top}px`, height: `${height}px` };
   };
 
+  const getSectionIdFromEventId = (eventId) => {
+    const parts = (eventId || "").split("-");
+    return parts.length >= 2 ? parts[1] : null;
+  };
+
   const handleDeleteEvent = async (eventId) => {
     const activeScheduleId = scheduleId || currentSchedule?.id;
     if (!activeScheduleId) {
@@ -156,7 +162,11 @@ export default function Dashboard({ user }) {
     setEventBeingDeleted(eventId);
     try {
       await deleteEventFromSchedule(activeScheduleId, eventId);
-      setEvents((prev) => prev.filter((event) => event.id !== eventId));
+      const sectionId = getSectionIdFromEventId(eventId);
+      // Remove every session belonging to the deleted section so UI updates instantly
+      setEvents((prev) =>
+        prev.filter((event) => getSectionIdFromEventId(event.id) !== sectionId),
+      );
       try {
         const refreshedSchedule = await fetchScheduleById(activeScheduleId);
         setCurrentSchedule(refreshedSchedule || null);
