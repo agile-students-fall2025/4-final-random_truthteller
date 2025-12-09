@@ -1,6 +1,7 @@
 # ProfPick
 
-[![CI Pipeline](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml)
+[![Continuous Deployment](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml)
 
 Smarter course planning with in‑context professor ratings
 
