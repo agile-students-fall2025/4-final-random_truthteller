@@ -108,3 +108,12 @@ export const deleteReview = async (token, type, id) => {
   });
   return await handleResponse(response);
 };
+
+export const getFlaggedReviews = async (token) => {
+  const response = await fetch("/api/reviews/flagged", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return await handleResponse(response);
+};

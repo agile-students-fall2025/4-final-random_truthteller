@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRecentReviews, deleteReview } from "./api/reviews";
+import { getRecentReviews, getFlaggedReviews, deleteReview } from "./api/reviews";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("recent"); // "recent" or "flagged"
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     loadReviews();
-  }, []);
+  }, [activeTab]);
 
   const loadReviews = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("authToken");
-      const data = await getRecentReviews(token);
+      const data =
+        activeTab === "flagged"
+          ? await getFlaggedReviews(token)
+          : await getRecentReviews(token);
       setReviews(data);
     } catch (err) {
       console.error("Failed to load reviews", err);
@@ -41,8 +45,10 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <div className="admin-loading">Loading reviews...</div>;
-  if (error) return <div className="admin-error">{error}</div>;
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setError(null);
+  };
 
   return (
     <div className="admin-dashboard">
@@ -58,30 +64,66 @@ export default function AdminDashboard() {
         </button>
       </header>
 
+      <div className="tab-container">
+        <button
+          className={`tab-button ${activeTab === "recent" ? "active" : ""}`}
+          onClick={() => handleTabChange("recent")}
+        >
+          Recent Reviews
+        </button>
+        <button
+          className={`tab-button ${activeTab === "flagged" ? "active" : ""}`}
+          onClick={() => handleTabChange("flagged")}
+        >
+          Flagged Reviews
+        </button>
+      </div>
+
       <div className="reviews-list">
-        <h2>Recent Reviews</h2>
-        {reviews.length === 0 ? (
-          <p>No reviews found.</p>
+        {loading ? (
+          <div className="admin-loading">Loading reviews...</div>
+        ) : error ? (
+          <div className="admin-error">{error}</div>
+        ) : reviews.length === 0 ? (
+          <p className="no-reviews">
+            {activeTab === "flagged"
+              ? "No flagged reviews found."
+              : "No reviews found."}
+          </p>
         ) : (
           reviews.map((review) => (
             <div key={`${review.type}-${review.id}`} className="review-card">
               <div className="review-header">
                 <span className="review-type">
-                  {review.type === "course" ? "Course" : "Professor"}
+                  {review.type === "course" ? "COURSE" : "PROFESSOR"}
                 </span>
                 <span className="review-subject">
                   {review.course || review.professor}
                 </span>
-                <span className="review-date">{review.date}</span>
+                <span className="review-date">
+                  {new Date(review.date).toLocaleString()}
+                </span>
+                {activeTab === "flagged" && (
+                  <span className="flag-icon" title={`Flagged: ${review.flagReason}`}>
+                    🚩
+                  </span>
+                )}
+                <button
+                  className="delete-button"
+                  onClick={() => handleDelete(review.type, review.id)}
+                  title="Delete Review"
+                  aria-label="Delete Review"
+                >
+                  🗑️
+                </button>
               </div>
+              {activeTab === "flagged" && review.flagReason && (
+                <div className="flag-reason">
+                  <strong>Flag Reason:</strong> {review.flagReason}
+                </div>
+              )}
               <div className="review-rating">Rating: {review.rating}/5</div>
               <p className="review-text">{review.reviewText}</p>
-              <button
-                className="delete-button"
-                onClick={() => handleDelete(review.type, review.id)}
-              >
-                Delete Review
-              </button>
             </div>
           ))
         )}

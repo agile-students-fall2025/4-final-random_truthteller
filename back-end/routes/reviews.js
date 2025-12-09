@@ -2,6 +2,7 @@ import express from "express";
 import { requireAuth } from "./auth.js";
 import Review from "../models/Review.js";
 import ProfessorReview from "../models/ProfessorReview.js";
+import FlaggedReview from "../models/FlaggedReview.js";
 
 // Ensure API responses include source/sourceId and id when present
 const serializeReview = (r) => {
@@ -327,21 +328,49 @@ router.post("/professor", async (req, res) => {
 });
 
 // POST route to flag a review
-router.post("/flag", (req, res) => {
-  const { reviewId, reason, reviewType } = req.body;
+router.post("/flag", async (req, res) => {
+  try {
+    const { reviewId, reason, reviewType } = req.body;
 
-  if (!reviewId || !reason) {
-    return res.status(400).json({ error: "Missing required fields" });
+    if (!reviewId || !reason) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Find the review to get its details
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ error: "Review not found" });
+    }
+
+    // Check if already flagged
+    const existingFlag = await FlaggedReview.findOne({ reviewId });
+    if (existingFlag) {
+      return res.status(200).json({
+        message: "Review already flagged",
+        reviewId,
+      });
+    }
+
+    // Create flagged review entry with denormalized review data
+    await FlaggedReview.create({
+      reviewId,
+      reviewType: reviewType || review.type,
+      reason: reason.trim(),
+      course: review.course,
+      professor: review.professor,
+      rating: review.rating,
+      reviewText: review.reviewText,
+      date: review.date,
+    });
+
+    res.status(200).json({
+      message: "Review flagged successfully",
+      reviewId,
+    });
+  } catch (err) {
+    console.error("Error flagging review", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-
-  // For now, we just acknowledge the flag - actual removal will be handled later
-  // In a real app, you'd store this in a database
-  console.log(`Review ${reviewId} (${reviewType}) flagged: ${reason}`);
-
-  res.status(200).json({
-    message: "Review flagged successfully",
-    reviewId,
-  });
 });
 
 // ADMIN: Get recent reviews
@@ -360,6 +389,40 @@ router.get("/recent", requireAuth, async (req, res) => {
   }
 });
 
+// ADMIN: Get flagged reviews
+router.get("/flagged", requireAuth, async (req, res) => {
+  try {
+    if (req.auth.email !== "admin@nyu.edu") {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    // Sort by most recently flagged first
+    const flaggedReviews = await FlaggedReview.find().sort({ flaggedAt: -1 });
+
+    // Format response to match review structure using denormalized data
+    const formatted = flaggedReviews.map((flagged) => {
+      const review = flagged.toObject();
+      return {
+        id: review.reviewId?.toString() || review.reviewId,
+        type: review.reviewType,
+        course: review.course,
+        professor: review.professor,
+        rating: review.rating,
+        reviewText: review.reviewText,
+        date: review.date,
+        flaggedAt: review.flaggedAt,
+        flagReason: review.reason,
+        flaggedId: review.id, // ID of the flagged review entry
+      };
+    });
+
+    res.json(formatted);
+  } catch (err) {
+    console.error("Error fetching flagged reviews", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // ADMIN: Delete a review
 router.delete("/:type/:id", requireAuth, async (req, res) => {
   try {
@@ -369,12 +432,15 @@ router.delete("/:type/:id", requireAuth, async (req, res) => {
 
     const { id } = req.params;
 
-    // Use findByIdAndDelete
+    // Delete the review
     const deleted = await Review.findByIdAndDelete(id);
 
     if (!deleted) {
       return res.status(404).json({ error: "Review not found" });
     }
+
+    // Also delete any flagged entries for this review
+    await FlaggedReview.deleteMany({ reviewId: id });
 
     return res.json({ success: true });
   } catch (err) {
