@@ -15,7 +15,8 @@ import "./Dashboard.css";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const START_HOUR = 8;
 const END_HOUR = 19;
-const SLOT_HEIGHT = 40; // pixels per 30-minute slot
+const SLOT_HEIGHT =
+  typeof window !== "undefined" && window.innerWidth <= 768 ? 28 : 40; // pixels per 30-minute slot
 
 function minutesToLabel(minutes) {
   const h = Math.floor(minutes / 60);
