@@ -438,6 +438,46 @@
   .event-meta {
     font-size: 0.625rem;
   }
+
+  .footer-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.05rem;
+  }
+
+  .export-icon-button {
+    padding: 6px;
+  }
+
+  .time-slot,
+  .time-cell {
+    height: 28px;
+  }
+
+  /* Fit all five days on narrow screens without horizontal scroll */
+  .calendar-header-row,
+  .calendar-body {
+    grid-template-columns: 48px repeat(5, minmax(0, 1fr));
+  }
+
+  .time-header-cell,
+  .day-header-cell {
+    padding: 0.5rem;
+  }
+
+  .day-header-cell {
+    font-size: 0.7rem;
+  }
+
+  .time-slot {
+    padding: 2px 4px;
+  }
 }
 
 .validate-btn {
