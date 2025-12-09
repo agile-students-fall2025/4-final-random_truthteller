@@ -3,6 +3,8 @@
 [![Continuous Integration](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml)
 [![Continuous Deployment](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml)
 
+**Live Demo: http://104.236.246.203:3000/
+
 Smarter course planning with in‑context professor ratings
 
 ## Team Members
@@ -11,6 +13,7 @@ Smarter course planning with in‑context professor ratings
 - [Ethan Zheng](https://github.com/ethanzzheng)
 - [Evan Zuo](https://github.com/EvanZuo1108)
 - [Ogechi Okafor](https://github.com/ookafor410)
+- [Xiaomin Liu] (https://github.com/xl4624)
 
 ---
 
