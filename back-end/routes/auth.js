@@ -14,41 +14,46 @@ function generateToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
 }
 
+//PASSWORD VALIDATION(returns array of rule errors)
+function validatePassword(password) {
+  const errors = [];
+
+  if (password.length < 8)
+    errors.push("password must be at least 8 characters");
+
+  if (!/[A-Z]/.test(password))
+    errors.push("password must contain at least one uppercase letter");
+
+  if (!/[0-9]/.test(password))
+    errors.push("password must contain at least one number");
+
+  if (!/[!@#$%^&*(),.?\":{}|<>]/.test(password))
+    errors.push("password must contain at least one symbol");
+
+  return errors;
+}
+
 // REGISTER USER
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body || {};
     if (!email || !password)
       return res.status(400).json({ error: "email and password required" });
-    // rules
-    if (password.length < 8)
-      return res
-        .status(400)
-        .json({ error: "password must be at least 8 characters" });
 
-    if (!/[A-Z]/.test(password))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one uppercase letter" });
+    //validate password and return ALL rule failures
+    const errors = validatePassword(password);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
 
-    if (!/[0-9]/.test(password))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one number" });
-
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one symbol" });
-
-    // Check if email already exists
+    //check if email already exists
     const exists = await User.findOne({ email });
     if (exists)
       return res.status(409).json({ error: "email already registered" });
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    //use ObjectId for accounts and currentAccountId
+    // use ObjectId for accounts and currentAccountId
     const accountId = new mongoose.Types.ObjectId();
 
     const user = await User.create({
@@ -76,7 +81,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// LOGIN USER
+//LOGIN USER
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -101,7 +106,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// LOGOUT
+//LOGOUT
 router.post("/logout", (req, res) => {
   const auth = req.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
@@ -109,7 +114,7 @@ router.post("/logout", (req, res) => {
   res.status(204).send();
 });
 
-// AUTH MIDDLEWARE
+//auth middleware
 function requireAuth(req, res, next) {
   const auth = req.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
@@ -126,7 +131,7 @@ function requireAuth(req, res, next) {
   }
 }
 
-//CHANGE PASSWORD
+// CHANGE PASSWORD
 router.post("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
@@ -135,26 +140,11 @@ router.post("/change-password", requireAuth, async (req, res) => {
         .status(400)
         .json({ error: "currentPassword and newPassword are required" });
 
-    //rules
-    if (newPassword.length < 8)
-      return res
-        .status(400)
-        .json({ error: "password must be at least 8 characters" });
-
-    if (!/[A-Z]/.test(newPassword))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one uppercase letter" });
-
-    if (!/[0-9]/.test(newPassword))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one number" });
-
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(newPassword))
-      return res
-        .status(400)
-        .json({ error: "password must contain at least one symbol" });
+    // Validate new password and return ALL rule failures
+    const errors = validatePassword(newPassword);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
 
     const user = await User.findById(req.auth.userId);
     if (!user) return res.status(404).json({ error: "user not found" });

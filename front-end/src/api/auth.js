@@ -19,6 +19,10 @@ export async function register(email, password) {
   });
   if (!res.ok) {
     const txt = await res.json().catch(() => ({}));
+    if (txt.errors) {
+      //combine all rule errors into a single message
+      throw new Error(txt.errors.join("\n"));
+    }
     throw new Error(txt.error || "Register failed");
   }
   return res.json();
@@ -29,7 +33,6 @@ export async function logout(token) {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
-  // treat non-2xx as non-fatal for logout
   return res.status;
 }
 
@@ -44,6 +47,9 @@ export async function changePassword(token, currentPassword, newPassword) {
   });
   if (!res.ok) {
     const txt = await res.json().catch(() => ({}));
+    if (txt.errors) {
+      throw new Error(txt.errors.join("\n"));
+    }
     throw new Error(txt.error || "Failed to change password");
   }
   return res.json();
