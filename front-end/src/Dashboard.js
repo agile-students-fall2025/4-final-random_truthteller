@@ -195,6 +195,17 @@ export default function Dashboard({ user }) {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <header className="dashboard-header">
+          <div className="dashboard-header-actions">
+            <button
+              className="schedule-button"
+              type="button"
+              onClick={() => navigate("/schedules")}
+              title="Choose a different saved schedule"
+            >
+              {currentSchedule?.name || "New Schedule"}
+              <span className="schedule-dropdown-icon">▼</span>
+            </button>
+          </div>
           <h1 className="page-title">Weekly Planner</h1>
         </header>
 
@@ -279,65 +290,73 @@ export default function Dashboard({ user }) {
         </section>
 
         <div className="calendar-footer">
-          <div className="footer-schedule">
-            <button
-              className="schedule-button"
-              type="button"
-              onClick={() => navigate("/schedules")}
-              title="Choose a different saved schedule"
-            >
-              {currentSchedule?.name || "New Schedule"}
-              <span className="schedule-dropdown-icon">▼</span>
-            </button>
-          </div>
           <div className="footer-actions">
-            <button
-              className="icon-button settings-icon-button"
-              type="button"
-              aria-label="Settings"
-              title="Settings"
-              onClick={() => navigate("/settings")}
-            >
-              ⚙
-            </button>
-            <button
-              className="icon-button export-icon-button"
-              type="button"
-              onClick={handleExport}
-              title="Export schedule"
-              aria-label="Export schedule"
-            >
-              ⤓
-            </button>
-            <button
-              className="icon-button validate-icon-button"
-              type="button"
-              onClick={runValidation}
-              title="Validate schedule"
-              aria-label="Validate schedule"
-            >
-              ✓
-            </button>
-            <button
-              className="icon-button add-course-icon-button"
-              type="button"
-              onClick={() => navigate("/courses")}
-              title="Register for courses"
-              aria-label="Register for courses"
-            >
-              +
-            </button>
-            {user?.email === "admin@nyu.edu" && (
+            <div className="action-item">
               <button
-                className="icon-button admin-icon-button"
+                className="icon-button settings-icon-button"
                 type="button"
-                onClick={() => navigate("/admin")}
-                title="Admin Dashboard"
-                aria-label="Admin Dashboard"
-                style={{ backgroundColor: "#333", color: "white" }}
+                aria-label="Settings"
+                title="Settings"
+                onClick={() => navigate("/settings")}
               >
-                A
+                ⚙
               </button>
+              <span className="action-label">Settings</span>
+            </div>
+
+            <div className="action-item">
+              <button
+                className="icon-button export-icon-button"
+                type="button"
+                onClick={handleExport}
+                title="Export schedule"
+                aria-label="Export schedule"
+              >
+                ⤓
+              </button>
+              <span className="action-label">Export</span>
+            </div>
+
+            <div className="action-item">
+              <button
+                className="icon-button validate-icon-button"
+                type="button"
+                onClick={runValidation}
+                title="Validate schedule"
+                aria-label="Validate schedule"
+              >
+                ✓
+              </button>
+              <span className="action-label">Validate</span>
+            </div>
+
+            <div className="action-item">
+              <button
+                className="icon-button add-course-icon-button"
+                type="button"
+                onClick={() => navigate("/courses")}
+                title="Register for courses"
+                aria-label="Register for courses"
+              >
+                +
+              </button>
+              <span className="action-label">Register</span>
+            </div>
+
+            {user?.email === "admin@nyu.edu" && (
+              <div className="action-item">
+                <button
+                  className="icon-button admin-icon-button"
+                  type="button"
+                  onClick={() => navigate("/admin")}
+                  title="Admin Dashboard"
+                  aria-label="Admin Dashboard"
+                  style={{ backgroundColor: "#333", color: "white" }}
+                >
+                  A
+                </button>
+                <span className="action-label">Admin</span>
+              </div>
             )}
           </div>
         </div>

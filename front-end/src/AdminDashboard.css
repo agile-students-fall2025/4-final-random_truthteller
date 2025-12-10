@@ -7,10 +7,25 @@
 
 .admin-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  position: relative;
   margin-bottom: 2rem;
   gap: 1rem;
+}
+
+.admin-header-back {
+  position: static;
+}
+
+.admin-header-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-header-main h1 {
+  margin: 0;
 }
 
 .admin-header h1 {
