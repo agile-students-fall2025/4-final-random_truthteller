@@ -148,9 +148,9 @@ export default function Dashboard({ user }) {
     return { top: `${top}px`, height: `${height}px` };
   };
 
-  const getSectionIdFromEventId = (eventId) => {
+  const getCourseIdFromEventId = (eventId) => {
     const parts = (eventId || "").split("-");
-    return parts.length >= 2 ? parts[1] : null;
+    return parts.length >= 1 ? parts[0] : null;
   };
 
   const handleDeleteEvent = async (eventId) => {
@@ -162,10 +162,10 @@ export default function Dashboard({ user }) {
     setEventBeingDeleted(eventId);
     try {
       await deleteEventFromSchedule(activeScheduleId, eventId);
-      const sectionId = getSectionIdFromEventId(eventId);
-      // Remove every session belonging to the deleted section so UI updates instantly
+      const courseId = getCourseIdFromEventId(eventId);
+      // Remove every event belonging to the deleted course so UI updates instantly
       setEvents((prev) =>
-        prev.filter((event) => getSectionIdFromEventId(event.id) !== sectionId),
+        prev.filter((event) => getCourseIdFromEventId(event.id) !== courseId),
       );
       try {
         const refreshedSchedule = await fetchScheduleById(activeScheduleId);

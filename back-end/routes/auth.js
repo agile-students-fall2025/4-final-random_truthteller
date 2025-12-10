@@ -106,12 +106,10 @@ router.post("/login", async (req, res) => {
       });
 
     const user = await User.findOne({ email });
-    if (!user)
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok)
-      return res.status(401).json({ error: "Invalid credentials" });
+    if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
     const token = generateToken({ userId: user._id, email: user.email });
 
@@ -149,7 +147,6 @@ function requireAuth(req, res, next) {
   }
 }
 
-
 router.post("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
@@ -160,17 +157,14 @@ router.post("/change-password", requireAuth, async (req, res) => {
       });
 
     const errors = validatePassword(newPassword);
-    if (errors.length > 0)
-      return res.status(400).json({ errors });
+    if (errors.length > 0) return res.status(400).json({ errors });
 
     const user = await User.findById(req.auth.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const ok = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!ok)
-      return res
-        .status(401)
-        .json({ error: "Current password is incorrect" });
+      return res.status(401).json({ error: "Current password is incorrect" });
 
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     await user.save();

@@ -39,4 +39,3 @@ flaggedReviewSchema.set("toJSON", {
 });
 
 export default mongoose.model("FlaggedReview", flaggedReviewSchema);
-

@@ -84,7 +84,11 @@ function Login({ onLogin }) {
             <button type="submit" className="login-button">
               {isLogin ? "Sign In" : "Create Account"}
             </button>
-            {error && <div className="login-error" style={{ whiteSpace: "pre-line" }}>{error}</div>}
+            {error && (
+              <div className="login-error" style={{ whiteSpace: "pre-line" }}>
+                {error}
+              </div>
+            )}
           </form>
 
           <div className="login-footer">
