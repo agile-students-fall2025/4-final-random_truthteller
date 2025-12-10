@@ -4,11 +4,14 @@ export async function login(email, password) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
+
+  const txt = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const txt = await res.json().catch(() => ({}));
     throw new Error(txt.error || "Login failed");
   }
-  return res.json();
+
+  return txt;
 }
 
 export async function register(email, password) {
@@ -17,15 +20,17 @@ export async function register(email, password) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
+
+  const txt = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const txt = await res.json().catch(() => ({}));
     if (txt.errors) {
-      //combine all rule errors into a single message
       throw new Error(txt.errors.join("\n"));
     }
     throw new Error(txt.error || "Register failed");
   }
-  return res.json();
+
+  return txt;
 }
 
 export async function logout(token) {
@@ -33,6 +38,7 @@ export async function logout(token) {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
+
   return res.status;
 }
 
@@ -45,12 +51,15 @@ export async function changePassword(token, currentPassword, newPassword) {
     },
     body: JSON.stringify({ currentPassword, newPassword }),
   });
+
+  const txt = await res.json().catch(() => ({}));
+
   if (!res.ok) {
-    const txt = await res.json().catch(() => ({}));
     if (txt.errors) {
       throw new Error(txt.errors.join("\n"));
     }
     throw new Error(txt.error || "Failed to change password");
   }
-  return res.json();
+
+  return txt;
 }

@@ -124,3 +124,10 @@
     font-size: 0.85rem;
   }
 }
+
+.login-error {
+  color: red;               /* make text red */
+  margin-top: 10px;
+  white-space: pre-line;    /* preserves newline formatting */
+  font-size: 0.7rem;
+}
