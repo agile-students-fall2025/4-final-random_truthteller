@@ -14,15 +14,15 @@ function generateToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
 }
 
-// Allowed NYU domains
+//allowed NYU domains
 const NYU_REGEX = /^.+@(nyu\.edu|stern\.nyu\.edu)$/i;
 
-// Validate email domain
+//validate email domain
 function validateNYUEmail(email) {
   return NYU_REGEX.test(email);
 }
 
-// PASSWORD VALIDATION
+//password validation
 function validatePassword(password) {
   const errors = [];
 
@@ -41,7 +41,7 @@ function validatePassword(password) {
   return errors;
 }
 
-// REGISTER
+//REGISTER
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -92,7 +92,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// LOGIN
+//login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
@@ -125,7 +125,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// LOGOUT
 router.post("/logout", (req, res) => {
   const auth = req.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
@@ -133,7 +132,6 @@ router.post("/logout", (req, res) => {
   res.status(204).send();
 });
 
-// AUTH MIDDLEWARE
 function requireAuth(req, res, next) {
   const auth = req.get("authorization") || "";
   const token = auth.replace(/^Bearer\s+/i, "");
@@ -151,7 +149,7 @@ function requireAuth(req, res, next) {
   }
 }
 
-// CHANGE PASSWORD
+
 router.post("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};

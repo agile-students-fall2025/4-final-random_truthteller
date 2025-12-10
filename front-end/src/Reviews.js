@@ -275,7 +275,7 @@ function Reviews() {
           <div key={review.id} className="review-card">
             <div className="review-header">
               <div className="review-date">
-                <p>{review.date}</p>
+                <p>{review.date.slice(0, 10)}</p>
               </div>
               {(review.source === "ratemyprofessors" ||
                 (review.meta && review.meta.source === "ratemyprofessors")) && (
