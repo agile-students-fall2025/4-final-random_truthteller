@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getRecentReviews, getFlaggedReviews, deleteReview } from "./api/reviews";
+import {
+  getRecentReviews,
+  getFlaggedReviews,
+  deleteReview,
+} from "./api/reviews";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
@@ -104,7 +108,10 @@ export default function AdminDashboard() {
                   {new Date(review.date).toLocaleString()}
                 </span>
                 {activeTab === "flagged" && (
-                  <span className="flag-icon" title={`Flagged: ${review.flagReason}`}>
+                  <span
+                    className="flag-icon"
+                    title={`Flagged: ${review.flagReason}`}
+                  >
                     🚩
                   </span>
                 )}

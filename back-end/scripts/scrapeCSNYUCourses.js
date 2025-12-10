@@ -71,29 +71,53 @@ function parseMeetingTime(timeStr) {
     return [];
   }
 
-  let startHour = parseInt(startH, 10);
-  let endHour = parseInt(endH, 10);
+  const startHour12 = parseInt(startH, 10);
+  const endHour12 = parseInt(endH, 10);
   const startMin = parseInt(startM, 10);
   const endMin = parseInt(endM, 10);
-  const isPM = period.toUpperCase().startsWith("P");
+  const endIsPM = period.toUpperCase().startsWith("P");
 
-  // Convert 12-hour format to 24-hour format
-  if (isPM && startHour !== 12) {
-    startHour += 12;
+  // Convert end time from 12-hour to 24-hour format
+  // The AM/PM indicator applies to the END time
+  let endHour24 = endHour12;
+  if (endIsPM && endHour12 !== 12) {
+    endHour24 += 12;
   }
-  if (!isPM && startHour === 12) {
-    startHour = 0;
-  }
-
-  if (isPM && endHour !== 12) {
-    endHour += 12;
-  }
-  if (!isPM && endHour === 12) {
-    endHour = 0;
+  if (!endIsPM && endHour12 === 12) {
+    endHour24 = 0;
   }
 
-  const startTime = `${String(startHour).padStart(2, "0")}:${String(startMin).padStart(2, "0")}`;
-  const endTime = `${String(endHour).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
+  // Assume start is in the same period as end, convert to 24h
+  let startHour24 = startHour12;
+  if (endIsPM && startHour12 !== 12) {
+    startHour24 += 12;
+  }
+  if (!endIsPM && startHour12 === 12) {
+    startHour24 = 0;
+  }
+
+  // If start > end in 24h format, start must be in the earlier period
+  // e.g., "11:00-12:15PM": assuming PM → start=23, end=12 → 23 > 12 → start is actually AM (11)
+  const startMinutes = startHour24 * 60 + startMin;
+  const endMinutes = endHour24 * 60 + endMin;
+
+  if (startMinutes >= endMinutes) {
+    // Start is in the earlier period (AM if end is PM)
+    // Recalculate start without the PM offset
+    startHour24 = startHour12;
+    if (!endIsPM && startHour12 !== 12) {
+      // End is AM, so start must be PM (previous day scenario - unlikely for classes)
+      startHour24 += 12;
+    }
+    if (endIsPM && startHour12 === 12) {
+      // End is PM, start is 12 → 12 AM = 0 (midnight, unlikely)
+      startHour24 = 0;
+    }
+    // For the common case: end is PM, start stays as-is (AM)
+  }
+
+  const startTime = `${String(startHour24).padStart(2, "0")}:${String(startMin).padStart(2, "0")}`;
+  const endTime = `${String(endHour24).padStart(2, "0")}:${String(endMin).padStart(2, "0")}`;
 
   // Create one event per day (e.g., "TR" creates events for Tuesday and Thursday)
   return days.map((day) => ({

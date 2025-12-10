@@ -312,23 +312,24 @@ router.delete("/:id/events/:eventId", async (req, res) => {
     }
 
     // The eventId is a composite key: courseId-sectionId-day
-    // We only need the sectionId part to remove it from the schedule.
+    // We want to remove all sections associated with the course of this event.
     const eventIdParts = eventId.split("-");
     if (eventIdParts.length < 2) {
       return res.status(400).json({ error: "Invalid eventId format" });
     }
-    const sectionId = eventIdParts[1];
-    if (!mongoose.Types.ObjectId.isValid(sectionId)) {
-      return res.status(400).json({ error: "Invalid sectionId in eventId" });
+    const courseId = eventIdParts[0];
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ error: "Invalid courseId in eventId" });
     }
 
     const initialLength = schedule.sections.length;
+    // Remove all sections that belong to this course
     schedule.sections = schedule.sections.filter(
-      (s) => s.section.toString() !== sectionId,
+      (s) => s.course.toString() !== courseId,
     );
 
     if (schedule.sections.length === initialLength) {
-      return res.status(404).json({ error: "Section not found in schedule" });
+      return res.status(404).json({ error: "Course not found in schedule" });
     }
 
     await schedule.save();
