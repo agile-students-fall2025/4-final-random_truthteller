@@ -53,15 +53,20 @@ export default function AdminDashboard() {
   return (
     <div className="admin-dashboard">
       <header className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <button
-          className="back-button"
-          onClick={() => navigate("/dashboard")}
-          title="Back to Dashboard"
-          aria-label="Back to Dashboard"
-        >
-          ←
-        </button>
+        <div className="admin-header-main">
+          <div className="action-item admin-header-back">
+            <button
+              className="back-button"
+              onClick={() => navigate("/dashboard")}
+              title="Back to Dashboard"
+              aria-label="Back to Dashboard"
+            >
+              ←
+            </button>
+          </div>
+
+          <h1>Admin Dashboard</h1>
+        </div>
       </header>
 
       <div className="tab-container">
@@ -108,14 +113,17 @@ export default function AdminDashboard() {
                     🚩
                   </span>
                 )}
-                <button
-                  className="delete-button"
-                  onClick={() => handleDelete(review.type, review.id)}
-                  title="Delete Review"
-                  aria-label="Delete Review"
-                >
-                  🗑️
-                </button>
+                <div className="action-item">
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDelete(review.type, review.id)}
+                    title="Delete Review"
+                    aria-label="Delete Review"
+                  >
+                    🗑️
+                  </button>
+                  <span className="action-label">Delete</span>
+                </div>
               </div>
               {activeTab === "flagged" && review.flagReason && (
                 <div className="flag-reason">
