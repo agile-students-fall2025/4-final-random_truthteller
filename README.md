@@ -3,7 +3,7 @@
 [![Continuous Integration](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/ci.yml)
 [![Continuous Deployment](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml/badge.svg)](https://github.com/agile-students-fall2025/4-final-random_truthteller/actions/workflows/cd.yml)
 
-**Live Demo:** http://104.236.246.203:3000/
+**Live Demo:** http://157.245.219.54:3000/
 
 Smarter course planning with in‑context professor ratings
 
